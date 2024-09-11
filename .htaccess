@@ -1,14 +1,15 @@
-# exemple.com/
+# Lien racine (pas de /index.php)
 DirectoryIndex index.php
-# Redirect /pages/ to /x
+# Redirections différentes pages
 RewriteEngine On
-
+# /list.php -> /list
 RewriteCond %{THE_REQUEST} /pages/list\.php [NC]
 RewriteRule ^pages/list\.php$ /list [L,R=301]
+RewriteRule ^list$ /pages/list.php [L]
+# /form.php -> /form
 RewriteCond %{THE_REQUEST} /pages/form\.php [NC]
 RewriteRule ^pages/form\.php$ /form [L,R=301]
-# Rewrite /list to /pages/list.php internally
-RewriteRule ^list$ /pages/list.php [L]
+RewriteRule ^form$ /pages/form.php [L]
 # Time Zone
 SetEnv TZ Europe/Paris
 # Prevent viewing of .htaccess file
@@ -18,5 +19,5 @@ deny from all
 </Files>
 # Prevent directory listings
 Options All -Indexes
-# Error page
+# Pages d'erreurs
 ErrorDocument 403 "Désolé, vous n'avez pas le droit d'accéder à ce fichier"
