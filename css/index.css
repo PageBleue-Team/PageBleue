@@ -1,0 +1,12 @@
+/* Add a black background color to the top navigation */
+header {
+    background-color: #C7F8FB;
+    overflow: hidden;
+    border-radius: 0px 0px 20px 20px;
+  }
+.container {
+    background-color: #23d9e2;
+    overflow: hidden;
+    border-radius: 20px 20px 20px 20px;
+
+}
