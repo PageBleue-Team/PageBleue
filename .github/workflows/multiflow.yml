@@ -36,7 +36,7 @@ jobs:
         password: ${{ secrets.SFTP_PASSWORD }}
         server-dir: /www/
         protocol: ftps
-        port: 2022
+        port: ${{ secrets.SFTP_PORT }}
 
     - name: Restart Pterodactyl Server
       env:
