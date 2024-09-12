@@ -27,14 +27,14 @@ jobs:
           ${{ runner.os }}-php-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
-    - name: 📁 Deploy to SFTP
+    - name: 📁 Deploy to FTP
       uses: SamKirkland/FTP-Deploy-Action@4.3.3
       with:
         server: ${{ secrets.SFTP_SERVER }}
         username: ${{ secrets.SFTP_USERNAME }}
         password: ${{ secrets.SFTP_PASSWORD }}
         server-dir: /www/
-        protocol: ftps
+        protocol: ftp
         port: ${{ secrets.SFTP_PORT }}
 
     - name: 🔄️ Restart Pterodactyl Server
