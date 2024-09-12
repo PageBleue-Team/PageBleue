@@ -10,8 +10,10 @@
     },
     "authors": [
         {
-            "name": "CASTALDO Florian, FRANCOIS Samuel, BONARDO Benjamin"
+            "name": "Axtazer"
         }
     ],
-    "require": {}
+    "require": {
+        "phpunit/phpunit": "^9.5"
+    }
 }
