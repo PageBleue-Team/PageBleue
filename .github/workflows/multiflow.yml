@@ -27,15 +27,14 @@ jobs:
           ${{ runner.os }}-php-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
-    - name: 📁 Deploy to FTP
-      uses: SamKirkland/FTP-Deploy-Action@4.3.5
+    - name: 📁 Upload to Pterodactyl
+      uses: rexlManu/pterodactyl-upload-action@v2.4
       with:
-        server: ${{ secrets.SFTP_SERVER }}
-        username: ${{ secrets.SFTP_USERNAME }}
-        password: ${{ secrets.SFTP_PASSWORD }}
-        server-dir: /www/
-        protocol: ftp
-        port: ${{ secrets.SFTP_PORT }}
+        panel-host: ${{ secrets.PTERO_API_URL }}
+        api-key: ${{ secrets.PTERO_API_KEY }}
+        server-id: ${{ secrets.PTERO_SERVER_ID }}
+        source: [*],
+        target: "./www/"
 
     - name: 🔄️ Restart Pterodactyl Server
       env:
