@@ -1,0 +1,38 @@
+name: Deploy to Pterodactyl SFTP and Restart Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies and run tests
+      run: |
+        composer install --prefer-dist --no-progress --no-suggest
+        vendor/bin/phpunit
+
+    - name: Deploy to SFTP
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+      with:
+        server: ${{ secrets.SFTP_SERVER }}
+        username: ${{ secrets.SFTP_USERNAME }}
+        password: ${{ secrets.SFTP_PASSWORD }}
+        server-dir: /www/
+        protocol: sftp
+        port: ${{ secrets.SFTP_PORT }}  # Port SFTP standard de Pterodactyl
+
+    - name: Restart Pterodactyl Server
+      env:
+        PTERO_API_URL: ${{ secrets.PTERO_API_URL }}
+        PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+        SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+      run: |
+        curl -X POST \
+          ${{ secrets.PTERO_API_URL }}/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power \
+          -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{"signal": "restart"}'
