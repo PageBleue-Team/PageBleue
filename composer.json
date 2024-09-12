@@ -1,5 +1,17 @@
 {
-    "require": {
-        "monolog/monolog": "2.0.*"
-    }
+    "name": "axtazer/page-bleue",
+    "description": "Projet Scolaire",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Axtazer\\PageBleue\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "CASTALDO Florian, FRANCOIS Samuel, BONARDO Benjamin"
+        }
+    ],
+    "require": {}
 }
