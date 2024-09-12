@@ -13,7 +13,9 @@
             "name": "Axtazer"
         }
     ],
-    "require": {
-        "phpunit/phpunit": "^9.5"
-    }
+    "require": {}
+    {
+    "require-dev": {
+        "phpunit/phpunit": "^11"
+    },
 }
