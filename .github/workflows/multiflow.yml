@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Validate composer.json and composer.lock
+    - name: ✅ Validate composer.json and composer.lock
       run: composer validate --strict
     - name: Setup PHP 8.3.9
       uses: shivammathur/setup-php@v2
@@ -27,10 +27,7 @@ jobs:
           ${{ runner.os }}-php-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Deploy to SFTP
+    - name: 📁 Deploy to SFTP
       uses: SamKirkland/FTP-Deploy-Action@4.3.3
       with:
         server: ${{ secrets.SFTP_SERVER }}
@@ -40,7 +37,7 @@ jobs:
         protocol: ftps
         port: ${{ secrets.SFTP_PORT }}
 
-    - name: Restart Pterodactyl Server
+    - name: 🔄️ Restart Pterodactyl Server
       env:
         PTERO_API_URL: ${{ secrets.PTERO_API_URL }}
         PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
