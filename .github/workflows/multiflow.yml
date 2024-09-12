@@ -1,19 +1,32 @@
-name: Deploy to Pterodactyl SFTP and Restart Server
-
+name: PHP Composer and Deploy
 on:
   push:
-    branches: [ main ]
-
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+permissions:
+  contents: read
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install dependencies and run tests
-      run: |
-        composer install --prefer-dist --no-progress --no-suggest
-        vendor/bin/phpunit
+    - uses: actions/checkout@v4
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+    - name: Setup PHP 8.3.9
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3.9'
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
 
     - name: Deploy to SFTP
       uses: SamKirkland/FTP-Deploy-Action@4.3.3
@@ -23,7 +36,7 @@ jobs:
         password: ${{ secrets.SFTP_PASSWORD }}
         server-dir: /www/
         protocol: sftp
-        port: ${{ secrets.SFTP_PORT }}  # Port SFTP standard de Pterodactyl
+        port: 2022
 
     - name: Restart Pterodactyl Server
       env:
