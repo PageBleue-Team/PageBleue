@@ -26,9 +26,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
     - name: Install dependencies
-      run: |
-        composer install --prefer-dist --no-progress
-        git init
+      run: composer install --prefer-dist --no-progress
     - name: 📁 Upload to Pterodactyl
       uses: rexlManu/pterodactyl-upload-action@v2.4
       with:
