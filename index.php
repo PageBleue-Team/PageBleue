@@ -2,10 +2,10 @@
 $siteName = "Page Bleue";
 $siteDescription = "Bienvenue sur Page Bleue, un projet réalisé par trois lycéens de La Salle Avignon. Notre mission est de faciliter la recherche de Périodes de Formation en Milieu Professionnel (PFMP) tout en contribuant à l'obtention de notre baccalauréat.
 
-Page Bleue est une plateforme conçue pour mettre en relation les étudiants à la recherche de stages avec les meilleures entreprises de divers secteurs. Nous croyons au pouvoir de l'information et de la connectivité pour créer des opportunités uniques d'apprentissage et de développement professionnel.
+Page Bleue est une plateforme conçue pour mettre en relation les étudiants à la recherche de stages avec des entreprises pour le CIEL.
 
 Nos objectifs sont :
-1. Mettre en avant l'excellence des entreprises partenaires.
+1. Mettre en avant les entreprises qui connaissent La Salle.
 2. Faciliter les connexions entre les étudiants et les entreprises.
 
 Rejoignez-nous dans cette aventure pour façonner l'avenir de la formation professionnelle !";
@@ -203,12 +203,12 @@ try {
         <?php endif; ?>
 
         <div class="container mt-5" id="entreprises">
-            <h2 class="section-title">Entreprises Partenaires</h2>
+            <h2 class="section-title">Entreprises</h2>
             <div class="section-content">
                 <?php if (!$dbError && !empty($enterprises)): ?>
                     <!-- Le code du carousel reste inchangé -->
                 <?php else: ?>
-                    <p>Nous sommes désolés, les informations sur nos entreprises partenaires ne sont pas disponibles pour le moment. Veuillez réessayer ultérieurement.</p>
+                    <p>Nous sommes désolés, les informations sur les entreprises ne sont pas disponibles pour le moment. Veuillez réessayer ultérieurement.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -226,7 +226,7 @@ try {
             <div class="row align-items-center">
                 <div class="col-md-4">
                     <div class="footer-logo"><?php echo htmlspecialchars($siteName); ?></div>
-                    <div class="footer-tagline">Connecter l'excellence avec passion ❤️</div>
+                    <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
                 </div>
                 <div class="col-md-4 text-center">
                     <img src="chemin/vers/logo-la-salle-avignon.png" alt="Logo La Salle Avignon" class="la-salle-logo">
