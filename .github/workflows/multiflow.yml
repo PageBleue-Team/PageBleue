@@ -27,23 +27,18 @@ jobs:
           ${{ runner.os }}-php-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
-    - name: 📁 Upload to Pterodactyl
-      uses: rexlManu/pterodactyl-upload-action@v2.4
+    - name: 🚀 Deploy website on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        panel-host: ${{ secrets.PTERO_API_URL }}
-        api-key: ${{ secrets.PTERO_API_KEY }}
-        server-id: ${{ secrets.PTERO_SERVER_ID }}
-        source: "./*"
-        target: "./www/"
-
-    - name: 🔄️ Restart Pterodactyl Server
-      env:
-        PTERO_API_URL: ${{ secrets.PTERO_API_URL }}
-        PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
-        SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
-      run: |
-        curl -X POST \
-          ${{ secrets.PTERO_API_URL }}/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power \
-          -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d '{"signal": "restart"}'
+        server: ${{ secrets.ftp_server }}
+        username: ${{ secrets.ftp_user }}
+        password: ${{ secrets.ftp_password }}
