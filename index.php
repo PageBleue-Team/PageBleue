@@ -46,7 +46,7 @@ try {
     // Fonction de recherche d'entreprises
     function searchEnterprises($search) {
         global $db;
-        $query = "SELECT * FROM ENTREPRISE WHERE nom LIKE :search OR description LIKE :search LIMIT 10";
+        $query = "SELECT * FROM pb_entreprises WHERE nom LIKE :search OR description LIKE :search LIMIT 5";
         $stmt = $db->prepare($query);
         $stmt->execute(['search' => "%$search%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -60,7 +60,7 @@ try {
     }
 
     // Récupération des entreprises aléatoires pour la page d'accueil
-    $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 12";
+    $query = "SELECT * FROM pb_entreprises ORDER BY RAND() LIMIT 12";
     $stmt = $db->query($query);
     $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
