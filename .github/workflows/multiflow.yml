@@ -36,3 +36,4 @@ jobs:
         username: ${{ secrets.ftp_user }}
         password: ${{ secrets.ftp_password }}
         port: 21
+        exclude: "[**/.git*/**, **/node_modules/**, **/build/, .README.MD, .gitignore]"
