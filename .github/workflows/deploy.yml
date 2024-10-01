@@ -1,9 +1,9 @@
 on:
     workflow_run:
-      workflows: [Checkup]
+      workflows: [❓ Checkup]
       types:
         - completed
-name: 🚀 Deploy website on push
+name: 🚀 Deployement
 jobs:
     web-deploy: 
         name: 🎉 Déployement Site
