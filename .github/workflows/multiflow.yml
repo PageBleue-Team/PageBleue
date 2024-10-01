@@ -31,6 +31,7 @@ jobs:
   web-deploy: 
         name: 🎉 Déployement Site
         needs: build
+        if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
         - name: 🚚 Copy du code
