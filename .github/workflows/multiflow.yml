@@ -28,14 +28,8 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
     - name: 🚀 Deploy website on push
-jobs:
-  web-deploy:
-    name: 🎉 Deploy
-    runs-on: ubuntu-latest
-    steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v4
-    
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
