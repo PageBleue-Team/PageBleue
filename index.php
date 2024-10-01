@@ -1,4 +1,9 @@
 <?php
+require 'vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 session_start();
 
 // Configuration du site
@@ -28,11 +33,11 @@ if (isset($_SESSION['admin']) && $_SESSION['admin']) {
 $dbError = false;
 $errorMessage = "";
 
-// Utilisation des secrets GitHub pour la connexion à la base de données
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbUser = getenv('DB_USER') ?: 'username';
-$dbPass = getenv('DB_PASS') ?: 'password';
-$dbName = getenv('DB_NAME') ?: 'database_name';
+// Utilisation des variables d'environnement pour la connexion à la base de données
+$dbHost = $_ENV['DB_HOST'];
+$dbUser = $_ENV['DB_USER'];
+$dbPass = $_ENV['DB_PASS'];
+$dbName = $_ENV['DB_NAME'];
 
 try {
     $db = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
@@ -55,7 +60,7 @@ try {
     }
 
     // Récupération des entreprises aléatoires pour la page d'accueil
-    $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 9";
+    $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 12";
     $stmt = $db->query($query);
     $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -65,6 +70,20 @@ try {
     $enterprises = [];
     $searchResults = [];
 }
+
+// Témoignages
+$temoignages = [
+    ["nom" => "Alice Dupont", "texte" => "Page Bleue m'a permis de trouver le stage parfait pour ma formation. Je recommande vivement !"],
+    ["nom" => "Thomas Martin", "texte" => "Grâce à Page Bleue, j'ai découvert des entreprises que je ne connaissais pas. C'est un outil précieux pour les étudiants."],
+    ["nom" => "Sophie Leroy", "texte" => "L'interface est intuitive et les informations sur les entreprises sont très utiles. Merci Page Bleue !"]
+];
+
+// Services
+$services = [
+    ["titre" => "Recherche d'Entreprises", "description" => "Trouvez facilement des entreprises correspondant à vos critères de stage."],
+    ["titre" => "Évaluations et Avis", "description" => "Consultez les avis d'autres étudiants pour faire le meilleur choix."],
+    ["titre" => "Mise en Relation", "description" => "Entrez en contact avec les entreprises directement via notre plateforme."]
+];
 ?>
 <!DOCTYPE html>
 <html lang="FR">
