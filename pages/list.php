@@ -1,41 +1,121 @@
+<?php
+// Initialize a variable for error message
+$error_message = '';
+
+try {
+    // Load environment variables and database connection
+    require_once '../vendor/autoload.php'; // Assuming you're using vlucas/phpdotenv
+
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+    
+    // Database connection
+    $host = $_ENV['DB_HOST'];
+    $dbname = $_ENV['DB_NAME'];
+    $username = $_ENV['DB_USER'];
+    $password = $_ENV['DB_PASSWORD'];
+
+    // Establish database connection
+    $conn = new mysqli($host, $username, $password, $dbname);
+
+    // Check connection
+    if ($conn->connect_error) {
+        throw new Exception("Échec de la connexion: " . $conn->connect_error);
+    }
+
+    // Pagination logic (you can include the previous logic here)
+    $limit = 10; // Number of companies per page
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $limit;
+
+    // Count total companies
+    $sql_count = "SELECT COUNT(*) AS total FROM ENTREPRISE";
+    $result_count = $conn->query($sql_count);
+    $total_rows = $result_count->fetch_assoc()['total'];
+
+    // Total pages
+    $total_pages = ceil($total_rows / $limit);
+
+    // Fetch companies for current page
+    $sql = "SELECT id, nom, adresse, activite, secteurs, site_web 
+            FROM ENTREPRISE 
+            LIMIT $limit OFFSET $offset";
+    $result = $conn->query($sql);
+
+} catch (Exception $e) {
+    // Capture any exception and set the error message
+    $error_message = $e->getMessage();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta chatset="UFT-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- Description site -->
-        <meta name="description" content="EDIT MOI !">
-        <!-- Auteurs -->
-        <meta name="author" content="Florian Castaldo, Samuel François et Benjamin Bonardo">
-        <!-- Nom sur Navigateur -->
-        <title>Page Bleue - Accueil</title>
-        <!-- Déinit le fichier CSS -->
-        <link rel="stylesheet" href="css/<?php echo(pathinfo(__FILE__)['filename']); ?>.css">
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des entreprises</title>
+    <link rel="stylesheet" href="style.css"> <!-- Add your CSS file here -->
+    <style>
+        /* Red-bordered error message box */
+        .error-box {
+            border: 2px solid red;
+            background-color: #fdd;
+            color: #900;
+            padding: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des entreprises</h1>
 
-    </head>
-    <!-- Nav Bar -->
-    <header class="p-3 mb-3 border-bottom">
-    <div class="container">
-      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
-        </a>
+    <?php if (!empty($error_message)): ?>
+        <!-- Display the error message in a red-bordered box -->
+        <div class="error-box">
+            <p>Une erreur s'est produite: <?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?></p>
+        </div>
+    <?php else: ?>
+        <!-- Display the companies -->
+        <?php if ($result->num_rows > 0): ?>
+            <ul>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <li>
+                        <strong><?php echo htmlspecialchars($row['nom'], ENT_QUOTES, 'UTF-8'); ?></strong><br>
+                        Activité: <?php echo htmlspecialchars($row['activite'], ENT_QUOTES, 'UTF-8'); ?><br>
+                        Secteurs: <?php echo htmlspecialchars($row['secteurs'], ENT_QUOTES, 'UTF-8'); ?><br>
+                        Adresse: <?php echo htmlspecialchars($row['adresse'], ENT_QUOTES, 'UTF-8'); ?><br>
+                        Site web: <a href="<?php echo htmlspecialchars($row['site_web'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank"><?php echo htmlspecialchars($row['site_web'], ENT_QUOTES, 'UTF-8'); ?></a>
+                    </li>
+                <?php endwhile; ?>
+            </ul>
+        <?php else: ?>
+            <p>Aucune entreprise trouvée.</p>
+        <?php endif; ?>
+        
+        <!-- Pagination links -->
+        <div class="pagination">
+            <?php if ($page > 1): ?>
+                <a href="?page=<?php echo $page - 1; ?>">&laquo; Page précédente</a>
+            <?php endif; ?>
 
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li><a href="/" class="nav-link px-2 active">Accueil</a></li>
-          <li><a href="#" class="nav-link px-2 link-body-emphasis">Entreprises</a></li>
-          <li><a href="/form" class="nav-link px-2 link-body-emphasis">Formulaire</a></li>
-        </ul>
-<!-- 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-          <input type="search" class="form-control" placeholder="Recherche..." aria-label="Recherche">
-        </form> -->
-    </header>
-    <body>
-        <?php
-        echo ("Entreprises");
-        ?>
-    </body>
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <a href="?page=<?php echo $i; ?>" <?php if ($i == $page) echo 'class="active"'; ?>>
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <a href="?page=<?php echo $page + 1; ?>">Page suivante &raquo;</a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+</body>
 </html>
+
+<?php
+// Close the connection if it's established
+if (isset($conn)) {
+    $conn->close();
+}
+?>
