@@ -3,8 +3,6 @@ require 'vendor/autoload.php';
 require_once 'widgets/navbar.php';
 require_once 'widgets/footer.php';
 
-var_dump($navLinks); 
-
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
