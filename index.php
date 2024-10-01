@@ -1,4 +1,9 @@
 <?php
+require 'vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 session_start();
 
 // Configuration du site
@@ -28,11 +33,11 @@ if (isset($_SESSION['admin']) && $_SESSION['admin']) {
 $dbError = false;
 $errorMessage = "";
 
-// Utilisation des secrets GitHub pour la connexion à la base de données
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbUser = getenv('DB_USER') ?: 'username';
-$dbPass = getenv('DB_PASS') ?: 'password';
-$dbName = getenv('DB_NAME') ?: 'database_name';
+// Utilisation des variables d'environnement pour la connexion à la base de données
+$dbHost = $_ENV['DB_HOST'];
+$dbUser = $_ENV['DB_USER'];
+$dbPass = $_ENV['DB_PASS'];
+$dbName = $_ENV['DB_NAME'];
 
 try {
     $db = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
@@ -55,7 +60,7 @@ try {
     }
 
     // Récupération des entreprises aléatoires pour la page d'accueil
-    $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 9";
+    $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 12";
     $stmt = $db->query($query);
     $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
