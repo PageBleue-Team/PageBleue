@@ -1,5 +1,9 @@
 <?php
 require 'vendor/autoload.php';
+require_once 'widgets/navbar.php';
+require_once 'widgets/footer.php';
+
+var_dump($navLinks); 
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
@@ -7,6 +11,7 @@ $dotenv->load();
 session_start();
 
 // Configuration du site
+$siteName = $_ENV['WEBSITE'];
 $siteDescription = "Bienvenue sur Page Bleue, un projet réalisé par trois lycéens de La Salle Avignon. Notre mission est de faciliter la recherche de Périodes de Formation en Milieu Professionnel (PFMP) tout en contribuant à l'obtention de notre baccalauréat.
 
 Page Bleue est une plateforme conçue pour mettre en relation les étudiants à la recherche de stages avec des entreprises pour le CIEL.
@@ -16,9 +21,6 @@ Nos objectifs sont :
 2. Faciliter les connexions entre les étudiants et les entreprises.
 
 Rejoignez-nous dans cette aventure pour façonner l'avenir de la formation professionnelle !";
-
-// Add the navbar
-include 'widgets/navbar.php';
 
 $dbError = false;
 $errorMessage = "";
@@ -36,30 +38,22 @@ try {
     // Fonction de recherche d'entreprises
     function searchEnterprises($search) {
         global $db;
-        $query = "SELECT * FROM ENTREPRISE WHERE nom LIKE :search OR description LIKE :search LIMIT 10";
+        $query = "SELECT * FROM ENTREPRISE WHERE nom LIKE :search OR description LIKE :search LIMIT 5";
         $stmt = $db->prepare($query);
         $stmt->execute(['search' => "%$search%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    // Traitement de la recherche
-    $searchResults = [];
-    if (isset($_GET['search'])) {
-        $search = $_GET['search'];
-        $searchResults = searchEnterprises($search);
+        // Récupération des entreprises aléatoires pour la page d'accueil
+        $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 12";
+        $stmt = $db->query($query);
+        $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    } catch (PDOException $e) {
+        $dbError = true;
+        $errorMessage = "Erreur de connexion à la base de données : " . $e->getMessage();
+        $enterprises = [];
+        $searchResults = [];
     }
-
-    // Récupération des entreprises aléatoires pour la page d'accueil
-    $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 12";
-    $stmt = $db->query($query);
-    $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    $dbError = true;
-    $errorMessage = "Erreur de connexion à la base de données : " . $e->getMessage();
-    $enterprises = [];
-    $searchResults = [];
-}
 ?>
 <!DOCTYPE html>
 <html lang="FR">
@@ -106,21 +100,6 @@ try {
             margin-left: 10%;
             margin-right: 10%;
         }
-        footer {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 20px 0;
-            width: 100%;
-            margin-top: 20px; /* Ajoutez une marge en haut si nécessaire */
-        }
-        .footer-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .footer-tagline {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
         .error-banner {
             background-color: #dc3545;
             color: white;
@@ -152,48 +131,10 @@ try {
                 transform: translate(-50%, -50%) rotate(360deg) scale(0.5);
             }
         }
-        .la-salle-logo {
-            max-height: 50px;
-            margin-right: 15px;
-        }
-        .search-results {
-            position: absolute;
-            z-index: 1000;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .search-result-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-        .search-container {
-            position: relative;
-            width: 300px; /* Augmentez cette valeur pour agrandir le champ */
-            z-index: 1000; /* Assurez-vous que c'est au-dessus des autres éléments */
-        }
-        .search-input {
-            padding-right: 40px;
-            width: 100%;
-            height: 40px; /* Ajustez la hauteur si nécessaire */
-        }
-        .search-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-            cursor: pointer;
-            pointer-events: none; /* Permet de cliquer à travers l'icône */
-        }
     </style>
 </head>
 <body>
+    <?php renderNavbar($siteName); ?>
     <div class="content" style="padding-top: 70px;">
         <?php if ($dbError): ?>
         <div class="container mt-3">
@@ -233,9 +174,14 @@ try {
                                     <div class="card">
                                         <img src="<?php echo htmlspecialchars($enterprise['logo_url']); ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                                         <div class="card-body">
-                                            <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
-                                            <p class="card-text"><?php echo htmlspecialchars(substr($enterprise['description'], 0, 100)) . '...'; ?></p>
-                                            <a href="#" class="btn btn-primary">En savoir plus</a>
+                                        <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
+                                        <p class="card-text">
+                                            <?php
+                                            $description = isset($enterprise['description']) ? $enterprise['description'] : '';
+                                            echo htmlspecialchars(substr($description, 0, 100)) . (strlen($description) > 100 ? '...' : '...');
+                                            ?>
+                                        </p>
+                                        <a href="#" class="btn btn-primary">En savoir plus</a>
                                         </div>
                                     </div>
                                 </div>
@@ -256,26 +202,7 @@ try {
         <?php endif; ?>
     </div>
 
-    <footer>
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <div class="footer-logo"><?php echo htmlspecialchars($siteName); ?></div>
-                    <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <img src="<?php echo htmlspecialchars(getenv('LASALLE_LOGO_URL') ?: 'chemin/vers/logo-par-defaut.png'); ?>" alt="Logo La Salle Avignon" class="la-salle-logo">
-                </div>
-                <div class="col-md-4 text-end">
-                    <ul class="list-unstyled">
-                        <?php foreach ($navLinks as $name => $link): ?>
-                            <li><a href="<?php echo htmlspecialchars($link); ?>" class="text-white"><?php echo htmlspecialchars($name); ?></a></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <?php renderFooter($siteName, $navLinks); ?>
 
     <div class="background-animation">
         <?php for ($i = 0; $i < 15; $i++): ?>
