@@ -47,6 +47,7 @@ jobs:
               **/.git*/**
               **/node_modules/**
               **/build/
-              README.md
+              /README.md
               .gitignore
               .htaccess
+              .env.exemple
