@@ -34,9 +34,19 @@ jobs:
         if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
-        - name: 🚚 Copy du code
+        - name: 🚚 Check du code
           uses: actions/checkout@v4
-        - name: 📂 Syncronisation fichiers
+        - name: 🚚 Prépa du code
+          id: composer-cache
+          uses: actions/cache@v4
+          with:
+            path: vendor
+            key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+            restore-keys: |
+              ${{ runner.os }}-php-
+        - name: 📂 Install dependencies
+          run: composer install --prefer-dist --no-progress
+        - name: 🔄 Syncronisation fichiers
           uses: SamKirkland/FTP-Deploy-Action@v4.3.5
           with:
             server: ${{ secrets.ftp_server }}
