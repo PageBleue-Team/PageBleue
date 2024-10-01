@@ -70,20 +70,6 @@ try {
     $enterprises = [];
     $searchResults = [];
 }
-
-// Témoignages
-$temoignages = [
-    ["nom" => "Alice Dupont", "texte" => "Page Bleue m'a permis de trouver le stage parfait pour ma formation. Je recommande vivement !"],
-    ["nom" => "Thomas Martin", "texte" => "Grâce à Page Bleue, j'ai découvert des entreprises que je ne connaissais pas. C'est un outil précieux pour les étudiants."],
-    ["nom" => "Sophie Leroy", "texte" => "L'interface est intuitive et les informations sur les entreprises sont très utiles. Merci Page Bleue !"]
-];
-
-// Services
-$services = [
-    ["titre" => "Recherche d'Entreprises", "description" => "Trouvez facilement des entreprises correspondant à vos critères de stage."],
-    ["titre" => "Évaluations et Avis", "description" => "Consultez les avis d'autres étudiants pour faire le meilleur choix."],
-    ["titre" => "Mise en Relation", "description" => "Entrez en contact avec les entreprises directement via notre plateforme."]
-];
 ?>
 <!DOCTYPE html>
 <html lang="FR">
