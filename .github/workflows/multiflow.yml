@@ -27,8 +27,10 @@ jobs:
           ${{ runner.os }}-php-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
+      
   web-deploy: 
         name: 🎉 Déployement Site
+        needs: build
         runs-on: ubuntu-latest
         steps:
         - name: 🚚 Copy du code
