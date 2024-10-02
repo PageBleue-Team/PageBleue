@@ -1,6 +1,7 @@
 <?php
 require 'vendor/autoload.php';
 require_once 'widgets/navbar.php';
+$navLinks = getNavLinks();
 require_once 'widgets/footer.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
