@@ -201,7 +201,7 @@ try {
         <?php endif; ?>
     </div>
 
-    <?php renderFooter($siteName, $navLinks); ?>
+    <?php renderFooter($siteName, $navLinks, $logoURL); ?>
 
     <div class="background-animation">
         <?php for ($i = 0; $i < 15; $i++): ?>
