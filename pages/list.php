@@ -179,7 +179,7 @@ if ($showEnterprise) {
         <?php endif; ?>
     </div>
 
-    <?php renderFooter($siteName, $navLinks); ?>
+    <?php renderFooter($siteName, $navLinks, $logoURL); ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

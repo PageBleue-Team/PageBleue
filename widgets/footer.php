@@ -1,11 +1,10 @@
 <?php
 require_once __DIR__ . '/../config.php';
 $siteName = $_ENV['WEBSITE'];
-$LogoURL = $_ENV['LASALLE_LOGO_URL'];
+$logoURL = $_ENV['LASALLE_LOGO_URL'];
 
 require_once 'navbar.php';
-function renderFooter($siteName, $navLinks) {
-    global $navLinks;
+function renderFooter($siteName, $navLinks, $logoURL) {
     
     echo '
     <style>
@@ -27,6 +26,9 @@ function renderFooter($siteName, $navLinks) {
         .la-salle-logo {
             max-height: 50px;
             margin-right: 15px;
+            width: 100%;
+            max-height: 100px;
+            object-fit: contain;
         }
     </style>
     
@@ -38,7 +40,7 @@ function renderFooter($siteName, $navLinks) {
                     <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
                 </div>
                 <div class="col-md-4 text-center">
-                    <img src="' . htmlspecialchars($LogoURL) . '" alt="Logo La Salle Avignon" class="la-salle-logo">
+                    <img src="' . htmlspecialchars($logoURL) . '" alt="Logo La Salle Avignon" class="la-salle-logo">
                 </div>
                 <div class="col-md-4 text-end">
                     <ul class="list-unstyled">
