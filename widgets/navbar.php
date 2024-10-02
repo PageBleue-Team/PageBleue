@@ -1,7 +1,8 @@
 <?php
+
 $siteName = $_ENV['WEBSITE'] ?? 'Default Site Name';
 
-function renderNavbar($siteName) {
+function getNavLinks() {
     $navLinks = [
         "Accueil" => "/#",
         "Entreprises" => "/list",
@@ -11,8 +12,14 @@ function renderNavbar($siteName) {
 
     // Ajout du lien Admin si l'utilisateur est connecté en tant qu'admin
     if (isset($_SESSION['admin']) && $_SESSION['admin']) {
-        $navLinks["Admin"] = "admin.php";
+        $navLinks["Admin"] = "/panel";
     }
+
+    return $navLinks;
+}
+
+function renderNavbar($siteName) {
+    $navLinks = getNavLinks();
 
     // Détection automatique de la page active
     $currentPage = $_SERVER['REQUEST_URI'];
@@ -28,6 +35,7 @@ function renderNavbar($siteName) {
     // Styles spécifiques à la navbar
     echo '
     <style>
+    
         :root {
             --primary-blue: #007bff;
         }
@@ -90,7 +98,7 @@ function renderNavbar($siteName) {
     // Structure HTML de la navbar
     echo '<nav class="navbar navbar-expand-lg navbar-light fixed-top">';
     echo '<div class="container">';
-    echo '<a class="navbar-brand" href="#">' . htmlspecialchars($siteName) . '</a>';
+    echo '<a class="navbar-brand" href="/">' . htmlspecialchars($siteName) . '</a>';
     echo '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">';
     echo '<span class="navbar-toggler-icon"></span>';
     echo '</button>';
@@ -152,7 +160,7 @@ function renderNavbar($siteName) {
         function performSearch() {
             const searchTerm = searchInput.value;
             if (searchTerm.length > 2) {
-                window.location.href = `index.php?search=${encodeURIComponent(searchTerm)}`;
+                window.location.href = `/?search=${encodeURIComponent(searchTerm)}`;
             }
         }
     });
