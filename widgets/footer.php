@@ -1,8 +1,9 @@
 <?php
-$siteName = $_ENV['WEBSITE'] ?? 'Default Site Name';
+require_once __DIR__ . '/../config.php';
+$siteName = $_ENV['WEBSITE'];
 
 require_once 'navbar.php';
-function renderFooter($siteName) {
+function renderFooter($siteName, $navLinks) {
     global $navLinks;
     
     echo '
@@ -42,15 +43,15 @@ function renderFooter($siteName) {
                     <ul class="list-unstyled">
     ';
     
-    // Check if $navLinks is defined and is an array
-    if (isset($navLinks) && is_array($navLinks) && count($navLinks) > 0) {
+    // Check si NavLinks
+    if (!empty($navLinks)) {
         foreach ($navLinks as $name => $link) {
             echo '<li><a href="' . htmlspecialchars($link) . '" class="text-white">' . htmlspecialchars($name) . '</a></li>';
         }
     } else {
         echo '<li>Aucun lien disponible.</li>'; // Display a message if no links are available
     }
-        
+
     echo '
                     </ul>
                 </div>
