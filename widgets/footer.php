@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
 $siteName = $_ENV['WEBSITE'];
+$LogoURL = $_ENV['LASALLE_LOGO_URL'];
 
 require_once 'navbar.php';
 function renderFooter($siteName, $navLinks) {
@@ -37,7 +38,7 @@ function renderFooter($siteName, $navLinks) {
                     <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
                 </div>
                 <div class="col-md-4 text-center">
-                    <img src="' . htmlspecialchars(getenv('LASALLE_LOGO_URL') ?: 'chemin/vers/logo-par-defaut.png') . '" alt="Logo La Salle Avignon" class="la-salle-logo">
+                    <img src="' . htmlspecialchars($LogoURL) . '" alt="Logo La Salle Avignon" class="la-salle-logo">
                 </div>
                 <div class="col-md-4 text-end">
                     <ul class="list-unstyled">
