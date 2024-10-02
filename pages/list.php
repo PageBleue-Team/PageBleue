@@ -1,39 +1,44 @@
 <?php
 // Initialize a variable for error message
 $error_message = '';
+require_once '../widgets/navbar.php';
+$navLinks = getNavLinks();
+require_once '../widgets/footer.php';
 
 try {
     // Load environment variables and database connection
-    require_once '../vendor/autoload.php'; // Assuming you're using vlucas/phpdotenv
-
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    require_once '../vendor/autoload.php';
+    require_once __DIR__ . '/../vendor/autoload.php';
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
     $dotenv->load();
-    
-    // Database connection
+
+    $siteName = $_ENV['WEBSITE'];
+
+    // Info connection à la DB
     $host = $_ENV['DB_HOST'];
     $dbname = $_ENV['DB_NAME'];
     $username = $_ENV['DB_USER'];
-    $password = $_ENV['DB_PASSWORD'];
+    $password = $_ENV['DB_PASS'];
 
-    // Establish database connection
+    // Connexion à la DB
     $conn = new mysqli($host, $username, $password, $dbname);
 
-    // Check connection
+    // Vérif si conneixon OK
     if ($conn->connect_error) {
         throw new Exception("Échec de la connexion: " . $conn->connect_error);
     }
 
     // Pagination logic (you can include the previous logic here)
-    $limit = 10; // Number of companies per page
+    $limit = 10; // Nb d'entreprises/pages 
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $offset = ($page - 1) * $limit;
 
-    // Count total companies
+    // Nb total entreprises
     $sql_count = "SELECT COUNT(*) AS total FROM ENTREPRISE";
     $result_count = $conn->query($sql_count);
     $total_rows = $result_count->fetch_assoc()['total'];
 
-    // Total pages
+    // Nb Total de pages
     $total_pages = ceil($total_rows / $limit);
 
     // Fetch companies for current page
@@ -54,7 +59,6 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des entreprises</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your CSS file here -->
     <style>
         /* Red-bordered error message box */
         .error-box {
@@ -68,6 +72,7 @@ try {
     </style>
 </head>
 <body>
+    <?php renderNavbar($siteName); ?>
     <h1>Liste des entreprises</h1>
 
     <?php if (!empty($error_message)): ?>
@@ -110,6 +115,7 @@ try {
             <?php endif; ?>
         </div>
     <?php endif; ?>
+    <?php renderFooter($siteName, $navLinks); ?>
 </body>
 </html>
 
