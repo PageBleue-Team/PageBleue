@@ -10,6 +10,10 @@ RewriteRule ^list$ /pages/list.php [L]
 RewriteCond %{THE_REQUEST} /pages/form\.php [NC]
 RewriteRule ^pages/form\.php$ /form [L,R=301]
 RewriteRule ^form$ /pages/form.php [L]
+# /panel.php -> /panel (admin page)
+RewriteCond %{THE_REQUEST} /pages/panel\.php [NC]
+RewriteRule ^pages/form\.php$ /panel [L,R=301]
+RewriteRule ^form$ /pages/panel.php [L]
 # Time Zone
 SetEnv TZ Europe/Paris
 # Prevent viewing of .htaccess file
