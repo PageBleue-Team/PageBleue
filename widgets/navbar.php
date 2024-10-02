@@ -98,7 +98,7 @@ function renderNavbar($siteName) {
     // Structure HTML de la navbar
     echo '<nav class="navbar navbar-expand-lg navbar-light fixed-top">';
     echo '<div class="container">';
-    echo '<a class="navbar-brand" href="/">' . htmlspecialchars($siteName) . '</a>';
+    echo '<a class="navbar-brand" href="/#">' . htmlspecialchars($siteName) . '</a>';
     echo '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">';
     echo '<span class="navbar-toggler-icon"></span>';
     echo '</button>';
