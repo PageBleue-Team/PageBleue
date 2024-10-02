@@ -1,9 +1,7 @@
 <?php
 // Load environment variables from the .env file
-require_once '../vendor/autoload.php';
-
-$dotenv = Dotenv\Dotenv::createImmutable('../');
-$dotenv->load();
+require_once __DIR__ . '/../config.php';
+$siteName = $_ENV['WEBSITE'];
 
 // Database connection settings from .env
 $host = $_ENV['DB_HOST'];

@@ -1,6 +1,6 @@
 <?php
-
-$siteName = $_ENV['WEBSITE'] ?? 'Default Site Name';
+require_once __DIR__ . '/../config.php';
+$siteName = $_ENV['WEBSITE'];
 
 function getNavLinks() {
     $navLinks = [
