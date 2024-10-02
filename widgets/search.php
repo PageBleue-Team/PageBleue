@@ -2,14 +2,15 @@
 // Load environment variables from the .env file
 require_once __DIR__ . '/../config.php';
 $siteName = $_ENV['WEBSITE'];
+require_once '../widgets/navbar.php';
+require_once '../widgets/footer.php';
 
-// Database connection settings from .env
+
 $host = $_ENV['DB_HOST'];
 $dbname = $_ENV['DB_NAME'];
 $username = $_ENV['DB_USER'];
 $password = $_ENV['DB_PASS'];
 
-// Initialize connection to the database using PDO for better security
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -17,45 +18,26 @@ try {
     die("Échec de la connexion: " . $e->getMessage());
 }
 
-// Add the navbar
-require_once 'navbar.php';
-$navLinks = getNavLinks();
-require_once 'footer.php';
-
-
-// Initialize the results array
 $results = [];
 $query = '';
 
-// Check if a search query is sent
 if (isset($_GET['query'])) {
-    // Clean the search query
     $query = filter_input(INPUT_GET, 'query', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     
-    // Create the SQL query to search in the ENTREPRISE table
-    $sql = "SELECT id, nom, adresse, activite, secteurs, site_web 
+    $sql = "SELECT id, nom, adresse, activite, secteurs, site_web, logo_url, personne_contact, ancien_eleve_lasalle, note_moyenne_travail 
             FROM ENTREPRISE 
             WHERE nom LIKE :search 
             OR activite LIKE :search 
             OR secteurs LIKE :search";
     
-    // Prepare the SQL query
     $stmt = $pdo->prepare($sql);
-    
-    // Bind the parameter
     $searchTerm = "%$query%";
     $stmt->bindParam(':search', $searchTerm, PDO::PARAM_STR);
-    
-    // Execute the query
     $stmt->execute();
-    
-    // Fetch the results as an associative array
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Render the navbar
-$siteName = $_ENV['WEBSITE'] ?? 'Default Site Name';
-renderNavbar($siteName);
+$navLinks = getNavLinks();
 ?>
 
 <!DOCTYPE html>
@@ -64,76 +46,89 @@ renderNavbar($siteName);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Résultats de recherche - <?php echo htmlspecialchars($siteName); ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
+            padding-top: 60px;
         }
-        .container {
-            max-width: 800px;
-            margin: 80px auto 20px;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #007bff;
-        }
-        form {
+        .search-result {
+            border: 1px solid #ddd;
+            border-radius: 8px;
             margin-bottom: 20px;
+            overflow: hidden;
         }
-        input[type="text"] {
-            width: 70%;
-            padding: 10px;
-            margin-right: 10px;
+        .search-result .logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
         }
-        button {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
+        .search-result .content {
+            flex: 1;
         }
-        button:hover {
-            background-color: #0056b3;
+        .lasalle-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: gold;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 5px;
+        .star-rating {
+            color: #ffc107;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <?php renderNavbar($siteName); ?>
+    
+    <div class="container mt-4">
         <h1>Résultats de recherche</h1>
         
-        <!-- Search form -->
-        <form method="GET" action="search.php">
-            <input type="text" name="query" placeholder="Rechercher des entreprises..." required value="<?php echo htmlspecialchars($query); ?>">
-            <button type="submit">Rechercher</button>
+        <form method="GET" action="search.php" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="query" class="form-control" placeholder="Rechercher des entreprises..." required value="<?php echo htmlspecialchars($query); ?>">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
         </form>
 
-        <!-- Display search results -->
         <?php if (!empty($query)): ?>
             <h2>Résultats pour "<?php echo htmlspecialchars($query); ?>"</h2>
             <?php if (!empty($results)): ?>
-                <ul>
-                    <?php foreach ($results as $result): ?>
-                        <li>
-                            <strong><?php echo htmlspecialchars($result['nom']); ?></strong><br>
-                            Activité: <?php echo htmlspecialchars($result['activite']); ?><br>
-                            Secteurs: <?php echo htmlspecialchars($result['secteurs']); ?><br>
-                            Adresse: <?php echo htmlspecialchars($result['adresse']); ?><br>
-                            Site web: <a href="<?php echo htmlspecialchars($result['site_web']); ?>" target="_blank" rel="noopener noreferrer"><?php echo htmlspecialchars($result['site_web']); ?></a>
-                        </li>
+                <div class="row">
+                    <?php foreach ($results as $index => $result): ?>
+                        <div class="col-md-6 <?php echo ($index % 2 == 0 && $index == count($results) - 1) ? 'offset-md-3' : ''; ?>">
+                            <div class="search-result position-relative">
+                                <div class="d-flex p-3">
+                                    <img src="<?php echo htmlspecialchars($result['logo_url']); ?>" alt="Logo <?php echo htmlspecialchars($result['nom']); ?>" class="logo me-3">
+                                    <div class="content">
+                                        <h3><?php echo htmlspecialchars($result['nom']); ?></h3>
+                                        <p><strong>Activité:</strong> <?php echo htmlspecialchars($result['activite']); ?></p>
+                                        <p><strong>Adresse:</strong> <?php echo htmlspecialchars($result['adresse']); ?></p>
+                                        <p><strong>Contact:</strong> <?php echo htmlspecialchars($result['personne_contact']); ?> - <?php echo htmlspecialchars($result['contact_tel']); ?></p>
+                                        <div class="star-rating">
+                                            <?php
+                                            $rating = round($result['note_moyenne']);
+                                            for ($i = 1; $i <= 5; $i++) {
+                                                echo $i <= $rating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php if ($result['ancien_eleve_lasalle']): ?>
+                                    <div class="lasalle-badge">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
-                </ul>
+                </div>
             <?php else: ?>
                 <p>Aucun résultat trouvé.</p>
             <?php endif; ?>
@@ -141,5 +136,6 @@ renderNavbar($siteName);
     </div>
 
     <?php renderFooter($siteName, $navLinks); ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
