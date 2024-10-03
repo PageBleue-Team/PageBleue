@@ -7,6 +7,7 @@ require_once 'navbar.php';
 function renderFooter($siteName, $navLinks, $logoURL) {
     
     echo '
+    <head>
     <style>
         footer {
             background-color: var(--primary-blue);
@@ -31,7 +32,7 @@ function renderFooter($siteName, $navLinks, $logoURL) {
             object-fit: contain;
         }
     </style>
-    
+    </head>
     <footer>
         <div class="container">
             <div class="row align-items-center">
