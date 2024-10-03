@@ -57,11 +57,13 @@ if ($showEnterprise) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $showEnterprise ? htmlspecialchars(nullSafe($enterprise['nom'])) : 'Liste des entreprises'; ?> - <?php echo htmlspecialchars($siteName); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            padding-top: 60px;
+            height: 100%;
+            margin: 0;
+            padding: 0;
         }
         .enterprise-logo {
             max-width: 100px;
@@ -97,7 +99,7 @@ if ($showEnterprise) {
 <body>
     <?php renderNavbar($siteName); ?>
     
-    <div class="container mt-4">
+    <div class="container mt-3" style="padding-top: 60px;">
         <?php if ($showEnterprise && $enterprise): ?>
             <h1><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h1>
             <div class="row">
@@ -180,6 +182,6 @@ if ($showEnterprise) {
     </div>
 
     <?php renderFooter($siteName, $navLinks, $logoURL); ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

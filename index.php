@@ -13,8 +13,6 @@ session_start();
 $siteName = $_ENV['WEBSITE'];
 $siteDescription = "Bienvenue sur Page Bleue, un projet réalisé par trois lycéens de La Salle Avignon. Notre mission est de faciliter la recherche de Périodes de Formation en Milieu Professionnel (PFMP) tout en contribuant à l'obtention de notre baccalauréat.
 
-Page Bleue est une plateforme conçue pour mettre en relation les étudiants à la recherche de stages avec des entreprises pour le CIEL.
-
 Nos objectifs sont :
 1. Mettre en avant les entreprises qui connaissent La Salle.
 2. Faciliter les connexions entre les étudiants et les entreprises.
@@ -60,7 +58,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($siteName); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-blue: #007bff;
@@ -198,8 +196,8 @@ try {
                 </div>
             </div>
 
-            <div class="container mt-3 mb-5" id="about">
-                <h2 class="section-title">À Propos de Nous</h2>
+            <div class="container mt-3" id="story">
+                <h2 class="section-title">Notre Histoire</h2>
                 <div class="section-content">
                     <p><?php echo nl2br(htmlspecialchars($siteDescription)); ?></p>
                 </div>
@@ -215,6 +213,6 @@ try {
         <?php endfor; ?>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
