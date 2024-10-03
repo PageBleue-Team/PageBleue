@@ -6,11 +6,10 @@ function getNavLinks() {
     $navLinks = [
         "Accueil" => "/#",
         "Entreprises" => "/list",
-        "À Propos" => "/#about",
-        "Formulaire" => "/form"
+        "Formulaire" => "/form",
+        "À Propos de nous" => "/#story"
     ];
 
-    // Ajout du lien Admin si l'utilisateur est connecté en tant qu'admin
     if (isset($_SESSION['admin']) && $_SESSION['admin']) {
         $navLinks["Admin"] = "/panel";
     }
@@ -26,16 +25,21 @@ function renderNavbar($siteName) {
     $currentPage = strtok($currentPage, '?'); // Retire les paramètres d'URL
     $activePage = array_search($currentPage, $navLinks) ?: '';
 
-    // Inclusion de Bootstrap et Font Awesome
     echo '
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<link rel="manifest" href="/favicons/site.webmanifest">
+	<link rel="icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+
     ';
 
     // Styles spécifiques à la navbar
     echo '
     <style>
-    
         :root {
             --primary-blue: #007bff;
         }
@@ -49,21 +53,6 @@ function renderNavbar($siteName) {
         }
         .nav-link {
             position: relative;
-            overflow: hidden;
-        }
-        .nav-link::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: white;
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
         }
         .nav-slider {
             position: absolute;
@@ -71,12 +60,12 @@ function renderNavbar($siteName) {
             left: 0;
             height: 2px;
             background-color: white;
-            transition: all 0.3s ease;
+            transition: all 0.6s ease;
         }
         .search-container {
             position: relative;
-            width: 300px;
-            z-index: 1000;
+            width: 100%;
+            max-width: 300px;
         }
         .search-input {
             padding-right: 40px;
@@ -91,6 +80,15 @@ function renderNavbar($siteName) {
             color: #6c757d;
             cursor: pointer;
             pointer-events: none;
+        }
+        @media (max-width: 991px) {
+            .navbar-nav {
+                margin-bottom: 15px;
+            }
+            .search-container {
+                margin-top: 15px;
+                max-width: 100%;
+            }
         }
     </style>
     ';
@@ -124,44 +122,60 @@ function renderNavbar($siteName) {
 
     // Scripts JavaScript pour la navbar et Bootstrap
     echo '
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const navSlider = document.querySelector(".nav-slider");
         const navLinks = document.querySelectorAll(".nav-link");
+        const navContainer = document.querySelector(".navbar-nav");
+        const navbarCollapse = document.querySelector(".navbar-collapse");
+        const navbarToggler = document.querySelector(".navbar-toggler");
 
         function moveSlider(link) {
             navSlider.style.width = `${link.offsetWidth}px`;
             navSlider.style.left = `${link.offsetLeft}px`;
         }
 
-        navLinks.forEach(link => {
-            link.addEventListener("mouseenter", () => moveSlider(link));
-            link.addEventListener("focus", () => moveSlider(link));
-        });
-
-        document.querySelector(".navbar-nav").addEventListener("mouseleave", () => {
+        function resetSlider() {
             const activeLink = document.querySelector(".nav-link.active") || navLinks[0];
             moveSlider(activeLink);
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener("mouseenter", () => moveSlider(link));
+            link.addEventListener("click", () => {
+                if (window.innerWidth < 992) {
+                    navbarCollapse.classList.remove("show");
+                    navbarToggler.setAttribute("aria-expanded", "false");
+                }
+            });
         });
 
-        const activeLink = document.querySelector(".nav-link.active") || navLinks[0];
-        moveSlider(activeLink);
+        navContainer.addEventListener("mouseleave", resetSlider);
 
-        // Gestionnaire de recherche
+        // Initial position
+        resetSlider();
+
+        // Handle window resize
+        window.addEventListener("resize", resetSlider);
+
+        // Search functionality
         const searchInput = document.getElementById("search-input");
         searchInput.addEventListener("keypress", function(e) {
             if (e.key === "Enter") {
                 e.preventDefault();
-                performSearch();
+                const searchTerm = searchInput.value;
+                if (searchTerm.length > 2) {
+                    window.location.href = `/?search=${encodeURIComponent(searchTerm)}`;
+                }
             }
         });
 
-        function performSearch() {
-            const searchTerm = searchInput.value;
-            if (searchTerm.length > 2) {
-                window.location.href = `/?search=${encodeURIComponent(searchTerm)}`;
-            }
+        // Ensure Bootstrap collapse works for mobile menu
+        if (navbarToggler && navbarCollapse) {
+            navbarToggler.addEventListener("click", function() {
+                navbarCollapse.classList.toggle("show");
+            });
         }
     });
     </script>
