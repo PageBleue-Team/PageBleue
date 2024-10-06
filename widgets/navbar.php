@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../config.php';
-$siteName = $_ENV['WEBSITE'];
+if (!function_exists('safeInclude')) {
+    require_once __DIR__ . '/../config.php';
+}
 
 function getNavLinks() {
     $navLinks = [
@@ -30,15 +31,12 @@ function renderNavbar($siteName) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     
     <meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-	<link rel="manifest" href="/favicons/site.webmanifest">
-	<link rel="icon" href="favicon.ico">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/favicons/site.webmanifest">
+    <link rel="icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
-    ';
-
     // Styles spécifiques à la navbar
-    echo '
     <style>
         :root {
             --primary-blue: #007bff;
@@ -90,6 +88,18 @@ function renderNavbar($siteName) {
                 max-width: 100%;
             }
         }
+        .mobile-device .nav-slider {
+            display: none;
+        }
+        .mobile-device .nav-link.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
     </style>
     ';
     
@@ -124,6 +134,13 @@ function renderNavbar($siteName) {
     echo '
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    function isMobileDevice() {
+        return (typeof window.orientation !== "undefined") 
+            || (navigator.userAgent.indexOf("IEMobile") !== -1)
+            || (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+            || window.innerWidth <= 991;
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const navSlider = document.querySelector(".nav-slider");
         const navLinks = document.querySelectorAll(".nav-link");
@@ -131,22 +148,39 @@ function renderNavbar($siteName) {
         const navbarCollapse = document.querySelector(".navbar-collapse");
         const navbarToggler = document.querySelector(".navbar-toggler");
 
+        function handleMobileChange() {
+            if (isMobileDevice()) {
+                document.body.classList.add("mobile-device");
+                navSlider.style.display = "none";
+            } else {
+                document.body.classList.remove("mobile-device");
+                navSlider.style.display = "block";
+                resetSlider();
+            }
+        }
+
         function moveSlider(link) {
-            navSlider.style.width = `${link.offsetWidth}px`;
-            navSlider.style.left = `${link.offsetLeft}px`;
+            if (!isMobileDevice()) {
+                navSlider.style.width = `${link.offsetWidth}px`;
+                navSlider.style.left = `${link.offsetLeft}px`;
+            }
         }
 
         function resetSlider() {
-            const activeLink = document.querySelector(".nav-link.active") || navLinks[0];
-            moveSlider(activeLink);
+            if (!isMobileDevice()) {
+                const activeLink = document.querySelector(".nav-link.active") || navLinks[0];
+                moveSlider(activeLink);
+            }
         }
 
         navLinks.forEach(link => {
             link.addEventListener("mouseenter", () => moveSlider(link));
             link.addEventListener("click", () => {
-                if (window.innerWidth < 992) {
+                if (isMobileDevice()) {
                     navbarCollapse.classList.remove("show");
                     navbarToggler.setAttribute("aria-expanded", "false");
+                    navLinks.forEach(l => l.classList.remove("active"));
+                    link.classList.add("active");
                 }
             });
         });
@@ -154,10 +188,10 @@ function renderNavbar($siteName) {
         navContainer.addEventListener("mouseleave", resetSlider);
 
         // Initial position
-        resetSlider();
+        handleMobileChange();
 
         // Handle window resize
-        window.addEventListener("resize", resetSlider);
+        window.addEventListener("resize", handleMobileChange);
 
         // Search functionality
         const searchInput = document.getElementById("search-input");
