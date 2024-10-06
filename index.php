@@ -1,16 +1,19 @@
 <?php
-require 'vendor/autoload.php';
-require_once 'widgets/navbar.php';
-$navLinks = getNavLinks();
-require_once 'widgets/footer.php';
+require_once 'config.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// Inclure les widgets nécessaires
+includeWidget('navbar');
+$navLinks = getNavLinks();  
+includeWidget('footer');
 
-session_start();
+// Le reste de votre code pour la page d'accueil
+$pdo = getDbConnection();
+
+// Exemple : Récupérer quelques entreprises pour la page d'accueil
+$stmt = $pdo->query("SELECT * FROM Entreprise LIMIT 5");
+$featuredEnterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Configuration du site
-$siteName = $_ENV['WEBSITE'];
 $siteDescription = "Bienvenue sur Page Bleue, un projet réalisé par trois lycéens de La Salle Avignon. Notre mission est de faciliter la recherche de Périodes de Formation en Milieu Professionnel (PFMP) tout en contribuant à l'obtention de notre baccalauréat.
 
 Nos objectifs sont :
@@ -22,29 +25,19 @@ Rejoignez-nous dans cette aventure pour façonner l'avenir de la formation profe
 $dbError = false;
 $errorMessage = "";
 
-// Utilisation des variables d'environnement pour la connexion à la base de données
-$dbHost = $_ENV['DB_HOST'];
-$dbUser = $_ENV['DB_USER'];
-$dbPass = $_ENV['DB_PASS'];
-$dbName = $_ENV['DB_NAME'];
-
 try {
-    $db = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     // Fonction de recherche d'entreprises
     function searchEnterprises($search) {
-        global $db;
-        $query = "SELECT * FROM ENTREPRISE WHERE nom LIKE :search OR description LIKE :search LIMIT 5";
-        $stmt = $db->prepare($query);
+        global $pdo;
+        $query = "SELECT * FROM Entreprise WHERE nom LIKE :search OR description LIKE :search LIMIT 5";
+        $stmt = $pdo->prepare($query);
         $stmt->execute(['search' => "%$search%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
         // Récupération des entreprises aléatoires pour la page d'accueil
-        $query = "SELECT * FROM ENTREPRISE ORDER BY RAND() LIMIT 8";
-        $stmt = $db->query($query);
-        $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+        $stmt = $pdo->query("SELECT * FROM Entreprise LIMIT 5");
+        $featuredEnterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
     } catch (PDOException $e) {
         $dbError = true;
         $errorMessage = "Erreur de connexion à la base de données : " . $e->getMessage();
@@ -156,12 +149,11 @@ try {
                             <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
                             <p class="card-text"><?php echo htmlspecialchars($enterprise['description']); ?></p>
                             <p>Adresse: <?php echo htmlspecialchars($enterprise['adresse']); ?></p>
-                            <p>SIRET: <?php echo htmlspecialchars($enterprise['siret']); ?></p>
-                            <p>Note moyenne: <?php echo number_format($enterprise['note_moyenne'], 1); ?>/5</p>
+                            <p>Note: <?php echo number_format($enterprise['note_moyenne'], 1); ?>/5</p>
                             <p>Ancien élève de La Salle: <?php echo $enterprise['ancien_eleve_lasalle'] ? 'Oui' : 'Non'; ?></p>
                             <p>Site web: <a href="<?php echo htmlspecialchars($enterprise['site_web']); ?>" target="_blank"><?php echo htmlspecialchars($enterprise['site_web']); ?></a></p>
-                            <p>Contact: <?php echo htmlspecialchars($enterprise['contact_nom']); ?> (<?php echo $enterprise['contact_verifie'] ? 'Vérifié' : 'Non vérifié'; ?>)</p>
-                            <p>Type de travail: <?php echo htmlspecialchars($enterprise['type_travail']); ?></p>
+                            <p>Contact: <?php echo htmlspecialchars($enterprise['telephone']); ?> (<?php echo $enterprise['contact_verifie'] ? 'Vérifié' : 'Non vérifié'; ?>)</p>
+                            <p>Type de travail: <?php echo htmlspecialchars($enterprise['secteur']); ?></p>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -175,7 +167,7 @@ try {
                             <?php foreach ($enterprises as $enterprise): ?>
                                 <div class="col-md-4 mb-4">
                                     <div class="card">
-                                        <img src="<?php echo htmlspecialchars($enterprise['logo_url']); ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                                        <img src="<?php echo htmlspecialchars($enterprise['logo']); ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                                         <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
                                         <p class="card-text">
