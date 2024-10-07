@@ -29,8 +29,11 @@ function adminLogin($username, $password) {
 
 // Fonction pour se déconnecter
 function adminLogout() {
+    $_SESSION = array();
     unset($_SESSION['admin_logged_in']);
     session_destroy();
+    header('Location: /#');
+    exit();
 }
 
 // Connexion à la base de données (singleton)
