@@ -12,8 +12,12 @@ RewriteRule ^pages/form\.php$ /form [L,R=301]
 RewriteRule ^form$ /pages/form.php [L]
 # /panel.php -> /panel (admin page)
 RewriteCond %{THE_REQUEST} /pages/panel\.php [NC]
-RewriteRule ^pages/form\.php$ /panel [L,R=301]
-RewriteRule ^form$ /pages/panel.php [L]
+RewriteRule ^pages/panel\.php$ /panel [L,R=301]
+RewriteRule ^panel$ /pages/panel.php [L]
+# /login.php -> /login (login page)
+RewriteCond %{THE_REQUEST} /pages/login\.php [NC]
+RewriteRule ^pages/login\.php$ /login [L,R=301]
+RewriteRule ^login$ /pages/login.php [L]
 # Time Zone
 SetEnv TZ Europe/Paris
 # Prevent viewing of .htaccess file

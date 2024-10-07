@@ -1,3 +1,5 @@
 .env
 composer.phar
 /vendor/
+/cache/
+logs/*

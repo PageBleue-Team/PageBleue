@@ -1,20 +1,37 @@
 <?php
-require_once __DIR__ . '/../config.php';
-$siteName = $_ENV['WEBSITE'];
-$logoURL = $_ENV['LASALLE_LOGO_URL'];
+if (!function_exists('safeInclude')) {
+    require_once __DIR__ . '/../config.php';
+}
 
-require_once 'navbar.php';
+$navLinks = getNavLinks();
 function renderFooter($siteName, $navLinks, $logoURL) {
-    
     echo '
     <head>
     <style>
+        html, body {
+            height: 100%; /* Ensure full height of the page */
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure minimum height of the viewport */
+        }
+        .footer-content {
+            flex-grow: 1; /* Ensure content grows and pushes the footer down */
+        }
         footer {
             background-color: var(--primary-blue);
             color: white;
             padding: 20px 0;
             width: 100%;
-            margin-top: 20px;
+            margin-top: auto; /* Ensures footer is at the bottom */
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
         }
         .footer-logo {
             font-size: 1.5rem;
@@ -34,7 +51,7 @@ function renderFooter($siteName, $navLinks, $logoURL) {
     </style>
     </head>
     <footer>
-        <div class="container">
+        <div class="footer-container">
             <div class="row align-items-center">
                 <div class="col-md-4">
                     <div class="footer-logo">' . htmlspecialchars($siteName) . '</div>
