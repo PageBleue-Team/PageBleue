@@ -11,8 +11,9 @@ function getNavLinks() {
         "À Propos de nous" => "/#story"
     ];
 
-    if (isset($_SESSION['admin']) && $_SESSION['admin']) {
-        $navLinks["Admin"] = "/panel";
+    // Vérification de l'authentification
+    if (isAdminLoggedIn()) {
+        $navLinks["Panel"] = "/panel"; // Onglet Admin
     }
 
     return $navLinks;
@@ -20,10 +21,8 @@ function getNavLinks() {
 
 function renderNavbar($siteName) {
     $navLinks = getNavLinks();
-
-    // Détection automatique de la page active
     $currentPage = $_SERVER['REQUEST_URI'];
-    $currentPage = strtok($currentPage, '?'); // Retire les paramètres d'URL
+    $currentPage = strtok($currentPage, '?');
     $activePage = array_search($currentPage, $navLinks) ?: '';
 
     echo '
@@ -36,7 +35,6 @@ function renderNavbar($siteName) {
     <link rel="icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
-    // Styles spécifiques à la navbar
     <style>
         :root {
             --primary-blue: #007bff;
@@ -49,6 +47,9 @@ function renderNavbar($siteName) {
         .navbar-light .navbar-nav .nav-link {
             color: white !important;
         }
+        .nav-link.admin-link {
+            text: red !important; /* Couleur rouge pour l\'onglet Admin */
+        }
         .nav-link {
             position: relative;
         }
@@ -58,7 +59,8 @@ function renderNavbar($siteName) {
             left: 0;
             height: 2px;
             background-color: white;
-            transition: all 0.6s ease;
+            transition: all 0.3s ease;
+            pointer-events: none;
         }
         .search-container {
             position: relative;
@@ -87,27 +89,21 @@ function renderNavbar($siteName) {
                 margin-top: 15px;
                 max-width: 100%;
             }
-        }
-        .mobile-device .nav-slider {
-            display: none;
-        }
-        .mobile-device .nav-link.active::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: white;
+            .nav-slider {
+                display: none;
+            }
+            .nav-link.active {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
         }
     </style>
     ';
-    
+
     // Structure HTML de la navbar
     echo '<nav class="navbar navbar-expand-lg navbar-light fixed-top">';
     echo '<div class="container">';
     echo '<a class="navbar-brand" href="/#">' . htmlspecialchars($siteName) . '</a>';
-    echo '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">';
+    echo '<button class="navbar-toggler" type="button" id="navbarToggler" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">';
     echo '<span class="navbar-toggler-icon"></span>';
     echo '</button>';
     echo '<div class="collapse navbar-collapse" id="navbarNav">';
@@ -115,8 +111,9 @@ function renderNavbar($siteName) {
 
     foreach ($navLinks as $name => $link) {
         $activeClass = ($activePage == $name) ? ' active' : '';
+        $adminClass = ($name == "Panel") ? 'admin-link' : ''; // Classe pour l'onglet Admin
         echo '<li class="nav-item">';
-        echo '<a class="nav-link' . $activeClass . '" href="' . htmlspecialchars($link) . '" data-nav="' . htmlspecialchars(strtolower($name)) . '">' . htmlspecialchars($name) . '</a>';
+        echo '<a class="nav-link ' . $adminClass . $activeClass . '" href="' . htmlspecialchars($link) . '" data-nav="' . htmlspecialchars(strtolower($name)) . '">' . htmlspecialchars($name) . '</a>';
         echo '</li>';
     }
 
@@ -134,66 +131,83 @@ function renderNavbar($siteName) {
     echo '
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    function isMobileDevice() {
-        return (typeof window.orientation !== "undefined") 
-            || (navigator.userAgent.indexOf("IEMobile") !== -1)
-            || (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
-            || window.innerWidth <= 991;
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
+    addEventListener("DOMContentLoaded", function() {
         const navSlider = document.querySelector(".nav-slider");
         const navLinks = document.querySelectorAll(".nav-link");
         const navContainer = document.querySelector(".navbar-nav");
         const navbarCollapse = document.querySelector(".navbar-collapse");
-        const navbarToggler = document.querySelector(".navbar-toggler");
-
-        function handleMobileChange() {
-            if (isMobileDevice()) {
-                document.body.classList.add("mobile-device");
-                navSlider.style.display = "none";
-            } else {
-                document.body.classList.remove("mobile-device");
-                navSlider.style.display = "block";
-                resetSlider();
-            }
+        const navbarToggler = document.getElementById("navbarToggler");
+        
+        // Vérifier si nous sommes sur la page du panel
+        const isPanel = window.location.pathname.includes("/panel");
+        
+        // Fonction pour détecter si l\'écran est en mode mobile
+        function isMobile() {
+            return window.innerWidth <= 991;
         }
 
+        // Fonction pour déplacer le slider sous le lien actif
         function moveSlider(link) {
-            if (!isMobileDevice()) {
+            if (!isMobile() && navSlider) {
                 navSlider.style.width = `${link.offsetWidth}px`;
                 navSlider.style.left = `${link.offsetLeft}px`;
             }
         }
 
+        // Fonction pour réinitialiser la position du slider
         function resetSlider() {
-            if (!isMobileDevice()) {
+            if (!isMobile() && navSlider) {
                 const activeLink = document.querySelector(".nav-link.active") || navLinks[0];
                 moveSlider(activeLink);
             }
         }
 
+        // Ajouter des écouteurs d\'événements pour chaque lien de navigation
         navLinks.forEach(link => {
-            link.addEventListener("mouseenter", () => moveSlider(link));
-            link.addEventListener("click", () => {
-                if (isMobileDevice()) {
-                    navbarCollapse.classList.remove("show");
-                    navbarToggler.setAttribute("aria-expanded", "false");
+            link.addEventListener("mouseenter", () => {
+                if (!isPanel) {
+                    moveSlider(link);
+                }
+            });
+            link.addEventListener("click", (e) => {
+                if (isMobile()) {
+                    e.preventDefault();
                     navLinks.forEach(l => l.classList.remove("active"));
                     link.classList.add("active");
+                    toggleNavbar(false);
+                    setTimeout(() => {
+                        window.location.href = link.href;
+                    }, 300);
                 }
             });
         });
 
-        navContainer.addEventListener("mouseleave", resetSlider);
+        // Réinitialiser le slider lorsque la souris quitte la barre de navigation
+        navContainer.addEventListener("mouseleave", () => {
+            if (!isPanel) {
+                resetSlider();
+            }
+        });
 
-        // Initial position
-        handleMobileChange();
+        // Réinitialiser le slider lors du chargement de la page et du redimensionnement de la fenêtre
+        window.addEventListener("resize", () => {
+            if (!isPanel) {
+                resetSlider();
+            }
+        });
 
-        // Handle window resize
-        window.addEventListener("resize", handleMobileChange);
+        // Initialiser la position du slider
+        if (!isPanel) {
+            resetSlider();
+        } else {
+            // Si on est sur la page du panel, positionner le slider sous l\'onglet "Panel" et le figer
+            const panelLink = document.querySelector(`.nav-link[href="/panel"]`);
+            if (panelLink) {
+                moveSlider(panelLink);
+            }
+        }
 
-        // Search functionality
+        // Gestion de la recherche
         const searchInput = document.getElementById("search-input");
         searchInput.addEventListener("keypress", function(e) {
             if (e.key === "Enter") {
@@ -205,12 +219,63 @@ function renderNavbar($siteName) {
             }
         });
 
-        // Ensure Bootstrap collapse works for mobile menu
+        // Fonction pour basculer l\'état de la navbar (ouverte/fermée)
+        function toggleNavbar(show) {
+            if (show === undefined) {
+                show = !navbarCollapse.classList.contains("show");
+            }
+            
+            navbarCollapse.style.transition = "transform 0.3s ease-in-out";
+            
+            if (show) {
+                navbarCollapse.classList.add("show");
+                setTimeout(() => {
+                    navbarCollapse.style.transform = "translateY(0)";
+                }, 10);
+            } else {
+                navbarCollapse.style.transform = "translateY(-100%)";
+                navbarCollapse.addEventListener("transitionend", function handler() {
+                    navbarCollapse.classList.remove("show");
+                    navbarCollapse.removeEventListener("transitionend", handler);
+                });
+            }
+            
+            navbarToggler.setAttribute("aria-expanded", show);
+        }
+
+        // Gestion du bouton de bascule de la navbar sur mobile
         if (navbarToggler && navbarCollapse) {
-            navbarToggler.addEventListener("click", function() {
-                navbarCollapse.classList.toggle("show");
+            navbarToggler.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Empêche la propagation de l\'événement
+                toggleNavbar();
             });
         }
+
+        // Fermeture du menu mobile en cliquant à l\'extérieur
+        document.addEventListener("click", function(e) {
+            if (isMobile() && navbarCollapse.classList.contains("show") && 
+                !navbarCollapse.contains(e.target) && 
+                !navbarToggler.contains(e.target)) {
+                toggleNavbar(false);
+            }
+        });
+
+        // Configuration de l\'animation pour mobile
+        function setupMobileAnimation() {
+            if (isMobile()) {
+                navbarCollapse.style.transition = "transform 0.3s ease-in-out";
+                navbarCollapse.style.transform = "translateY(-100%)";
+            } else {
+                navbarCollapse.style.transition = "";
+                navbarCollapse.style.transform = "";
+                navbarCollapse.classList.remove("show");
+            }
+        }
+
+        // Initialisation de l\'animation mobile et gestion du redimensionnement
+        setupMobileAnimation();
+        window.addEventListener("resize", setupMobileAnimation);
     });
     </script>
     ';
