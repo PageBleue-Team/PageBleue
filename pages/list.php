@@ -9,7 +9,7 @@ includeWidget('footer');
 $pdo = getDbConnection();
 
 // Vérifier si un ID d'entreprise est fourni
-$showEnterprise = isset($_GET['show']) ? intval($_GET['show']) : null;
+$showEnterprise = isset($_GET['id']) ? intval($_GET['id']) : null;
 
 if ($showEnterprise) {
     // Récupérer les détails de l'entreprise spécifique
@@ -90,7 +90,8 @@ if ($showEnterprise) {
         .lasalle-badge i {
             color: white;
             font-size: 20px;
-        }        .section-title {
+        }
+        .section-title {
             border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
             margin-bottom: 20px;
@@ -100,6 +101,21 @@ if ($showEnterprise) {
         }
         .info-label {
             font-weight: bold;
+        }
+        .card-link {
+            color: inherit;
+            text-decoration: none;
+        }
+        .card-link:hover {
+            text-decoration: none;
+        }
+        .enterprise-logo-container {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
         }
     </style>
 </head>
@@ -111,7 +127,7 @@ if ($showEnterprise) {
             <h1 class="mb-4"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h1>
             <div class="row">
                 <div class="col-md-2">
-                    <img src="<?php echo htmlspecialchars(nullSafe($enterprise['logo'], '/img/default-logo.png')); ?>" alt="Logo <?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?>" class="img-fluid enterprise-logo mb-3">
+                    <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '../img/default-logo.png'; ?>" class="img-fluid enterprise-logo mb-3" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                 </div>
                 <div class="col-md-8">
                     <h2 class="section-title">Informations générales</h2>
@@ -120,10 +136,18 @@ if ($showEnterprise) {
                     <div class="info-item"><span class="info-label">Adresse:</span> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?></div>
                     <div class="info-item"><span class="info-label">Téléphone:</span> <?php echo htmlspecialchars(nullSafe($enterprise['telephone'])); ?></div>
                     <div class="info-item"><span class="info-label">Email:</span> <?php echo htmlspecialchars(nullSafe($enterprise['email'])); ?></div>
-                    <div class="info-item"><span class="info-label">Site web:</span> <a href="<?php echo htmlspecialchars(nullSafe($enterprise['site_web'], '#')); ?>" target="_blank"><?php echo htmlspecialchars(nullSafe($enterprise['site_web'])); ?></a></div>
+                    <!-- Site Web check si renseigner -->
+                    <div class="info-item">
+                        <span class="info-label">Site web:</span>
+                        <?php if (!empty($enterprise['site_web']) && $enterprise['site_web'] !== 'Non Renseigné'): ?>
+                            <a href="<?php echo htmlspecialchars($enterprise['site_web']); ?>" target="_blank"><?php echo htmlspecialchars($enterprise['site_web']); ?></a>
+                        <?php else: ?>
+                            Non renseigné
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
-
+            
             <div class="mt-4">
                 <h2 class="section-title">Localisation et accès</h2>
                 <div class="info-item"><span class="info-label">Adresse détaillée:</span> <?php echo htmlspecialchars(nullSafe($enterprise['localisation_adresse'])); ?></div>
@@ -180,36 +204,40 @@ if ($showEnterprise) {
 
             <a href="/list" class="btn btn-primary mt-3 mb-5">Retour à la liste</a>
 
-        <?php else: ?>
+            <?php else: ?>
             <h1>Liste des entreprises</h1>
             <?php if (!empty($enterprises)): ?>
                 <div class="row">
                     <?php foreach ($enterprises as $enterprise): ?>
                         <div class="col-12 mb-4">
-                            <div class="card">
-                                <?php if ($enterprise['ancien_eleve_lasalle']): ?>
-                                    <div class="lasalle-badge">
-                                        <i class="fas fa-user-graduate"></i>
-                                    </div>
-                                <?php endif; ?>
-                                <div class="card-body d-flex">
-                                    <img src="<?php echo htmlspecialchars(nullSafe($enterprise['logo'] . '../img/default-logo.png')); ?>" alt="Logo <?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?>" class="enterprise-logo mr-3">
-                                    <div class="ml-3">
-                                        <h5 class="card-title"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h5>
-                                        <p class="card-text">
-                                            <!-- <?php
-                                            $description = nullSafe($enterprise['description']);
-                                            if ($description === "Non Renseigné") {
-                                                echo "Aucune description disponible";
-                                            } else {
-                                                echo htmlspecialchars(mb_substr($description, 0, $descriptionLength)) . (mb_strlen($description) > $descriptionLength ? '...' : '');
-                                            }
-                                            ?> -->
-                                        </p>
-                                        <a href="/list?show=<?php echo $enterprise['id']; ?>" class="btn btn-primary">En savoir plus</a>
+                            <a href="/list?id=<?php echo $enterprise['id']; ?>" class="card-link">
+                                <div class="card">
+                                    <?php if ($enterprise['ancien_eleve_lasalle']): ?>
+                                        <div class="lasalle-badge">
+                                            <i class="fas fa-user-graduate"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="card-body d-flex">
+                                        <div class="enterprise-logo-container">
+                                            <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '../img/default-logo.png'; ?>" class="enterprise-logo" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                                        </div>
+                                        <div>
+                                            <h5 class="card-title"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h5>
+                                            <p class="card-text">
+                                                <?php
+                                                    // Vérifiez si la clé "description" existe
+                                                    $description = isset($enterprise['description']) ? htmlspecialchars(nullSafe($enterprise['description'])) : 'Non renseigné';
+                                                    if ($description === "Non renseigné") {
+                                                        echo "Aucune description disponible";
+                                                    } else {
+                                                        echo htmlspecialchars(mb_substr($description, 0, 150)) . (mb_strlen($description) > 150 ? '...' : '');
+                                                    }
+                                                ?>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -223,7 +251,7 @@ if ($showEnterprise) {
                         <?php endfor; ?>
                     </ul>
                 </nav>
-                <?php else: ?>
+            <?php else: ?>
                 <p>Aucune entreprise trouvée.</p>
             <?php endif; ?>
         <?php endif; ?>
