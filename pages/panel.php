@@ -9,10 +9,15 @@ includeWidget('footer');
 $pdo = getDbConnection();
 
 // Vérification de l'authentification
-// if (!isAdminLoggedIn()) {
-//     header('Location: login');
-//     exit();
-// }
+if (!isAdminLoggedIn()) {
+    // Rediriger vers la page de connexion
+    header('Location: login');
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
+    adminLogout();
+}
 
 $pdo = getDbConnection();
 
@@ -86,7 +91,7 @@ $enterprises = getTableData($pdo, 'Entreprise');
 $tuteurs = getTableData($pdo, 'Tuteur');
 $eleves = getTableData($pdo, 'Eleve');
 $stages = getTableData($pdo, 'Stage');
-$activites = getTableData($pdo, 'Activite')
+$activites = getTableData($pdo, 'Activite');
 
 ?>
 
@@ -105,92 +110,142 @@ $activites = getTableData($pdo, 'Activite')
         .action-buttons {
             white-space: nowrap;
         }
+        .container-centered {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .panel-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+            .panel-content {
+                max-width: 100%;
+            }
+        }
+
+        /* Styles pour les onglets */
+        .nav-tabs {
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        /* Ajustement pour le contenu des onglets */
+        .tab-content {
+            width: 100%;
+        }
+
+        /* Style pour le conteneur principal du panel */
+        .panel-container {
+            padding-top: 80px; /* Ajustez cette valeur selon la hauteur de votre navbar */
+        }
     </style>
 </head>
 <body>
     <?php renderNavbar($siteName); ?>
 
     <div class="container mt-5" style="padding-top: 60px;">
-        <h1 class="mb-4">Panel d'administration</h1>
-
-        <!-- Onglets pour les différentes tables -->
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="entreprises-tab" data-bs-toggle="tab" data-bs-target="#entreprises" type="button" role="tab" aria-controls="entreprises" aria-selected="true">Entreprises</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tuteurs-tab" data-bs-toggle="tab" data-bs-target="#tuteurs" type="button" role="tab" aria-controls="tuteurs" aria-selected="false">Tuteurs</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="eleves-tab" data-bs-toggle="tab" data-bs-target="#eleves" type="button" role="tab" aria-controls="eleves" aria-selected="false">Élèves</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="stages-tab" data-bs-toggle="tab" data-bs-target="#stages" type="button" role="tab" aria-controls="stages" aria-selected="false">Stages</button>
-            </li>
-        </ul>
-
-        <!-- Contenu des onglets -->
-        <div class="tab-content" id="myTabContent">
-            <!-- Onglet Entreprises -->
-            <div class="tab-pane fade show active" id="entreprises" role="tabpanel" aria-labelledby="entreprises-tab">
-                <h2>Gestion des Entreprises</h2>
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addEnterpriseModal">
-                    Ajouter une entreprise
-                </button>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Secteur</th>
-                                <th>Addresse</th>
-                                <th>Telephone</th>
-                                <th>Email</th>
-                                <th>Site Web</th>
-                                <th>Ancien LaSallien</th>
-                                <th>Numéro Immat</th>
-                                <th>Taille</th>
-                                <th>Acces</th>
-                                <th>avantages</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($enterprises as $enterprise): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['id'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['telephone'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['email'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['site_web'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['ancien_eleve_lasalle'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['numero_immatriculation'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['taille'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['acces'])); ?></td>
-                                <td><?php echo htmlspecialchars(nullSafe($enterprise['avantages_stagiaire'])); ?></td>
-
-                                <td class="action-buttons">
-                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editEnterpriseModal<?php echo $enterprise['id']; ?>">Éditer</button>
-                                    <form method="post" style="display:inline;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="table" value="Entreprise">
-                                        <input type="hidden" name="id" value="<?php echo $enterprise['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(`Êtes-vous sûr de vouloir supprimer l'entreprise <?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?> ?`);">Supprimer</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="mb-4">Panel d'administration</h1>
+            <form method="POST" action="">
+                <button type="submit" name="logout" class="btn btn-danger btn-lg">Déconnexion</button>
+            </form>
             </div>
+        </div>
 
-            <!-- Onglets pour Tuteurs, Élèves et Stages (structure similaire à Entreprises) -->
-            <!-- ... -->
+        <div class="panel-content">
+            <!-- Onglets pour les différentes tables -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="entreprises-tab" data-bs-toggle="tab" data-bs-target="#entreprises" type="button" role="tab" aria-controls="entreprises" aria-selected="true">Entreprises</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tuteurs-tab" data-bs-toggle="tab" data-bs-target="#tuteurs" type="button" role="tab" aria-controls="tuteurs" aria-selected="false">Tuteurs</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="eleves-tab" data-bs-toggle="tab" data-bs-target="#eleves" type="button" role="tab" aria-controls="eleves" aria-selected="false">Élèves</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="stages-tab" data-bs-toggle="tab" data-bs-target="#stages" type="button" role="tab" aria-controls="stages" aria-selected="false">Stages</button>
+                </li>
+            </ul>
 
+            <!-- Contenu des onglets -->
+            <div class="tab-content" id="myTabContent">
+                <!-- Onglet Entreprises -->
+                <div class="tab-pane fade show active" id="entreprises" role="tabpanel" aria-labelledby="entreprises-tab">
+                    <h2>Gestion des Entreprises</h2>
+                    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addEnterpriseModal">
+                        Ajouter une entreprise
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Secteur</th>
+                                    <th>Addresse</th>
+                                    <th>Telephone</th>
+                                    <th>Email</th>
+                                    <th>Site Web</th>
+                                    <th>Ancien LaSallien</th>
+                                    <th>Numéro Immat</th>
+                                    <th>Taille</th>
+                                    <th>Acces</th>
+                                    <th>avantages</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($enterprises as $enterprise): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['id'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['telephone'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['email'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['site_web'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['ancien_eleve_lasalle'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['numero_immatriculation'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['taille'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['acces'])); ?></td>
+                                    <td><?php echo htmlspecialchars(nullSafe($enterprise['avantages_stagiaire'])); ?></td>
+
+                                    <td class="action-buttons">
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editEnterpriseModal<?php echo $enterprise['id']; ?>">Éditer</button>
+                                        <form method="post" style="display:inline;">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="table" value="Entreprise">
+                                            <input type="hidden" name="id" value="<?php echo $enterprise['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(`Êtes-vous sûr de vouloir supprimer l'entreprise <?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?> ?`);">Supprimer</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Onglets pour Tuteurs, Élèves et Stages (structure similaire à Entreprises) -->
+                <!-- ... -->
+
+            </div>
         </div>
     </div>
 
