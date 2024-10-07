@@ -302,7 +302,7 @@ $activites = getTableData($pdo, 'Activite');
                         <label for="secteur<?php echo $enterprise['id']; ?>" class="form-label">Secteur</label>
                         <select class="form-select" id="secteur<?php echo $enterprise['id']; ?>" name="secteur" required>
                             <option value="">Sélectionnez un secteur</option>
-                            <?php foreach ($secteurs as $secteur): ?>
+                            <?php foreach ($secteur as $secteur): ?>
                                 <option value="<?php echo htmlspecialchars($secteur); ?>" <?php echo ($activites['nom'] === $secteur) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($secteur); ?>
                                 </option>
