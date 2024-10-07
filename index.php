@@ -121,80 +121,80 @@ try {
                 transform: translate(-50%, -50%) rotate(360deg) scale(0.5);
             }
         }
+        .enterprise-card {
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+        .enterprise-card:hover {
+            transform: scale(1.05);
+        }
+        .alumni-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            padding: 5px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
     <?php renderNavbar($siteName); ?>
     <div class="content" style="padding-top: 60px;">
         <?php if ($dbError): ?>
-        <div class="container mt-3">
-            <div class="alert alert-danger d-flex align-items-center" role="alert">
-                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                    <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                    </symbol>
-                </svg>
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                <div><?php echo htmlspecialchars($errorMessage); ?></div>
+            <div class="container mt-3">
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </symbol>
+                    </svg>
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                    <div><?php echo htmlspecialchars($errorMessage); ?></div>
+                </div>
             </div>
-        </div>
         <?php endif; ?>
 
-        <?php if (!empty($searchResults)): ?>
-            <div class="container mt-4">
-                <h2>Résultats de la recherche</h2>
-                <?php foreach ($searchResults as $enterprise): ?>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
-                            <p class="card-text"><?php echo htmlspecialchars($enterprise['description']); ?></p>
-                            <p>Adresse: <?php echo htmlspecialchars($enterprise['adresse']); ?></p>
-                            <p>Note: <?php echo number_format($enterprise['note_moyenne'], 1); ?>/5</p>
-                            <p>Ancien élève de La Salle: <?php echo $enterprise['ancien_eleve_lasalle'] ? 'Oui' : 'Non'; ?></p>
-                            <p>Site web: <a href="<?php echo htmlspecialchars($enterprise['site_web']); ?>" target="_blank"><?php echo htmlspecialchars($enterprise['site_web']); ?></a></p>
-                            <p>Contact: <?php echo htmlspecialchars($enterprise['telephone']); ?> (<?php echo $enterprise['contact_verifie'] ? 'Vérifié' : 'Non vérifié'; ?>)</p>
-                            <p>Type de travail: <?php echo htmlspecialchars($enterprise['secteur']); ?></p>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php else: ?>
-            <div class="container mt-2" id="entreprises">
-                <h2 class="section-title">Entreprises</h2>
-                <div class="section-content">
-                    <?php if (!$dbError && !empty($enterprises)): ?>
-                        <div class="row">
-                            <?php foreach ($enterprises as $enterprise): ?>
-                                <div class="col-md-4 mb-4">
-                                    <div class="card">
-                                        <img src="<?php echo htmlspecialchars($enterprise['logo']); ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
-                                        <div class="card-body">
+        <div class="container mt-2" id="entreprises">
+            <h2 class="section-title">Entreprises</h2>
+            <div class="section-content">
+                <?php if (!$dbError && !empty($featuredEnterprises)): ?>
+                    <div class="row">
+                        <?php foreach ($featuredEnterprises as $enterprise): ?>
+                            <div class="col-md-4 mb-4">
+                                <div class="card enterprise-card" onclick="window.location.href='/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>'">
+                                    <?php if ($enterprise['ancien_eleve_lasalle']): ?>
+                                        <div class="alumni-icon" title="Ancien élève de La Salle">
+                                            <i class="fas fa-user-graduate"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '/img/default-logo.png'; ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                                    <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
                                         <p class="card-text">
-                                            <?php
-                                            $description = isset($enterprise['description']) ? $enterprise['description'] : '';
-                                            echo htmlspecialchars(substr($description, 0, 100)) . (strlen($description) > 100 ? '...' : 'Aucune description disponible.');
-                                            ?>
+                                            <strong>Secteur:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?><br>
+                                            <strong>Adresse:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?>
                                         </p>
-                                        <a href="/list?show=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary">En savoir plus</a>
-                                        </div>
+                                        <a href="/enterprise?id=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary">En savoir plus</a>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <p>Nous sommes désolés, les informations sur les entreprises ne sont pas disponibles pour le moment. Veuillez réessayer ultérieurement.</p>
-                    <?php endif; ?>
-                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p>Nous sommes désolés, les informations sur les entreprises ne sont pas disponibles pour le moment. Veuillez réessayer ultérieurement.</p>
+                <?php endif; ?>
             </div>
+        </div>
 
-            <div class="container mt-3" id="story">
-                <h2 class="section-title">Notre Histoire</h2>
-                <div class="section-content">
-                    <p><?php echo nl2br(htmlspecialchars($siteDescription)); ?></p>
-                </div>
+        <div class="container mt-3" id="story">
+            <h2 class="section-title">Notre Histoire</h2>
+            <div class="section-content">
+                <p><?php echo nl2br(htmlspecialchars($siteDescription)); ?></p>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 
     <?php renderFooter($siteName, $navLinks, $logoURL); ?>
