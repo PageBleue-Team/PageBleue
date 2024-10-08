@@ -177,7 +177,7 @@ try {
                                             <strong>Secteur:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?><br>
                                             <strong>Adresse:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?>
                                         </p>
-                                        <a href="/enterprise?id=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary">En savoir plus</a>
+                                        <a href="/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary">En savoir plus</a>
                                     </div>
                                 </div>
                             </div>
