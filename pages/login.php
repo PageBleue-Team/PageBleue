@@ -171,7 +171,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <?php renderFooter($siteName, $navLinks, $logoURL); ?>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
