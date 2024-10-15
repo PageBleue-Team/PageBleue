@@ -209,7 +209,10 @@ foreach ($tables as $table) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel d'administration - <?php echo htmlspecialchars($siteName); ?></title>
+    <meta
+      name="description"
+      content="Panel d'administration de PageBleue.">
+    <title>Panel - <?php echo htmlspecialchars($siteName); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -411,9 +414,7 @@ foreach ($tables as $table) {
 <?php endforeach; ?>
 
     <?php renderFooter($siteName, $navLinks, $logoURL); ?>
-    
-    <!-- Inclusion des scripts JavaScript nécessaires -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
     <script>
         // Fonction de validation du formulaire
         function validateForm(form) {

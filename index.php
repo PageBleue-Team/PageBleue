@@ -51,6 +51,10 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($siteName); ?></title>
+    <meta name="google-site-verification" content="zVGKj6huDXuEi5cwo2_ARItegfAwWpGP_IYLEbZltXA" />
+    <meta
+      name="description"
+      content="PageBleue, lieu de référencement d'entreprises pour des recherches de Formations en Milieu Professionnel sur et autour d'Avignon.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -204,7 +208,5 @@ try {
             <span style="left: <?php echo rand(0, 100); ?>%; top: <?php echo rand(0, 100); ?>%; animation-delay: -<?php echo rand(0, 25); ?>s;"></span>
         <?php endfor; ?>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
