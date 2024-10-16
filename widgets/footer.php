@@ -42,7 +42,6 @@ function renderFooter($siteName, $navLinks, $logoURL) {
             opacity: 0.8;
         }
         .la-salle-logo {
-            max-height: 50px;
             margin-right: 15px;
             width: 100%;
             max-height: 100px;
