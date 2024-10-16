@@ -42,10 +42,15 @@ function getTables($pdo) {
 
 // Fonction pour obtenir les données d'une table
 function getTableData($pdo, $table) {
-    $stmt = $pdo->query("SELECT * FROM $table");
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM `" . $table . "`");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erreur lors de la récupération des données de la table $table: " . $e->getMessage());
+        return [];
+    }
 }
-
 // Liste des tables à ne pas afficher dans l'interface d'administration
 $blacklistedTables = ['login_logs', 'users'];
 
@@ -91,108 +96,168 @@ function convertToWebP($sourcePath, $destinationPath) {
 }
 
 // Fonction pour gérer l'upload et la conversion du logo
-// Modifier la fonction handleLogoUpload
 function handleLogoUpload($file) {
-    $tempFile = $file['tmp_name'];
-    $imageInfo = getimagesize($tempFile);
-    
-    if ($imageInfo === false) {
+    try {
+        if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+            throw new Exception("Aucun fichier n'a été uploadé");
+        }
+
+        $tempFile = $file['tmp_name'];
+        $imageInfo = getimagesize($tempFile);
+        
+        if ($imageInfo === false) {
+            throw new Exception("Format d'image invalide");
+        }
+
+        // Création de l'image source
+        $source = match ($imageInfo['mime']) {
+            'image/jpeg' => imagecreatefromjpeg($tempFile),
+            'image/png' => imagecreatefrompng($tempFile),
+            'image/webp' => imagecreatefromwebp($tempFile),
+            default => throw new Exception("Format d'image non supporté")
+        };
+
+        if (!$source) {
+            throw new Exception("Erreur lors de la création de l'image source");
+        }
+
+        // Dimensions originales
+        $width = imagesx($source);
+        $height = imagesy($source);
+
+        // Calcul des nouvelles dimensions (max 300x300)
+        $maxSize = 300;
+        $ratio = min($maxSize / $width, $maxSize / $height);
+        $newWidth = round($width * $ratio);
+        $newHeight = round($height * $ratio);
+
+        // Création de l'image redimensionnée
+        $resized = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Gestion de la transparence
+        if ($imageInfo['mime'] === 'image/png') {
+            imagepalettetotruecolor($resized);
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+        }
+
+        // Redimensionnement
+        imagecopyresampled(
+            $resized, $source,
+            0, 0, 0, 0,
+            $newWidth, $newHeight,
+            $width, $height
+        );
+
+        // Conversion en WebP
+        ob_start();
+        imagewebp($resized, null, 90);
+        $webpData = ob_get_clean();
+
+        // Nettoyage
+        imagedestroy($source);
+        imagedestroy($resized);
+
+        if (empty($webpData)) {
+            throw new Exception("Erreur lors de la conversion en WebP");
+        }
+
+        return $webpData;
+
+    } catch (Exception $e) {
+        error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
         return false;
     }
-    
-    switch ($imageInfo['mime']) {
-        case 'image/jpeg':
-            $image = imagecreatefromjpeg($tempFile);
-            break;
-        case 'image/png':
-            $image = imagecreatefrompng($tempFile);
-            break;
-        case 'image/webp':
-            $image = imagecreatefromwebp($tempFile);
-            break;
-        default:
-            return false;
-    }
-    
-    // Redimensionner l'image
-    $resized = imagecreatetruecolor(300, 300);
-    imagecopyresampled($resized, $image, 0, 0, 0, 0, 300, 300, imagesx($image), imagesy($image));
-    
-    // Convertir en WebP
-    ob_start();
-    imagewebp($resized, null, 90);
-    $webpData = ob_get_contents();
-    ob_end_clean();
-    
-    imagedestroy($image);
-    imagedestroy($resized);
-    
-    return $webpData;
 }
 
 // Traitement des actions POST (ajout, modification, suppression)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $table = $_POST['table'] ?? '';
-    if (in_array($table, $tables)) {
-        $structure = getTableStructure($pdo, $table);
-        $data = $_POST;
-        unset($data['action'], $data['table']);
+
+    if (!in_array($table, $tables)) {
+        error_log("Table non autorisée: $table");
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit();
+    }
+
+    try {
+        $pdo->beginTransaction();
+
         switch ($action) {
             case 'add':
-            case 'edit':
-                $id = $_POST['id'] ?? null;
                 $columns = [];
-                $placeholders = [];
-                foreach ($data as $key => $value) {
-                    if ($key === 'logo' && $table === 'Entreprise') {
-                        if (!empty($_FILES['logo']['name'])) {
-                            $logoData = handleLogoUpload($_FILES['logo']);
-                            if ($logoData !== false) {
-                                $data['logo'] = $logoData; // Stocke directement les données WebP
-                            } else {
-                                // Gérer l'erreur d'upload
-                                echo "Erreur lors de l'upload du logo.";
-                                continue;
-                            }
-                        } elseif ($action === 'edit') {
-                            // Si c'est une édition et qu'aucun nouveau logo n'est fourni, on garde l'ancien
-                            unset($data['logo']);
-                        } else {
-                            // Si c'est un ajout et qu'aucun logo n'est fourni, on met NULL
-                            $data['logo'] = null;
-                        }
-                    }                    if (isset($data[$key])) {
-                        $columns[] = $key;
-                        $placeholders[] = ':' . $key;
+                $values = [];
+                $params = [];
+
+                foreach ($_POST as $key => $value) {
+                    if (!in_array($key, ['action', 'table'])) {
+                        $columns[] = "`$key`";
+                        $values[] = ":$key";
+                        $params[":$key"] = $value;
                     }
                 }
-                $columns = implode(', ', $columns);
-                $placeholders = implode(', ', $placeholders);
-                if ($action === 'add') {
-                    $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-                } else {
-                    $set = implode(', ', array_map(function ($key) {
-                        return "$key = :$key";
-                    }, array_keys($data)));
-                    $sql = "UPDATE $table SET $set WHERE id = :id";
-                    $data['id'] = $id;
+
+                // Traitement spécial pour le logo
+                if ($table === 'Entreprise' && isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                    $logoData = handleLogoUpload($_FILES['logo']);
+                    if ($logoData !== false) {
+                        $columns[] = "`logo`";
+                        $values[] = ":logo";
+                        $params[":logo"] = $logoData;
+                    }
                 }
+
+                $sql = "INSERT INTO `$table` (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $values) . ")";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute($data);
+                $stmt->execute($params);
                 break;
-                case 'delete':
-                    $id = $_POST['id'] ?? null;
-                    if ($id) {
-                        // Suppression de l'entrée dans la base de données
-                        $sql = "DELETE FROM $table WHERE id = :id";
-                        $stmt = $pdo->prepare($sql);
-                        $stmt->execute(['id' => $id]);
+
+            case 'edit':
+                if (!isset($_POST['id'])) {
+                    throw new Exception("ID manquant pour l'édition");
+                }
+
+                $id = $_POST['id'];
+                $updates = [];
+                $params = [':id' => $id];
+
+                foreach ($_POST as $key => $value) {
+                    if (!in_array($key, ['action', 'table', 'id'])) {
+                        $updates[] = "`$key` = :$key";
+                        $params[":$key"] = $value;
                     }
+                }
+
+                // Traitement spécial pour le logo
+                if ($table === 'Entreprise' && isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                    $logoData = handleLogoUpload($_FILES['logo']);
+                    if ($logoData !== false) {
+                        $updates[] = "`logo` = :logo";
+                        $params[":logo"] = $logoData;
+                    }
+                }
+
+                if (!empty($updates)) {
+                    $sql = "UPDATE `$table` SET " . implode(', ', $updates) . " WHERE id = :id";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
+                }
                 break;
         }
         // Redirection pour éviter les soumissions multiples
+
+        $pdo->commit();
+
         header('Location: ' . $_SERVER['PHP_SELF']);
+        exit();
+
+    } catch (Exception $e) {
+        // En cas d'erreur, on annule la transaction
+        $pdo->rollBack();
+        error_log("Erreur lors de l'opération sur la table $table: " . $e->getMessage());
+        // Redirection avec message d'erreur
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?error=' . urlencode($e->getMessage()));
         exit();
     }
 }
@@ -333,71 +398,31 @@ foreach ($tables as $table) {
         </div>
     </div>
 
-<!-- Modals d'ajout pour chaque table -->
-<div class="modal fade" id="addEntrepriseModal" tabindex="-1" aria-labelledby="addEntrepriseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addEntrepriseModalLabel">Ajouter une Entreprise</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" enctype="multipart/form-data" onsubmit="return validateForm(this)">
-                <div class="modal-body">
-                    <input type="hidden" name="action" value="add">
-                    <input type="hidden" name="table" value="Entreprise">
-                    
-                    <?php foreach (getTableStructure($pdo, 'Entreprise') as $column): ?>
-                        <?php if ($column['Field'] !== 'id'): ?>
-                            <div class="mb-3">
-                                <label for="add_<?php echo $column['Field']; ?>" class="form-label"><?php echo ucfirst($column['Field']); ?></label>
-                                
-                                <?php if ($column['Field'] === 'logo'): ?>
-                                    <input type="file" class="form-control" id="add_<?php echo $column['Field']; ?>" name="<?php echo $column['Field']; ?>" accept="image/png, image/jpeg, image/webp, image/jpg" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
-                                    <small class="form-text text-muted">Formats acceptés : PNG, JPEG, WebP, JPG. L'image sera convertie en WebP.</small>
-                                <?php else: ?>
-                                    <input type="text" class="form-control" id="add_<?php echo $column['Field']; ?>" name="<?php echo $column['Field']; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    <button type="submit" class="btn btn-primary">Ajouter</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modals d'édition pour chaque table -->
-<?php foreach ($tableData['Entreprise'] as $row): ?>
-    <div class="modal fade" id="editEntrepriseModal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="editEntrepriseModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
+<!-- Modals d'ajout et d'édition pour chaque table -->
+<?php foreach ($tables as $table): ?>
+    <!-- Modal d'ajout -->
+    <div class="modal fade" id="add<?php echo ucfirst($table); ?>Modal" tabindex="-1" aria-labelledby="add<?php echo ucfirst($table); ?>ModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editEntrepriseModalLabel<?php echo $row['id']; ?>">Éditer Entreprise</h5>
+                    <h5 class="modal-title" id="add<?php echo ucfirst($table); ?>ModalLabel">Ajouter <?php echo rtrim(ucfirst($table), 's'); ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post" enctype="multipart/form-data" onsubmit="return validateForm(this)">
                     <div class="modal-body">
-                        <input type="hidden" name="action" value="edit">
-                        <input type="hidden" name="table" value="Entreprise">
-                        <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="table" value="<?php echo $table; ?>">
                         
-                        <?php foreach (getTableStructure($pdo, 'Entreprise') as $column): ?>
+                        <?php foreach (getTableStructure($pdo, $table) as $column): ?>
                             <?php if ($column['Field'] !== 'id'): ?>
                                 <div class="mb-3">
-                                    <label for="<?php echo $column['Field'] . $row['id']; ?>" class="form-label"><?php echo ucfirst($column['Field']); ?></label>
+                                    <label for="add_<?php echo $column['Field']; ?>" class="form-label"><?php echo ucfirst($column['Field']); ?></label>
                                     
-                                    <?php if ($column['Field'] === 'logo'): ?>
-                                        <?php if (!empty($row['logo'])): ?>
-                                            <img src='data:image/webp;base64,<?php echo base64_encode($row['logo']); ?>' alt="Logo actuel" class="img-fluid mb-2" style="max-width: 100px; max-height: 100px;">
-                                        <?php endif; ?>
-                                        <input type="file" class="form-control" id="<?php echo $column['Field'] . $row['id']; ?>" name="<?php echo $column['Field']; ?>" accept="image/png, image/jpeg, image/webp, image/jpg">
+                                    <?php if ($column['Field'] === 'logo' && $table === 'Entreprise'): ?>
+                                        <input type="file" class="form-control" id="add_<?php echo $column['Field']; ?>" name="<?php echo $column['Field']; ?>" accept="image/png, image/jpeg, image/webp, image/jpg" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                         <small class="form-text text-muted">Formats acceptés : PNG, JPEG, WebP, JPG. L'image sera convertie en WebP.</small>
                                     <?php else: ?>
-                                        <input type="text" class="form-control" id="<?php echo $column['Field'] . $row['id']; ?>" name="<?php echo $column['Field']; ?>" value="<?php echo htmlspecialchars($row[$column['Field']] ?? ''); ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
+                                        <input type="text" class="form-control" id="add_<?php echo $column['Field']; ?>" name="<?php echo $column['Field']; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
@@ -405,12 +430,57 @@ foreach ($tables as $table) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Modals d'édition -->
+    <?php foreach ($tableData[$table] as $row): ?>
+        <?php if (isset($row['id'])): ?>
+        <div class="modal fade" id="edit<?php echo ucfirst($table); ?>Modal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="edit<?php echo ucfirst($table); ?>ModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="edit<?php echo ucfirst($table); ?>ModalLabel<?php echo $row['id']; ?>">Éditer <?php echo rtrim(ucfirst($table), 's'); ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" onsubmit="return validateForm(this)">
+                        <div class="modal-body">
+                            <input type="hidden" name="action" value="edit">
+                            <input type="hidden" name="table" value="<?php echo $table; ?>">
+                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                            
+                            <?php foreach (getTableStructure($pdo, $table) as $column): ?>
+                                <?php if ($column['Field'] !== 'id'): ?>
+                                    <div class="mb-3">
+                                        <label for="<?php echo $column['Field'] . $row['id']; ?>" class="form-label"><?php echo ucfirst($column['Field']); ?></label>
+                                        
+                                        <?php if ($column['Field'] === 'logo' && $table === 'Entreprise'): ?>
+                                            <?php if (!empty($row['logo'])): ?>
+                                                <img src='data:image/webp;base64,<?php echo base64_encode($row['logo']); ?>' alt="Logo actuel" class="img-fluid mb-2" style="max-width: 100px; max-height: 100px;">
+                                            <?php endif; ?>
+                                            <input type="file" class="form-control" id="<?php echo $column['Field'] . $row['id']; ?>" name="<?php echo $column['Field']; ?>" accept="image/png, image/jpeg, image/webp, image/jpg">
+                                            <small class="form-text text-muted">Formats acceptés : PNG, JPEG, WebP, JPG. L'image sera convertie en WebP.</small>
+                                        <?php else: ?>
+                                            <input type="text" class="form-control" id="<?php echo $column['Field'] . $row['id']; ?>" name="<?php echo $column['Field']; ?>" value="<?php echo htmlspecialchars($row[$column['Field']] ?? ''); ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
 <?php endforeach; ?>
 
     <?php renderFooter($siteName, $navLinks, $logoURL); ?>
