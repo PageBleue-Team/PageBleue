@@ -36,9 +36,6 @@ function renderNavbar($siteName) {
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
     <style>
-        :root {
-            --primary-blue: #007bff;
-        }
         .navbar {
             background-color: var(--primary-blue) !important;
             color: white;
@@ -112,9 +109,9 @@ function renderNavbar($siteName) {
     foreach ($navLinks as $name => $link) {
         $activeClass = ($activePage == $name) ? ' active' : '';
         $adminClass = ($name == "Panel") ? 'admin-link' : ''; // Classe pour l'onglet Admin
-        echo '<li class="nav-item">';
+        echo '<div class="nav-item">';
         echo '<a class="nav-link ' . $adminClass . $activeClass . '" href="' . htmlspecialchars($link) . '" data-nav="' . htmlspecialchars(strtolower($name)) . '">' . htmlspecialchars($name) . '</a>';
-        echo '</li>';
+        echo '</div>';
     }
 
     echo '<div class="nav-slider"></div>';
