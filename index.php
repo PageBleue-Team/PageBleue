@@ -55,13 +55,12 @@ try {
     <meta
       name="description"
       content="PageBleue, lieu de référencement d'entreprises pour des recherches de Formations en Milieu Professionnel sur et autour d'Avignon.">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-blue: #007bff;
-            --secondary-blue: #4dabf7;
-            --light-blue: #e7f5ff;
-            --dark-blue: #004085;
+            --primary-blue: #2934db;
+            --secondary-blue: #0758d1;
+            --light-blue: #682bd8;
+            --dark-blue: #171bae;
         }
         html, body {
             height: 100%;
@@ -76,6 +75,18 @@ try {
             color: #333;
             position: relative;
             overflow-x: hidden;
+        }
+        /* Changement couleur bouton entreprises */
+        .btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited, .btn-border-color {
+            background-color: var(--primary-blue) !important;
+            border-color: var(--secondary-blue) !important;
+            color: white !important;
+        }
+        /* Changement taille images */
+        .card-img, .card-img-bottom, .card-img-top {
+            width: 50% !important;
+            margin: auto !important;
+            margin-top: 5px !important;
         }
         .content {
             flex: 1 0 auto;
@@ -176,12 +187,14 @@ try {
                                     <?php endif; ?>
                                     <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '/img/default-logo.png'; ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                                     <div class="card-body">
-                                        <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
+                                        <p class="h5 card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
                                         <p class="card-text">
                                             <strong>Secteur:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?><br>
                                             <strong>Adresse:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?>
                                         </p>
-                                        <a href="/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary">En savoir plus</a>
+                                        <div class="col text-center">
+                                            <a href="/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary col text-center">En savoir plus</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
