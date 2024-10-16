@@ -36,6 +36,12 @@ function renderNavbar($siteName) {
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
     <style>
+        :root {
+            --primary-blue: #2934db;
+            --secondary-blue: #0758d1;
+            --light-blue: #682bd8;
+            --dark-blue: #171bae;
+        }
         .navbar {
             background-color: var(--primary-blue) !important;
             color: white;
