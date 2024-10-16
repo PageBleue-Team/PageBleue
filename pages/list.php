@@ -134,8 +134,7 @@ if ($showEnterprise) {
                 </div>
                 <div class="col-md-8">
                     <h2 class="section-title">Informations générales</h2>
-                    <div class="info-item"><span class="info-label">Secteur:</span> <?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?></div>
-                    <div class="info-item"><span class="info-label">Taille:</span> <?php echo htmlspecialchars(nullSafe($enterprise['taille'])); ?></div>
+                    <div class="info-item"><span class="info-label">Employé(s):</span> <?php echo htmlspecialchars(nullSafe($enterprise['taille'])); ?></div>
                     <div class="info-item"><span class="info-label">Adresse:</span> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?></div>
                     <div class="info-item"><span class="info-label">Téléphone:</span> <?php echo htmlspecialchars(nullSafe($enterprise['telephone'])); ?></div>
                     <div class="info-item"><span class="info-label">Email:</span> <?php echo htmlspecialchars(nullSafe($enterprise['email'])); ?></div>
@@ -164,20 +163,15 @@ if ($showEnterprise) {
                 <?php endif; ?>
             </div>
 
-            <div class="mt-4">
-                <h2 class="section-title">Informations pour les stagiaires</h2>
-                <div class="info-item"><span class="info-label">Avantages pour les stagiaires:</span> <?php echo htmlspecialchars(nullSafe($enterprise['avantages_stagiaire'])); ?></div>
-            </div>
-
             <?php if (!empty($tuteurs)): ?>
                 <div class="mt-4">
-                    <h2 class="section-title">Tuteurs</h2>
+                    <h2 class="section-title">Tuteur(s)</h2>
                     <?php foreach ($tuteurs as $tuteur): ?>
                         <div class="card mb-3">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($tuteur['prenom'] . ' ' . $tuteur['nom']); ?></h5>
                                 <p class="card-text"><strong>Contact:</strong> <?php echo htmlspecialchars(nullSafe($tuteur['contact'])); ?></p>
-                                <p class="card-text"><strong>Expérience:</strong> <?php echo htmlspecialchars(nullSafe($tuteur['experience'])); ?></p>
+                                <p class="card-text"><strong>Rôle:</strong> <?php echo htmlspecialchars(nullSafe($tuteur['role'])); ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>
