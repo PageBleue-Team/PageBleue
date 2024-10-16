@@ -109,9 +109,9 @@ function renderNavbar($siteName) {
     foreach ($navLinks as $name => $link) {
         $activeClass = ($activePage == $name) ? ' active' : '';
         $adminClass = ($name == "Panel") ? 'admin-link' : ''; // Classe pour l'onglet Admin
-        echo '<ul class="nav-item">';
+        echo '<div class="nav-item">';
         echo '<a class="nav-link ' . $adminClass . $activeClass . '" href="' . htmlspecialchars($link) . '" data-nav="' . htmlspecialchars(strtolower($name)) . '">' . htmlspecialchars($name) . '</a>';
-        echo '</ul>';
+        echo '</div>';
     }
 
     echo '<div class="nav-slider"></div>';
