@@ -56,12 +56,6 @@ try {
       name="description"
       content="PageBleue, lieu de référencement d'entreprises pour des recherches de Formations en Milieu Professionnel sur et autour d'Avignon.">
     <style>
-        :root {
-            --primary-blue: #2934db;
-            --secondary-blue: #0758d1;
-            --light-blue: #682bd8;
-            --dark-blue: #171bae;
-        }
         html, body {
             height: 100%;
             margin: 0;
