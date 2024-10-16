@@ -104,7 +104,7 @@ function renderNavbar($siteName) {
     echo '<span class="navbar-toggler-icon"></span>';
     echo '</button>';
     echo '<div class="collapse navbar-collapse" id="navbarNav">';
-    echo '<ul class="navbar-nav me-auto mb-2 mb-lg-0 position-relative">';
+    echo '<li class="navbar-nav me-auto mb-2 mb-lg-0 position-relative">';
 
     foreach ($navLinks as $name => $link) {
         $activeClass = ($activePage == $name) ? ' active' : '';
@@ -115,7 +115,7 @@ function renderNavbar($siteName) {
     }
 
     echo '<div class="nav-slider"></div>';
-    echo '</ul>';
+    echo '</li>';
     echo '<div class="search-container">';
     echo '<input class="form-control search-input" type="search" placeholder="Rechercher une entreprise" aria-label="Search" id="search-input">';
     echo '<i class="fas fa-search search-icon"></i>';
