@@ -10,11 +10,11 @@ try {
     $pdo = getDbConnection(); // Utilisez votre fonction de connexion à la base de données
     
     // Récupérer tous les utilisateurs
-    $stmt = $pdo->query("SELECT id, password FROM users");
+    $stmt = $pdo->query("SELECT id, password FROM Users");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Mettre à jour chaque mot de passe
-    $updateStmt = $pdo->prepare("UPDATE users SET password = :password WHERE id = :id");
+    $updateStmt = $pdo->prepare("UPDATE Users SET password = :password WHERE id = :id");
     
     foreach ($users as $user) {
         // Vérifiez si le mot de passe n'est pas déjà haché
