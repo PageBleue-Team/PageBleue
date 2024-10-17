@@ -9,10 +9,6 @@ includeWidget('footer');
 // Le reste de votre code pour la page d'accueil
 $pdo = getDbConnection();
 
-// Exemple : Récupérer quelques entreprises pour la page d'accueil
-$stmt = $pdo->query("SELECT * FROM Entreprise LIMIT 5");
-$featuredEnterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 // Configuration du site
 $siteDescription = "Bienvenue sur Page Bleue, un projet réalisé par trois lycéens de La Salle Avignon. Notre mission est de faciliter la recherche de Périodes de Formation en Milieu Professionnel (PFMP) tout en contribuant à l'obtention de notre baccalauréat.
 
@@ -29,13 +25,13 @@ try {
     // Fonction de recherche d'entreprises
     function searchEnterprises($search) {
         global $pdo;
-        $query = "SELECT * FROM Entreprise WHERE nom LIKE :search OR description LIKE :search LIMIT 5";
+        $query = "SELECT * FROM Entreprises WHERE nom LIKE :search OR description LIKE :search LIMIT 5";
         $stmt = $pdo->prepare($query);
         $stmt->execute(['search' => "%$search%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
         // Récupération des entreprises aléatoires pour la page d'accueil
-        $stmt = $pdo->query("SELECT * FROM Entreprise LIMIT 5");
+        $stmt = $pdo->query("SELECT * FROM Entreprises LIMIT 5");
         $featuredEnterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
     } catch (PDOException $e) {
@@ -174,17 +170,25 @@ try {
                         <?php foreach ($featuredEnterprises as $enterprise): ?>
                             <div class="col-md-4 mb-4">
                                 <div class="card enterprise-card" onclick="window.location.href='/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>'">
-                                    <?php if ($enterprise['ancien_eleve_lasalle']): ?>
+                                    <?php if ($enterprise['lasallien']): ?>
                                         <div class="alumni-icon" title="Ancien élève de La Salle">
                                             <i class="fas fa-user-graduate"></i>
                                         </div>
                                     <?php endif; ?>
                                     <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '/img/default-logo.png'; ?>" class="card-img-top" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                                     <div class="card-body">
-                                        <p class="h5 card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
+                                        <h5 class="card-title"><?php echo htmlspecialchars($enterprise['nom']); ?></h5>
                                         <p class="card-text">
-                                            <strong>Secteur:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['secteur'])); ?><br>
-                                            <strong>Adresse:</strong> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?>
+                                            <strong>Adresse:</strong> 
+                                            <?php
+                                            $adresse = [];
+                                            if (!empty($enterprise['numero'])) $adresse[] = $enterprise['numero'];
+                                            if (!empty($enterprise['rue'])) $adresse[] = $enterprise['rue'];
+                                            if (!empty($enterprise['complement'])) $adresse[] = $enterprise['complement'];
+                                            if (!empty($enterprise['code_postal'])) $adresse[] = $enterprise['code_postal'];
+                                            if (!empty($enterprise['ville'])) $adresse[] = $enterprise['ville'];
+                                            echo htmlspecialchars(implode(', ', $adresse));
+                                            ?>
                                         </p>
                                         <div class="col text-center">
                                             <a href="/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>" class="btn btn-primary col text-center">En savoir plus</a>
