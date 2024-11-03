@@ -1,7 +1,8 @@
 <?php
 if (!function_exists('safeInclude')) {
-    require_once __DIR__ . '/../config.php';
+    require_once './../config/init.php';
 }
+use \App\Controller\SecurityController;
 
 function getNavLinks() {
     $navLinks = [
@@ -11,9 +12,10 @@ function getNavLinks() {
         "À Propos de nous" => "/#story"
     ];
 
+    $SecurityController = new SecurityController();
     // Vérification de l'authentification
-    if (isAdminLoggedIn()) {
-        $navLinks["Panel"] = "/panel"; // Onglet Admin
+    if ($SecurityController->isAdminLoggedIn()) {
+        $navLinks["Panel"] = "/panel";
     }
 
     return $navLinks;
@@ -31,75 +33,11 @@ function renderNavbar($siteName) {
     
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="manifest" href="/imgs/favicons/site.webmanifest">
-    <link rel="icon" href="favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/imgs/favicons/apple-touch-icon.png">
+    <link rel="manifest" href="./public/assets/images/favicons/site.webmanifest">
+    <link rel="icon" href="./public/assets/images/favicons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="./public/assets/images/favicons/apple-touch-icon.png">
 
-    <style>
-        :root {
-            --primary-blue: #2934db;
-            --secondary-blue: #0758d1;
-            --light-blue: #682bd8;
-            --dark-blue: #171bae;
-        }
-        .navbar {
-            background-color: var(--primary-blue) !important;
-            color: white;
-        }
-        .navbar-light .navbar-brand,
-        .navbar-light .navbar-nav .nav-link {
-            color: white !important;
-        }
-        .nav-link.admin-link {
-            text: red !important; /* Couleur rouge pour l\'onglet Admin */
-        }
-        .nav-link {
-            position: relative;
-        }
-        .nav-slider {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 2px;
-            background-color: white;
-            transition: all 0.3s ease;
-            pointer-events: none;
-        }
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-        }
-        .search-input {
-            padding-right: 40px;
-            width: 100%;
-            height: 40px;
-        }
-        .search-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-            cursor: pointer;
-            pointer-events: none;
-        }
-        @media (max-width: 991px) {
-            .navbar-nav {
-                margin-bottom: 15px;
-            }
-            .search-container {
-                margin-top: 15px;
-                max-width: 100%;
-            }
-            .nav-slider {
-                display: none;
-            }
-            .nav-link.active {
-                background-color: rgba(255, 255, 255, 0.2);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/navbar.css">
     ';
 
     // Structure HTML de la navbar
