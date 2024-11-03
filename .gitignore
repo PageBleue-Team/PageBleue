@@ -1,6 +1,5 @@
 .env
 composer.phar
 /vendor/
-/cache/
-logs/*
-pages/login.php
+/var/logs/*
+/var/cache/*
