@@ -1,5 +1,5 @@
 <?php
-require_once '../config.php';
+require_once __DIR__ . '/../../config/config.php';
 includeWidget('navbar');
 $navLinks = getNavLinks();  
 includeWidget('footer');
@@ -9,7 +9,7 @@ define('DEBUG_MODE', false);
 
 // Fonction pour enregistrer les erreurs détaillées
 function logDetailedError($message) {
-    $logFile = __DIR__ . '/../logs/login_errors.log';
+    $logFile = __DIR__ . '/../../var/logs/login_errors.log';
     $timestamp = date('Y-m-d H:i:s');
     $logMessage = "[$timestamp] $message\n";
     if (!file_put_contents($logFile, $logMessage, FILE_APPEND)) {
@@ -28,9 +28,9 @@ function displayError($publicMessage, $detailedMessage) {
 }
 
 // Forcer HTTPS
-if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
-    header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-}
+// if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+//     header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+// }
 
 $error = '';
 $pdo = getDbConnection();
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             displayError("Nom d'utilisateur ou mot de passe invalide.", "Empty input or username too long");
         } else {
             try {
-                $stmt = $pdo->prepare("SELECT id, username, password, login_attempts, last_attempt_time FROM users WHERE username = :username");
+                $stmt = $pdo->prepare("SELECT id, username, password, login_attempts, last_attempt_time FROM Users WHERE username = :username");
                 $stmt->execute(['username' => $username]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['username'] = $user['username'];
                         
                         // Réinitialiser les tentatives de connexion
-                        $stmt = $pdo->prepare("UPDATE users SET login_attempts = 0 WHERE id = :id");
+                        $stmt = $pdo->prepare("UPDATE Users SET login_attempts = 0 WHERE id = :id");
                         $stmt->execute(['id' => $user['id']]);
                         
                         logLoginAttempt($username, true);
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit;
                     } else {
                         // Incrémenter les tentatives de connexion
-                        $stmt = $pdo->prepare("UPDATE users SET login_attempts = login_attempts + 1, last_attempt_time = NOW() WHERE id = :id");
+                        $stmt = $pdo->prepare("UPDATE Users SET login_attempts = login_attempts + 1, last_attempt_time = NOW() WHERE id = :id");
                         $stmt->execute(['id' => $user['id']]);
                         displayError("Nom d'utilisateur ou mot de passe incorrect.", "Password mismatch for user: $username");
                         logLoginAttempt($username, false);

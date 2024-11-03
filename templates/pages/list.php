@@ -1,5 +1,5 @@
 <?php
-require_once '../config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Inclure les widgets nécessaires
 includeWidget('navbar');
@@ -12,37 +12,47 @@ $pdo = getDbConnection();
 $showEnterprise = isset($_GET['id']) ? intval($_GET['id']) : null;
 
 if ($showEnterprise) {
-    // Récupérer les détails de l'entreprise spécifique
-    $stmt = $pdo->prepare("SELECT e.*, l.adresse AS localisation_adresse, l.transports, l.carte_interactive 
-                           FROM Entreprise e 
-                           LEFT JOIN Localisation l ON e.id = l.entreprise_id 
+    // Récupérer les détails de l'entreprise
+    $stmt = $pdo->prepare("SELECT e.* , e.nom, e.adresse_id, e.contact_id, e.juridique_id, e.lasallien, e.checked
+                           FROM Entreprises e
                            WHERE e.id = ?");
     $stmt->execute([$showEnterprise]);
     $enterprise = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Récupérer les stages associés à cette entreprise
-    $stmtStages = $pdo->prepare("SELECT s.*, e.nom AS eleve_nom, e.prenom AS eleve_prenom 
-                                 FROM Stage s 
-                                 JOIN Eleve e ON s.eleve_id = e.id 
-                                 WHERE s.entreprise_id = ?");
-    $stmtStages->execute([$showEnterprise]);
-    $stages = $stmtStages->fetchAll(PDO::FETCH_ASSOC);
+    // Récupérer les détails de l'adresse
+    $stmt = $pdo->prepare("SELECT a.* , a.rue, a.numero, a.complement, a.code_postal, a.commune, a.pays
+                           FROM Adresse a
+                           WHERE a.id = ?");
+    $stmt->execute([$showEnterprise]);
+    $adresse = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Récupérer les tuteurs associés à cette entreprise
-    $stmtTuteurs = $pdo->prepare("SELECT * FROM Tuteur WHERE entreprise_id = ?");
-    $stmtTuteurs->execute([$showEnterprise]);
-    $tuteurs = $stmtTuteurs->fetchAll(PDO::FETCH_ASSOC);
+    // Récupérer les détails Juridique
+    $stmt = $pdo->prepare("SELECT j.* , j.SIREN, j.SIRET, j.creation, j.employés
+                           FROM Juridique j
+                           WHERE j.id = ?");
+    $stmt->execute([$showEnterprise]);
+    $juridique = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Récupérer les détails de Contact
+    $stmt = $pdo->prepare("SELECT c.* , c.mail, c.telephone, c.site_web
+                           FROM Contact c
+                           WHERE c.id = ?");
+    $stmt->execute([$showEnterprise]);
+    $contact = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+
 } else {
     // Pagination pour la liste des entreprises
     $limit = 10;
     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
     $offset = ($page - 1) * $limit;
 
-    $stmt = $pdo->query("SELECT COUNT(*) FROM Entreprise");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM Entreprises");
     $total_rows = $stmt->fetchColumn();
     $total_pages = ceil($total_rows / $limit);
 
-    $stmt = $pdo->prepare("SELECT * FROM Entreprise LIMIT $offset, $limit");
+    $stmt = $pdo->prepare("SELECT * FROM Entreprises LIMIT $offset, $limit");
     $stmt->execute();
     $enterprises = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -57,8 +67,6 @@ if ($showEnterprise) {
       name="description"
       content="PageBleue, page de liste des entreprises référencées pour la recherche de Période de Formation.">
     <title><?php echo $showEnterprise ? htmlspecialchars(nullSafe($enterprise['nom'])) : 'Liste des entreprises'; ?> - <?php echo htmlspecialchars($siteName); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             height: 100%;
@@ -130,37 +138,48 @@ if ($showEnterprise) {
             <h1 class="mb-4"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h1>
             <div class="row">
                 <div class="col-md-2">
-                    <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '../img/default-logo.png'; ?>" class="img-fluid enterprise-logo mb-3" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                    <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : './images/logos/default.png'; ?>" class="img-fluid enterprise-logo mb-3" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                 </div>
                 <div class="col-md-8">
                     <h2 class="section-title">Informations générales</h2>
-                    <div class="info-item"><span class="info-label">Employé(s):</span> <?php echo htmlspecialchars(nullSafe($enterprise['taille'])); ?></div>
-                    <div class="info-item"><span class="info-label">Adresse:</span> <?php echo htmlspecialchars(nullSafe($enterprise['adresse'])); ?></div>
-                    <div class="info-item"><span class="info-label">Téléphone:</span> <?php echo htmlspecialchars(nullSafe($enterprise['telephone'])); ?></div>
-                    <div class="info-item"><span class="info-label">Email:</span> <?php echo htmlspecialchars(nullSafe($enterprise['email'])); ?></div>
+                    <div class="info-item"><span class="info-label">Téléphone :</span> <?php echo htmlspecialchars(nullSafe($contact['telephone'])); ?></div>
+                    <div class="info-item"><span class="info-label">Email :</span> <?php echo htmlspecialchars(nullSafe($contact['mail'])); ?></div>
+                    <div class="info-item"><span class="info-label">Ville :</span> <?php echo htmlspecialchars(nullSafe($adresse['commune'])); ?></div>
                     <!-- Site Web check si renseigner -->
                     <div class="info-item">
                         <span class="info-label">Site web:</span>
-                        <?php if (!empty($enterprise['site_web']) && $enterprise['site_web'] !== 'Non Renseigné'): ?>
-                            <a href="<?php echo htmlspecialchars($enterprise['site_web']); ?>" target="_blank"><?php echo htmlspecialchars($enterprise['site_web']); ?></a>
+                        <?php if (!empty($contact['site_web']) && $contact['site_web'] !== 'Non Renseigné'): ?>
+                            <a href="<?php echo htmlspecialchars($contact['site_web']); ?>" target="_blank"><?php echo htmlspecialchars($contact['site_web']); ?></a>
                         <?php else: ?>
                             Non renseigné
                         <?php endif; ?>
                     </div>
+                    <div class="info-item"><span class="info-label">Nb. Stagiaires pris :</span> <?php echo htmlspecialchars(nullSafe($contact['telephone'])); ?></div>
                 </div>
             </div>
             
             <div class="mt-4">
-                <h2 class="section-title">Localisation et accès</h2>
-                <div class="info-item"><span class="info-label">Adresse détaillée:</span> <?php echo htmlspecialchars(nullSafe($enterprise['localisation_adresse'])); ?></div>
-                <div class="info-item"><span class="info-label">Transports:</span> <?php echo htmlspecialchars(nullSafe($enterprise['transports'])); ?></div>
-                <div class="info-item"><span class="info-label">Proximité de l'établissement:</span> <?php echo htmlspecialchars(nullSafe($enterprise['proximite_etablissement'])); ?></div>
-                <div class="info-item"><span class="info-label">Accès:</span> <?php echo htmlspecialchars(nullSafe($enterprise['acces'])); ?></div>
+                <h2 class="section-title">Localisation</h2>
+                <div class="info-item"><span class="info-label">Adresse:</span> <?php echo htmlspecialchars(nullSafe($adresse['rue'])); ?></div>
+                <!-- <div class="info-item"><span class="info-label">Proximité de l'établissement:</span></div> -->
                 <?php if (!empty($enterprise['carte_interactive'])): ?>
                     <div class="mt-3">
                         <iframe src="<?php echo htmlspecialchars($enterprise['carte_interactive']); ?>" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                     </div>
                 <?php endif; ?>
+            </div>
+
+            <div class="mt-4">
+                <h2 class="section-title">Juridique</h2>
+                <div class="info-item"><span class="info-label">Date de création :</span> <?php echo htmlspecialchars(nullSafe($juridique['creation'])); ?></div>
+                <div class="info-item"><span class="info-label">Forme juridique :</span> <?php echo htmlspecialchars(nullSafe($juridique['forme'])); ?></div>
+                <div class="info-item"><span class="info-label">Activité (code NAF/APE) :</span> <?php echo htmlspecialchars(nullSafe($juridique['activite'])); ?></div>
+                <div class="info-item"><span class="info-label">Activité principale :</span> <?php echo htmlspecialchars(nullSafe($juridique['activite_main'])); ?></div>
+
+                <div class="info-item"><span class="info-label">Numéro SIREN :</span> <?php echo htmlspecialchars(nullSafe($juridique['SIREN'])); ?></div>
+                <div class="info-item"><span class="info-label">Numéro SIRET :</span> <?php echo htmlspecialchars(nullSafe($juridique['SIRET'])); ?></div>
+                <div class="info-item"><span class="info-label">Numéro RSC :</span> <?php echo htmlspecialchars(nullSafe($juridique['RSC'])); ?></div>
+                <div class="info-item"><span class="info-label">Nombre d'employé(s) :</span> <?php echo htmlspecialchars(nullSafe($juridique['employés'])); ?></div>
             </div>
 
             <?php if (!empty($tuteurs)): ?>
@@ -169,30 +188,10 @@ if ($showEnterprise) {
                     <?php foreach ($tuteurs as $tuteur): ?>
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h5 class="card-title"><?php echo htmlspecialchars($tuteur['prenom'] . ' ' . $tuteur['nom']); ?></h5>
-                                <p class="card-text"><strong>Contact:</strong> <?php echo htmlspecialchars(nullSafe($tuteur['contact'])); ?></p>
-                                <p class="card-text"><strong>Rôle:</strong> <?php echo htmlspecialchars(nullSafe($tuteur['role'])); ?></p>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (!empty($stages)): ?>
-                <div class="mt-4">
-                    <h2 class="section-title">Stages précédents</h2>
-                    <?php foreach ($stages as $stage): ?>
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Stage de <?php echo htmlspecialchars($stage['eleve_prenom'] . ' ' . $stage['eleve_nom']); ?></h5>
-                                <p class="card-text"><strong>Date:</strong> <?php echo htmlspecialchars($stage['dates']); ?></p>
-                                <p class="card-text"><strong>Missions:</strong> <?php echo htmlspecialchars(nullSafe($stage['missions'])); ?></p>
-                                <p class="card-text"><strong>Niveau requis:</strong> <?php echo htmlspecialchars(nullSafe($stage['niveau_requis'])); ?></p>
-                                <p class="card-text"><strong>Note d'expérience:</strong> <?php echo htmlspecialchars(nullSafe($stage['note_experience'], 'Non noté')); ?>/5</p>
-                                <p class="card-text"><strong>Charge de travail:</strong> <?php echo htmlspecialchars(nullSafe($stage['charge_travail'])); ?></p>
-                                <p class="card-text"><strong>Encadrement:</strong> <?php echo htmlspecialchars(nullSafe($stage['encadrement'])); ?></p>
-                                <p class="card-text"><strong>Ambiance:</strong> <?php echo htmlspecialchars(nullSafe($stage['ambiance'])); ?></p>
-                                <p class="card-text"><strong>Possibilité d'embauche:</strong> <?php echo $stage['possibilite_embauche'] ? 'Oui' : 'Non'; ?></p>
+                                <h5 class="card-title"><?php echo htmlspecialchars($tuteur['nom'] . ' ' . $tuteur['prenom']); ?></h5>
+                                <p class="card-text"><strong>Téléphone :</strong> <?php echo htmlspecialchars(nullSafe($tuteur['telephone'])); ?></p>
+                                <p class="card-text"><strong>Mail :</strong> <?php echo htmlspecialchars(nullSafe($tuteur['mail'])); ?></p>
+                                <p class="card-text"><strong>Poste :</strong> <?php echo htmlspecialchars(nullSafe($tuteur['poste'])); ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -209,14 +208,14 @@ if ($showEnterprise) {
                         <div class="col-12 mb-4">
                             <a href="/list?id=<?php echo $enterprise['id']; ?>" class="card-link">
                                 <div class="card">
-                                    <?php if ($enterprise['ancien_eleve_lasalle']): ?>
+                                    <?php if ($enterprise['lasallien']): ?>
                                         <div class="lasalle-badge">
                                             <i class="fas fa-user-graduate"></i>
                                         </div>
                                     <?php endif; ?>
                                     <div class="card-body d-flex">
                                         <div class="enterprise-logo-container">
-                                            <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '../img/default-logo.png'; ?>" class="enterprise-logo" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                                            <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '/images/logos/default.png'; ?>" class="enterprise-logo" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                                         </div>
                                         <div>
                                             <h5 class="card-title"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h5>
