@@ -1,6 +1,8 @@
 <?php
 // Définir le chemin racine du projet
-define('ROOT_PATH', __DIR__);
+define('ROOT_PATH', __DIR__ . '/..');
+define('CACHE_DIR', ROOT_PATH . '/var/cache');
+define('LOGO_DIR', ROOT_PATH . '/public/assets/images/logos');
 
 require ROOT_PATH . '/vendor/autoload.php';
 
@@ -12,29 +14,6 @@ $dotenv->load();
 
 // Démarrer la session
 session_start();
-
-// Fonction pour vérifier si l'utilisateur est connecté en tant qu'admin
-function isAdminLoggedIn() {
-    return isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
-}
-
-// Fonction pour se connecter en tant qu'admin
-function adminLogin($username, $password) {
-    if ($username === $_ENV['ADMIN_USERNAME'] && password_verify($password, $_ENV['ADMIN_PASSWORD_HASH'])) {
-        $_SESSION['admin_logged_in'] = true;
-        return true;
-    }
-    return false;
-}
-
-// Fonction pour se déconnecter
-function adminLogout() {
-    $_SESSION = array();
-    unset($_SESSION['admin_logged_in']);
-    session_destroy();
-    header('Location: /#');
-    exit();
-}
 
 // Connexion à la base de données (singleton)
 class Database {
@@ -69,7 +48,35 @@ class Database {
 
 // Fonction pour obtenir la connexion à la base de données
 function getDbConnection() {
-    return Database::getInstance()->getConnection();
+    static $pdo = null;
+    if ($pdo === null) {
+        $dsn = "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']};charset=utf8mb4";
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ];
+        $pdo = new PDO($dsn, $_ENV['DB_USER'], $_ENV['DB_PASS'], $options);
+    }
+    return $pdo;
+}
+
+# Fonction de cache
+function cacheQuery($key, $callback, $ttl = 3600) {
+    $cacheFile = CACHE_DIR . '/' . md5($key) . '.cache';
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $ttl)) {
+        return unserialize(file_get_contents($cacheFile));
+    }
+    $data = $callback();
+    file_put_contents($cacheFile, serialize($data));
+    return $data;
+}
+
+$cacheDir = CACHE_DIR;
+
+// Vérification si le répertoire cache existe
+if (!is_dir($cacheDir)) {
+    mkdir($cacheDir, 0755, true);
 }
 
 # Fonction log connexion Admin
@@ -80,7 +87,7 @@ function logLoginAttempt($username, $success) {
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
     
     // Récupérer l'ID de l'utilisateur s'il existe
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username");
+    $stmt = $pdo->prepare("SELECT id FROM Users WHERE username = :username");
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     $user_id = $user ? $user['id'] : null;
@@ -97,14 +104,13 @@ function logLoginAttempt($username, $success) {
     
     // Mettre à jour les informations de l'utilisateur si la connexion a réussi
     if ($success && $user_id) {
-        $stmt = $pdo->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP, login_attempts = 0 WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE Users SET last_login = CURRENT_TIMESTAMP, login_attempts = 0 WHERE id = :id");
         $stmt->execute(['id' => $user_id]);
     }
 }
 
 // Autres variables globales utiles
 $siteName = $_ENV['WEBSITE'];
-$cacheDir = ROOT_PATH . '/cache/enterprises/';
 $logoURL = $_ENV['LASALLE_LOGO_URL'];
 $descriptionLength = isset($_ENV['DESCRIPTION_LENGTH']) ? intval($_ENV['DESCRIPTION_LENGTH']) : 250;
 
@@ -118,9 +124,18 @@ function safeInclude($filePath) {
     }
 }
 
-// Fonction pour inclure les widgets
-function includeWidget($widgetName) {
-    safeInclude("widgets/$widgetName.php");
+/**
+ * Helper function pour inclure les widgets
+ * @param string $name
+ * @return void
+ */
+function includeWidget(string $name): void {
+    $filePath = ROOT_PATH . "/templates/layout/{$name}.php";
+    if (file_exists($filePath)) {
+        require_once $filePath;
+    } else {
+        error_log("Widget non trouvé : {$name}");
+    }
 }
 
 # En cas d'entrée NULL ou vide dans la BDD
@@ -128,7 +143,8 @@ function nullSafe($value, $default = "Non Renseigné") {
     return $value !== null && $value !== '' ? $value : $default;
 }
 
-// Assurez-vous que le répertoire de cache existe
-if (!is_dir($cacheDir)) {
-    mkdir($cacheDir, 0755, true);
+// Obtenir le lien d'un logo d'entreprise
+function getLogoUrl($entrepriseId) {
+    $logoPath = LOGO_DIR . '/' . $entrepriseId . '.webp';
+    return file_exists($logoPath) ? $logoPath : LOGO_DIR . '/default.png';
 }
