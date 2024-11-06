@@ -27,7 +27,7 @@ jobs:
     
     - name: 🎣 Récupération répertoire de cache composer
       id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
     
     - name: Cache dependencies
       uses: actions/cache@v4
