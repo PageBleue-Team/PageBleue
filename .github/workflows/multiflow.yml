@@ -4,41 +4,53 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
 permissions:
   contents: read
+
 jobs:
-  check-style:
-    name: 🧹 Vérification du code
+
+  tests:
+    name: 🧪 Exécution des tests
     runs-on: ubuntu-latest
+    
     steps:
     - uses: actions/checkout@v4
+    
     - name: 🧱 Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3.12'
-        tools: composer:v2, phpcs
+        tools: composer:v2, phpunit
+        
     - name: 🎣 Récupération répertoire de cache composer
       id: composer-cache
       run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+        
     - name: Cache dependencies
       uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
+        
     - name: 🌐 Installation des dépendances
       run: composer install --prefer-dist --no-progress
-    - name: ✅ Vérifier les normes de code
-      run: phpcs --standard=PSR12 /
+        
+    - name: ✅ Exécuter les tests unitaires
+      run: vendor/bin/phpunit tests/
+
   deploy:
-    name: 🎉 Deployement Site
-    needs: check-style
+    name: 🎉 Déploiement du site
+    needs: tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
     steps:
     - name: 🚚 Checkout code
       uses: actions/checkout@v4
-    - name: 🚚 Prepare code
+
+    - name: 🚚 Préparer le code
       id: composer-cache
       uses: actions/cache@v4
       with:
@@ -46,8 +58,10 @@ jobs:
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
+        
     - name: 📂 Installation des dépendances
       run: composer install --prefer-dist --no-progress
+        
     - name: 🔄 Synchronisation des fichiers
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
