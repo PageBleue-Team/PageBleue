@@ -7,22 +7,26 @@ updates:
       interval: "weekly"
       time: "10:00"
       timezone: "Europe/Paris"
+        
     versioning-strategy: "auto"
+    
     # Labels pour le tri automatique
     labels:
       - "dependencies"
       - "php"
       - "automerge"
+    
     # Configuration des commit messages
     commit-message:
       prefix: "⬆️ deps"
       prefix-development: "⬆️ dev-deps"
       include: "scope"
+    
     # Autoriser les mises à jour automatiques
     allow:
       # Autoriser les mises à jour qui passent les tests
       - dependency-type: "all"
-- package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
