@@ -21,9 +21,8 @@ updates:
     # Autoriser les mises à jour automatiques
     allow:
       # Autoriser les mises à jour qui passent les tests
-      - dependency-type: "direct"
-      - dependency-type: "security"
-  - package-ecosystem: "github-actions"
+      - dependency-type: "all"
+- package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
