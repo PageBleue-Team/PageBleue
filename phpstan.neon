@@ -9,4 +9,4 @@ parameters:
         - *vendor/*
         - var/cache/*
     ignoreErrors:
-        - '#Directory .* was not found#'
+        - '#^Path .* does not exist\.$#'
