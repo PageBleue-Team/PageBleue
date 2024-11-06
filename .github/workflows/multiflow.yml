@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: 🧱 Setup PHP
-      uses: shivammathur/setup-php@2
+      uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3.12'
         extensions: mbstring, intl, zip, pdo_mysql
