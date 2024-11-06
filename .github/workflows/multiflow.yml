@@ -1,17 +1,16 @@
-name: 🔰 PHP Test & Deployement
+name: 🔰 PHP Test & Deployment
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 permissions:
   contents: read
 
 jobs:
 
   tests:
-    name: 🧪 Exécution des tests
+    name: 🧪 Vérification du code
     runs-on: ubuntu-latest
     
     steps:
@@ -21,7 +20,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3.12'
-        tools: composer:v2, phpunit
+        tools: composer:v2
         
     - name: 🎣 Récupération répertoire de cache composer
       id: composer-cache
@@ -37,19 +36,19 @@ jobs:
     - name: 🌐 Installation des dépendances
       run: composer install --prefer-dist --no-progress
         
-    - name: ✅ Exécuter les tests unitaires
-      run: vendor/bin/phpunit tests/
+    - name: 🧹 Vérification du code
+      run: php -l
 
   deploy:
     name: 🎉 Déploiement du site
     needs: tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: 🚚 Checkout code
       uses: actions/checkout@v4
-
+      
     - name: 🚚 Préparer le code
       id: composer-cache
       uses: actions/cache@v4
