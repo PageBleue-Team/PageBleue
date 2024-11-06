@@ -4,3 +4,4 @@ composer.phar
 /var/logs/*
 /var/cache/*
 Arborescense.txt
+*.log

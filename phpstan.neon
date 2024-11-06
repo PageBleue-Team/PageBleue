@@ -1,0 +1,12 @@
+parameters:
+    level: 8
+    paths:
+        - config
+        - public
+        - src
+        - templates
+    excludePaths:
+        - vendor/*
+        - var/cache/*
+    ignoreErrors:
+        - '#^Path .* does not exist\.$#'

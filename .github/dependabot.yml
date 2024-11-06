@@ -1,11 +1,34 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
-  - package-ecosystem: "composer" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      # Plus fréquent puisque c'est automatisé
+      interval: "weekly"
+      time: "10:00"
+      timezone: "Europe/Paris"
+        
+    versioning-strategy: "auto"
+    
+    # Labels pour le tri automatique
+    labels:
+      - "dependencies"
+      - "php"
+      - "automerge"
+    
+    # Configuration des commit messages
+    commit-message:
+      prefix: "⬆️ deps"
+      prefix-development: "⬆️ dev-deps"
+      include: "scope"
+    
+    # Autoriser les mises à jour automatiques
+    allow:
+      # Autoriser les mises à jour qui passent les tests
+      - dependency-type: "all"
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
+      time: "10:00"
+      timezone: "Europe/Paris"
