@@ -1,7 +1,10 @@
 parameters:
     level: 8
     paths:
-        - /
+        - /config
+        - /public
+        - /src
+        - /templates
     excludePaths:
-        - vendor/*
+        - *vendor/*
         - var/cache/*
