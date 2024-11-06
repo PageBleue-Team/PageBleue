@@ -6,7 +6,7 @@ parameters:
         - /src
         - /templates
     excludePaths:
-        - *vendor/*
+        - vendor/*
         - var/cache/*
     ignoreErrors:
         - '#^Path .* does not exist\.$#'

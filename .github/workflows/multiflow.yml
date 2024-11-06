@@ -31,6 +31,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
     - name: 🧹 Vérification du code
       run: |
+        ls -la
         composer require --dev phpstan/phpstan squizlabs/php_codesniffer
         vendor/bin/phpstan analyse --configuration=phpstan.neon
         vendor/bin/phpcs -p --standard=PSR12 --extensions=php --ignore=vendor .
