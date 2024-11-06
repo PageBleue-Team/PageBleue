@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "composer"
-    directory: "*"
+    directory: "/"
     schedule:
       # Plus fréquent puisque c'est automatisé
       interval: "weekly"
