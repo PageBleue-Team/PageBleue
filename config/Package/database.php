@@ -1,5 +1,7 @@
 <?php
-namespace Config\Package;
+namespace Config;
+
+use App\Exception\DatabaseException;
 
 class Database {
     private static ?self $instance = null;
@@ -21,15 +23,15 @@ class Database {
                 $_ENV['DB_HOST'],
                 $_ENV['DB_NAME']
             );
-            
+
             $this->pdo = new \PDO(
-                $dsn, 
-                $_ENV['DB_USER'], 
-                $_ENV['DB_PASS'], 
+                $dsn,
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS'],
                 $this->options
             );
         } catch (\PDOException $e) {
-            throw new \RuntimeException("Database connection failed: " . $e->getMessage());
+            throw DatabaseException::fromPDOException($e);
         }
     }
 

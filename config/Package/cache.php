@@ -1,5 +1,5 @@
 <?php
-namespace Config\Package;
+namespace Config;
 
 class Cache {
     private string $cacheDir;

@@ -1,5 +1,5 @@
 <?php
-namespace Config\Package;
+namespace Config;
 
 class LoginLogger {
     public static function log(string $username, bool $success): void {
