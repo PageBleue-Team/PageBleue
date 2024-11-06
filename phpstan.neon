@@ -3,5 +3,5 @@ parameters:
     paths:
         - /
     excludePaths:
-        - vendor
-        - runner
+        - vendor/*
+        - var/cache/*
