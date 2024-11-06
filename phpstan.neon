@@ -8,3 +8,5 @@ parameters:
     excludePaths:
         - *vendor/*
         - var/cache/*
+    ignoreErrors:
+    - '#Path "[^"]+" does not exist#'
