@@ -1,16 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: "composer"
-    directory: "/"
+    directory: "*"
     schedule:
       # Plus fréquent puisque c'est automatisé
       interval: "weekly"
       time: "10:00"
       timezone: "Europe/Paris"
-    
-    # Pas de limite puisque c'est automatisé
-    open-pull-requests-limit: 0
-    
+        
     versioning-strategy: "auto"
     
     # Labels pour le tri automatique
@@ -29,10 +26,9 @@ updates:
     allow:
       # Autoriser les mises à jour qui passent les tests
       - dependency-type: "all"
-    
-    # Auto-approbation des PR
-    auto-approve: true
-    
-    # Prioriser les mises à jour de sécurité
-    vulnerability-alerts:
-      enabled: true
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "10:00"
+      timezone: "Europe/Paris"
