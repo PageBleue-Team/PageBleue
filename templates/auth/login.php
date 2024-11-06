@@ -1,14 +1,20 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
-includeWidget('navbar');
-$navLinks = getNavLinks();  
-includeWidget('footer');
+if (!function_exists('safeInclude')) {
+    require_once './../config/init.php';
+}
+
+use Config\Utils;
+
+$Utils = new Utils();
+
+$navLinks = $Utils->getNavLinks();
 
 // Activer le mode débogage (à désactiver en production)
 define('DEBUG_MODE', false);
 
 // Fonction pour enregistrer les erreurs détaillées
-function logDetailedError($message) {
+function logDetailedError($message)
+{
     $logFile = __DIR__ . '/../../var/logs/login_errors.log';
     $timestamp = date('Y-m-d H:i:s');
     $logMessage = "[$timestamp] $message\n";
@@ -18,7 +24,8 @@ function logDetailedError($message) {
 }
 
 // Fonction pour afficher les erreurs de manière sécurisée
-function displayError($publicMessage, $detailedMessage) {
+function displayError($publicMessage, $detailedMessage)
+{
     global $error;
     $error = $publicMessage;
     if (DEBUG_MODE) {
@@ -71,15 +78,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         error_log("Stored hash: " . $user['password']);
                         error_log("Entered password: " . $password);
                     }
-                    
+
                     if (password_verify($password, $user['password'])) {
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['username'] = $user['username'];
-                        
+
                         // Réinitialiser les tentatives de connexion
                         $stmt = $pdo->prepare("UPDATE Users SET login_attempts = 0 WHERE id = :id");
                         $stmt->execute(['id' => $user['id']]);
-                        
+
                         logLoginAttempt($username, true);
                         $_SESSION['admin_logged_in'] = true;
                         $_SESSION['user_id'] = $user['id'];
@@ -106,22 +113,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    
+
     // Régénérer le jeton CSRF après chaque tentative
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     $csrf_token = $_SESSION['csrf_token'];
 }
 ?>
-<!DOCTYPE html>
-<html lang="fr">
+<!-- Header -->
+<?php include ROOT_PATH . '/templates/layout/header.php'; ?>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta
-      name="description"
-      content="Page de connexion à PageBleue.">
+        name="description"
+        content="Page de connexion à PageBleue.">
     <title>Connexion - <?php echo htmlspecialchars($siteName); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-blue: #007bff;
@@ -129,26 +134,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             --light-blue: #e7f5ff;
             --dark-blue: #004085;
         }
-        html, body {
+
+        html,
+        body {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
+
         body {
             background-color: white;
             color: #333;
             position: relative;
             overflow-x: hidden;
             display: flex;
-            align-items: center; /* Centrer verticalement */
-            justify-content: center; /* Centrer horizontalement */
-            margin: 0; /* Enlever les marges par défaut */
+            align-items: center;
+            /* Centrer verticalement */
+            justify-content: center;
+            /* Centrer horizontalement */
+            margin: 0;
+            /* Enlever les marges par défaut */
         }
     </style>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-    <?php renderNavbar($siteName); ?>
+
+    <!-- Navbar -->
+    <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
+
     <div class="container-fluid d-flex justify-content-center align-items-center flex-grow-1">
         <div class="col-md-8 col-lg-6 col-xl-4 p-4" style="background-color: white; border-radius: 8px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1);">
             <h2 class="mb-4">Connexion</h2>
@@ -170,6 +184,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <?php renderFooter($siteName, $navLinks, $logoURL); ?>
+    <!-- Footer -->
+    <?php include ROOT_PATH . '/templates/layout/footer.php'; ?>
 </body>
+
 </html>

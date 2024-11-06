@@ -1,10 +1,13 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
+if (!function_exists('safeInclude')) {
+    require_once './../config/init.php';
+}
 
-// Inclure les widgets nécessaires
-includeWidget('navbar');
-$navLinks = getNavLinks();
-includeWidget('footer');
+use Config\Utils;
+
+$Utils = new Utils();
+
+$navLinks = $Utils->getNavLinks();
 
 $pdo = getDbConnection();
 
@@ -19,29 +22,18 @@ if ($showEnterprise) {
     $stmt->execute([$showEnterprise]);
     $enterprise = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Récupérer les détails de l'adresse
-    $stmt = $pdo->prepare("SELECT a.* , a.rue, a.numero, a.complement, a.code_postal, a.commune, a.pays
-                           FROM Adresse a
-                           WHERE a.id = ?");
-    $stmt->execute([$showEnterprise]);
-    $adresse = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Récupérer les stages associés à cette entreprise
+    $stmtStages = $pdo->prepare("SELECT s.*, e.nom AS eleve_nom, e.prenom AS eleve_prenom 
+                                 FROM Stage s 
+                                 JOIN Eleve e ON s.eleve_id = e.id 
+                                 WHERE s.entreprise_id = ?");
+    $stmtStages->execute([$showEnterprise]);
+    $stages = $stmtStages->fetchAll(PDO::FETCH_ASSOC);
 
-    // Récupérer les détails Juridique
-    $stmt = $pdo->prepare("SELECT j.* , j.SIREN, j.SIRET, j.creation, j.employés
-                           FROM Juridique j
-                           WHERE j.id = ?");
-    $stmt->execute([$showEnterprise]);
-    $juridique = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Récupérer les détails de Contact
-    $stmt = $pdo->prepare("SELECT c.* , c.mail, c.telephone, c.site_web
-                           FROM Contact c
-                           WHERE c.id = ?");
-    $stmt->execute([$showEnterprise]);
-    $contact = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
-
+    // Récupérer les tuteurs associés à cette entreprise
+    $stmtTuteurs = $pdo->prepare("SELECT * FROM Tuteur WHERE entreprise_id = ?");
+    $stmtTuteurs->execute([$showEnterprise]);
+    $tuteurs = $stmtTuteurs->fetchAll(PDO::FETCH_ASSOC);
 } else {
     // Pagination pour la liste des entreprises
     $limit = 10;
@@ -60,12 +52,13 @@ if ($showEnterprise) {
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta
-      name="description"
-      content="PageBleue, page de liste des entreprises référencées pour la recherche de Période de Formation.">
+        name="description"
+        content="PageBleue, page de liste des entreprises référencées pour la recherche de Période de Formation.">
     <title><?php echo $showEnterprise ? htmlspecialchars(nullSafe($enterprise['nom'])) : 'Liste des entreprises'; ?> - <?php echo htmlspecialchars($siteName); ?></title>
     <style>
         body {
@@ -73,18 +66,22 @@ if ($showEnterprise) {
             margin: 0;
             padding: 0;
         }
+
         .enterprise-logo {
             max-width: 100px;
             max-height: 100px;
             object-fit: contain;
         }
+
         .star-rating {
             color: #ffc107;
         }
+
         .card {
             position: relative;
             overflow: hidden;
         }
+
         .lasalle-badge {
             position: absolute;
             top: 0;
@@ -98,28 +95,35 @@ if ($showEnterprise) {
             align-items: flex-start;
             padding: 5px;
         }
+
         .lasalle-badge i {
             color: white;
             font-size: 20px;
         }
+
         .section-title {
             border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+
         .info-item {
             margin-bottom: 10px;
         }
+
         .info-label {
             font-weight: bold;
         }
+
         .card-link {
             color: inherit;
             text-decoration: none;
         }
+
         .card-link:hover {
             text-decoration: none;
         }
+
         .enterprise-logo-container {
             width: 100px;
             height: 100px;
@@ -130,9 +134,11 @@ if ($showEnterprise) {
         }
     </style>
 </head>
+
 <body>
-    <?php renderNavbar($siteName); ?>
-    
+    <!-- Navbar -->
+    <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
+
     <div class="container mt-5" style="padding-top: 60px;">
         <?php if ($showEnterprise && $enterprise): ?>
             <h1 class="mb-4"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h1>
@@ -157,7 +163,7 @@ if ($showEnterprise) {
                     <div class="info-item"><span class="info-label">Nb. Stagiaires pris :</span> <?php echo htmlspecialchars(nullSafe($contact['telephone'])); ?></div>
                 </div>
             </div>
-            
+
             <div class="mt-4">
                 <h2 class="section-title">Localisation</h2>
                 <div class="info-item"><span class="info-label">Adresse:</span> <?php echo htmlspecialchars(nullSafe($adresse['rue'])); ?></div>
@@ -200,7 +206,7 @@ if ($showEnterprise) {
 
             <a href="/list" class="btn btn-primary mt-3 mb-5">Retour à la liste</a>
 
-            <?php else: ?>
+        <?php else: ?>
             <h1>Liste des entreprises</h1>
             <?php if (!empty($enterprises)): ?>
                 <div class="row">
@@ -221,13 +227,13 @@ if ($showEnterprise) {
                                             <h5 class="card-title"><?php echo htmlspecialchars(nullSafe($enterprise['nom'])); ?></h5>
                                             <p class="card-text">
                                                 <?php
-                                                    // Vérifiez si la clé "description" existe
-                                                    $description = isset($enterprise['description']) ? htmlspecialchars(nullSafe($enterprise['description'])) : 'Non renseigné';
-                                                    if ($description === "Non renseigné") {
-                                                        echo "Aucune description disponible";
-                                                    } else {
-                                                        echo htmlspecialchars(mb_substr($description, 0, 150)) . (mb_strlen($description) > 150 ? '...' : '');
-                                                    }
+                                                // Vérifiez si la clé "description" existe
+                                                $description = isset($enterprise['description']) ? htmlspecialchars(nullSafe($enterprise['description'])) : 'Non renseigné';
+                                                if ($description === "Non renseigné") {
+                                                    echo "Aucune description disponible";
+                                                } else {
+                                                    echo htmlspecialchars(mb_substr($description, 0, 150)) . (mb_strlen($description) > 150 ? '...' : '');
+                                                }
                                                 ?>
                                             </p>
                                         </div>
@@ -252,6 +258,7 @@ if ($showEnterprise) {
             <?php endif; ?>
         <?php endif; ?>
     </div>
-    <?php renderFooter($siteName, $navLinks, $logoURL); ?>
+    <!-- Footer -->
+    <?php include ROOT_PATH . '/templates/layout/footer.php'; ?>
 </body>
 </html>
