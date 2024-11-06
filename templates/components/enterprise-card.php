@@ -1,5 +1,11 @@
 <?php
-// templates/components/enterprise-card.php
+if (!function_exists('safeInclude')) {
+    require_once './../config/init.php';
+}
+
+use Config\Utils;
+$Utils = new Utils();
+
 ?>
 <div class="col-md-4 mb-4">
     <div class="card enterprise-card" onclick="window.location.href='/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>'">
@@ -12,7 +18,7 @@
         <img 
             src="<?php echo !empty($enterprise['logo']) 
                 ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) 
-                : '/assets/images/logos/default.png'; ?>" 
+                : $_ENV['DEFAULT_LOGO']; ?>" 
             class="card-img-top" 
             alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>"
         >
