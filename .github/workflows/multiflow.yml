@@ -31,9 +31,9 @@ jobs:
       run: composer install --prefer-dist --no-progress
     - name: 🧹 Vérification du code
       run: |
-        composer require --dev phpstan/phpstan phpcs/phpcs
+        composer require --dev phpstan/phpstan squizlabs/php_codesniffer
         vendor/bin/phpstan analyse
-        vendor/bin/phpcs
+        vendor/bin/phpcs -p --standard=PSR12 --extensions=php --ignore=vendor .
   deploy:
     name: 🎉 Déploiement du site
     needs: tests
