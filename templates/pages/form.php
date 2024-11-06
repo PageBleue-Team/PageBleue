@@ -1,34 +1,28 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
+if (!function_exists('safeInclude')) {
+  require_once './../config/init.php';
+}
 
-// Inclure les widgets nécessaires
-includeWidget('navbar');
-$navLinks = getNavLinks();
-includeWidget('footer');
+use Config\Utils;
 
+$Utils = new Utils();
+
+$navLinks = $Utils->getNavLinks();
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($siteName); ?> - Formulaire</title>
-    <meta
-      name="description"
-      content="PageBleue, page de formulaire pour l'ajout d'entreprises à la liste de PageBleue.">
-    <style>
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-</head>
+
+<!-- Header -->
+<?php include ROOT_PATH . '/templates/layout/header.php'; ?>
+
 <body>
-    <?php renderNavbar($siteName); ?>
-    <div class="container mt-5" style="padding-top: 60px;">
-      <h2 class="mb-4">Arrive bientôt...</h2>
-    </div>
-    <?php renderFooter($siteName, $navLinks, $logoURL); ?>
+  <!-- Navbar -->
+  <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
+
+  <div class="container mt-5" style="padding-top: 60px;">
+    <h2 class="mb-4">Arrive bientôt...</h2>
+  </div>
+
+  <!-- Footer -->
+  <?php include ROOT_PATH . '/templates/layout/footer.php'; ?>
 </body>
+
 </html>
