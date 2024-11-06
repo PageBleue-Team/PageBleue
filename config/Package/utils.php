@@ -1,5 +1,6 @@
 <?php
-namespace Config\Package;
+namespace Config;
+Use \App\Controller\SecurityController;
 
 class Utils {
     public static function safeInclude(string $filePath): mixed {
@@ -27,6 +28,36 @@ class Utils {
         $logoPath = LOGO_DIR . '/' . $entrepriseId . '.webp';
         return file_exists($logoPath) ? $logoPath : LOGO_DIR . '/default.png';
     }
+
+    /**
+     * Récupère les liens de navigation
+     * @return array Liste des liens de navigation
+     */
+    public static function getNavLinks(): array {
+        $navLinks = [
+            "Accueil" => "/#",
+            "Entreprises" => "/list",
+            "Formulaire" => "/form",
+            "À Propos de nous" => "/#story"
+        ];
+
+        $SecurityController = new SecurityController();
+        if ($SecurityController->isAdminLoggedIn()) {
+            $navLinks["Panel"] = "/panel";
+        }
+
+        return $navLinks;
+    }
+
+    /**
+     * Récupère la page actuelle
+     * @return string Nom de la page active
+     */
+    public function getCurrentPage(): string
+    {
+        $currentPage = basename($_SERVER['REQUEST_URI']);
+        return $currentPage;
+    }
 }
 
 // Fonctions de compatibilité
@@ -34,6 +65,8 @@ function safeInclude(string $filePath): mixed {
     return Utils::safeInclude($filePath);
 }
 
+
+// A supprimer !!!!
 function includeWidget(string $name): void {
     Utils::includeWidget($name);
 }
