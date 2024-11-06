@@ -1,4 +1,4 @@
-name: 🔰 PHP Deployement
+name: 🔰 PHP Test & Deployement
 
 on:
   push:
@@ -13,22 +13,20 @@ jobs:
   test:
     name: 🔨 PHP Tests
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v4
-    
     - name: 🧱 Setup PHP
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@2
       with:
-        php-version: '8.3.9'
+        php-version: '8.3.12'
         extensions: mbstring, intl, zip, pdo_mysql
         coverage: xdebug
         tools: composer:v2, phpunit, phpcs, phpstan
-    
+
     - name: 🎣 Récupération répertoire de cache composer
       id: composer-cache
       run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-    
+
     - name: Cache dependencies
       uses: actions/cache@v4
       with:
@@ -38,13 +36,13 @@ jobs:
 
     - name: 🌐 Installation des dépendances
       run: composer install --prefer-dist --no-progress
-    
+
     - name: ✅ Vérifier les normes de code
       run: phpcs --standard=PSR12 src tests
-    
+
     - name: 📊 Exécuter une analyse statique
-      run: phpstan analyse src tests --level=5
-    
+      run: phpstan analyse src tests --level=8
+
     - name: 🔁 Exécution de la suite de tests
       run: vendor/bin/phpunit --coverage-text
 
@@ -53,11 +51,11 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 🚚 Vérification du code
       uses: actions/checkout@v4
-    
+
     - name: 🚚 Préparation du code
       id: composer-cache
       uses: actions/cache@v4
@@ -66,10 +64,10 @@ jobs:
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
-    
+
     - name: 📂 Installation des dépendances
       run: composer install --prefer-dist --no-progress
-    
+
     - name: 🔄 Synchronisation des fichiers
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
