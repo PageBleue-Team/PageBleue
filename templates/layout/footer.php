@@ -2,42 +2,44 @@
 if (!function_exists('safeInclude')) {
     require_once './../config/init.php';
 }
+use Config\Utils;
 
-$navLinks = getNavLinks();
-function renderFooter($siteName, $navLinks, $logoURL) {
-    echo '
-    <head>
-    <link rel="stylesheet" href="/assets/css/footer.css">
-    </head>
-    <footer>
-        <div class="footer-container">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <div class="footer-logo">' . htmlspecialchars($siteName) . '</div>
-                    <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <img src="' . htmlspecialchars($logoURL) . '" alt="Logo La Salle Avignon" class="la-salle-logo">
-                </div>
-                <div class="col-md-4 text-end">
-                    <ul class="list-unstyled">
-    ';
-    
-    // Check si NavLinks
-    if (!empty($navLinks)) {
-        foreach ($navLinks as $name => $link) {
-            echo '<li><a href="' . htmlspecialchars($link) . '" class="text-white">' . htmlspecialchars($name) . '</a></li>';
-        }
-    } else {
-        echo '<li>Aucun lien disponible.</li>'; // Display a message if no links are available
-    }
+$Utils = new Utils();
+$navLinks = $Utils->getNavLinks();
 
-    echo '
-                    </ul>
-                </div>
+Use Config\SiteConfig;
+Config\SiteConfig::init();
+
+$SiteConfig = new SiteConfig();
+$siteName = SiteConfig::$siteName;
+$logoURL = SiteConfig::$logoURL;
+?>
+<footer>
+    <div class="footer-container">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="footer-logo"><?php htmlspecialchars($siteName) ?></div>
+                <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
+            </div>
+            <div class="col-md-4 text-center">
+                <img src="<?php htmlspecialchars($logoURL) ?>" alt="Logo La Salle Avignon" class="organisation-logo">
+            </div>
+            <div class="col-md-4 text-end">
+                <ul class="list-unstyled">
+                    <?php
+                    // Check si NavLinks
+                    if (!empty($navLinks)) {
+                    foreach ($navLinks as $name => $link) {
+                    echo '<li><a href="' . htmlspecialchars($link) . '" class="text-white">' . htmlspecialchars($name) . '</a></li>';
+                    }
+                    } else {
+                    echo '<li>Aucun lien disponible.</li>'; // Message si aucun liens n'est référencé
+                    }
+                    ?>
+                </ul>
             </div>
         </div>
-    </footer>
-    ';
-}
-?>
+    </div>
+</footer>
+
+<script src="/assets/js/navbar.js"></script>
