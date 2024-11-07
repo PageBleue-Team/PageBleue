@@ -29,7 +29,7 @@ $team = SiteConfig::$team;
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
 
     <!-- Entreprise Card -->
-    <?php include ROOT_PATH . '/templates/components/entreprise-card.php'; ?>
+    <?php include ROOT_PATH . '/templates/components/enterprise-card.php'; ?>
 
     <!-- Section À propos -->
     <section class="container mt-5" id="story">
