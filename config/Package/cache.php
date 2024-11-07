@@ -41,7 +41,11 @@ class Cache {
     }
 
     private function get(string $cacheFile): mixed {
-        return unserialize(file_get_contents($cacheFile));
+        $content = file_get_contents($cacheFile);
+        if ($content === false) {
+            throw new \RuntimeException("Impossible de lire le fichier cache: $cacheFile");
+        }
+        return unserialize($content);
     }
 
     private function put(string $cacheFile, mixed $data): void {
@@ -54,6 +58,10 @@ class Cache {
     }
 
     public function clear(): void {
-        array_map('unlink', glob($this->cacheDir . '/*.cache'));
+        $files = glob($this->cacheDir . '/*.cache');
+        if ($files === false) {
+            throw new \RuntimeException("Impossible de lister les fichiers cache");
+        }
+        array_map('unlink', $files);
     }
 }

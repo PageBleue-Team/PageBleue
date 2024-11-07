@@ -8,16 +8,13 @@ class AdminController
 {
     private SecurityController $authService;
     private TableRepository $tableRepository;
-    private EntrepriseRepository $entrepriseRepository;
 
     public function __construct(
         SecurityController $authService,
         TableRepository $tableRepository,
-        EntrepriseRepository $entrepriseRepository
     ) {
         $this->authService = $authService;
         $this->tableRepository = $tableRepository;
-        $this->entrepriseRepository = $entrepriseRepository;
     }
 
     /**

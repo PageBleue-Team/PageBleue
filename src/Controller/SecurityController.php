@@ -53,9 +53,10 @@ class SecurityController
         $_SESSION = array();
 
         // Détruire le cookie de session si présent
-        if (isset($_COOKIE[session_name()])) {
+        $sessionName = session_name();
+        if ($sessionName !== false && isset($_COOKIE[$sessionName])) {
             setcookie(
-                session_name(),
+                $sessionName,
                 '',
                 [
                     'expires' => time() - 3600,

@@ -31,7 +31,7 @@ class Utils {
 
     /**
      * Récupère les liens de navigation
-     * @return array Liste des liens de navigation
+     * @return array<string, string> Liste des liens de navigation où la clé est le nom du lien et la valeur est l'URL
      */
     public static function getNavLinks(): array {
         $navLinks = [

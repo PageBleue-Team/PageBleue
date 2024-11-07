@@ -6,6 +6,7 @@ use App\Exception\DatabaseException;
 class Database {
     private static ?self $instance = null;
     private \PDO $pdo;
+    /** @var array<int, int|bool> */
     private array $options = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
