@@ -5,7 +5,7 @@ if (!function_exists('safeInclude')) {
 
 Use Config\SiteConfig;
 $SiteConfig = new SiteConfig();
-$SiteConfig = $SiteConfig->init();
+$SiteConfig->init();
 
 $siteName = SiteConfig::$siteName;
 $metaDescription = SiteConfig::$metaDescription;

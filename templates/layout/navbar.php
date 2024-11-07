@@ -4,11 +4,15 @@ if (!function_exists('safeInclude')) {
 }
 use Config\Utils;
 use App\Exception\DatabaseException;
+use Config\SiteConfig;
 
 $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
 $currentPage = $Utils->getCurrentPage();
 $activePage = array_search($currentPage, $navLinks) ?: '';
+
+SiteConfig::init(); // Initialisation si pas déjà fait
+$siteName = SiteConfig::$siteName;
 
 // Vérifier s'il y a une erreur de base de données
 $dbError = false;

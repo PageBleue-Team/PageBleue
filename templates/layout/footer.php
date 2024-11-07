@@ -18,11 +18,11 @@ $logoURL = SiteConfig::$logoURL;
     <div class="footer-container">
         <div class="row align-items-center">
             <div class="col-md-4">
-                <div class="footer-logo"><?php htmlspecialchars($siteName) ?></div>
+                <div class="footer-logo"><?php echo htmlspecialchars($siteName); ?></div>
                 <div class="footer-tagline">Par Florian, Samuel et Benjamin avec le ❤️</div>
             </div>
             <div class="col-md-4 text-center">
-                <img src="<?php htmlspecialchars($logoURL) ?>" alt="Logo La Salle Avignon" class="organisation-logo">
+                <img src="<?php echo htmlspecialchars($logoURL); ?>" alt="Logo La Salle Avignon" class="organisation-logo">
             </div>
             <div class="col-md-4 text-end">
                 <ul class="list-unstyled">

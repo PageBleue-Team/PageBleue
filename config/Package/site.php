@@ -16,6 +16,7 @@ class SiteConfig {
     public static string $historyDescription;
 
     // Informations de l'équipe
+    /** @var array<int, array{name: string, role: string, filiere: string}> */
     public static array $team;
 
     public static function init(): void {
