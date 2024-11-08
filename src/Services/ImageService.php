@@ -7,7 +7,10 @@ use Exception;
 
 class ImageService {
     private ImageManager $manager;
+    
+    /** @var array<int, string> */
     private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    
     private int $maxFileSize = 5242880; // 5MB
     private string $uploadDir;
     
@@ -23,7 +26,13 @@ class ImageService {
     
     /**
      * Gère l'upload et le traitement d'un logo
-     * @param array $file Fichier uploadé ($_FILES['logo'])
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     tmp_name: string,
+     *     error: int,
+     *     size: int
+     * } $file Fichier uploadé ($_FILES['logo'])
      * @param int $enterpriseId ID de l'entreprise
      * @return bool Succès de l'opération
      */
@@ -52,11 +61,18 @@ class ImageService {
     
     /**
      * Valide le fichier uploadé
-     * @param array $file
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     tmp_name: string,
+     *     error: int,
+     *     size: int
+     * } $file
      * @throws Exception
      */
     private function validateUpload(array $file): void {
-        if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+        // Vérifie si le fichier est vide
+        if (empty($file['tmp_name'])) {
             throw new Exception("Aucun fichier n'a été uploadé");
         }
         

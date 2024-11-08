@@ -12,20 +12,21 @@ abstract class EntityRepository {
     
     /**
      * Récupère un enregistrement par son ID
+     * @param string $table
      * @param int $id
-     * @return array|null
+     * @return array<string, mixed>|null
      */
     protected function findById(string $table, int $id): ?array {
         $stmt = $this->pdo->prepare("SELECT * FROM `$table` WHERE id = ?");
         $stmt->execute([$id]);
-        $result = $stmt->fetch();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ?: null;
     }
     
     /**
      * Crée un nouvel enregistrement
      * @param string $table
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return int ID de l'enregistrement créé
      */
     protected function create(string $table, array $data): int {
@@ -45,7 +46,7 @@ abstract class EntityRepository {
      * Met à jour un enregistrement
      * @param string $table
      * @param int $id
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return bool
      */
     protected function update(string $table, int $id, array $data): bool {

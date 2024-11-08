@@ -3,12 +3,18 @@ namespace App\Domain\Repository;
 use PDO;
 
 class StageRepository {
-    private $pdo;
+    /** @var PDO */
+    private PDO $pdo;
     
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
+    /**
+     * Récupère les stages d'une entreprise
+     * @param int $entrepriseId
+     * @return array<int, array<string, mixed>>
+     */
     public function getStagesByEntreprise(int $entrepriseId): array 
     {
         $stmt = $this->pdo->prepare("SELECT s.*, t.nom as tuteur_nom, t.prenom as tuteur_prenom 

@@ -1,8 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Repository\TableRepository;
-use App\Repository\EntrepriseRepository;
+use App\Domain\Repository\TableRepository;
 
 class AdminController 
 {

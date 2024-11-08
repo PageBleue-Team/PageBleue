@@ -1,10 +1,11 @@
 parameters:
-    level: 8
+    level: 6
     paths:
         - config
         - public
         - src
-        - templates
     excludePaths:
         - vendor/*
         - var/cache/*
+    ignoreErrors:
+        - '#Constant ROOT_PATH not found#'

@@ -10,7 +10,7 @@ class EntrepriseRepository extends EntityRepository {
     /**
      * Récupère les entreprises mises en avant
      * @param int $limit Nombre d'entreprises à retourner
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
     public function getFeaturedEntreprises(int $limit = 5): array {
         $sql = "SELECT e.*, 
@@ -32,7 +32,7 @@ class EntrepriseRepository extends EntityRepository {
     
     /**
      * Crée une nouvelle entreprise avec ses relations
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return int
      * @throws Exception
      */
@@ -88,7 +88,7 @@ class EntrepriseRepository extends EntityRepository {
     /**
      * Met à jour une entreprise et ses relations
      * @param int $id
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return bool
      * @throws Exception
      */
@@ -146,7 +146,7 @@ class EntrepriseRepository extends EntityRepository {
     /**
      * Récupère une entreprise avec toutes ses relations
      * @param int $id
-     * @return array|null
+     * @return array<string, mixed>|null
      */
     public function getEntrepriseWithRelations(int $id): ?array {
         $sql = "SELECT e.*, 
@@ -199,8 +199,14 @@ class EntrepriseRepository extends EntityRepository {
      * Liste toutes les entreprises avec pagination
      * @param int $page
      * @param int $perPage
-     * @param array $filters
-     * @return array
+     * @param array<string, mixed> $filters
+     * @return array{
+     *     data: array<int, array<string, mixed>>,
+     *     total: int,
+     *     page: int,
+     *     perPage: int,
+     *     lastPage: int
+     * }
      */
     public function listEntreprises(int $page = 1, int $perPage = 10, array $filters = []): array {
         $offset = ($page - 1) * $perPage;
@@ -249,14 +255,14 @@ class EntrepriseRepository extends EntityRepository {
             $stmtCount->bindValue($key, $value);
         }
         $stmtCount->execute();
-        $total = $stmtCount->fetchColumn();
+        $total = (int)$stmtCount->fetchColumn();
         
         return [
             'data' => $results,
             'total' => $total,
             'page' => $page,
             'perPage' => $perPage,
-            'lastPage' => ceil($total / $perPage)
+            'lastPage' => (int)ceil($total / $perPage)
         ];
     }
 

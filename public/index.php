@@ -3,7 +3,7 @@
  * Point d'entrée principal de l'application
  */
 
-// Définitions de chemins
+// Chargement des constantes depuis paths.php
 require_once __DIR__ . '/../config/Package/paths.php';
 
 // Gestion des erreurs
@@ -23,11 +23,13 @@ try {
 } catch (Exception $e) {
     die('Erreur : fichier .env manquant');
 }
+
 // Chargement de la configuration
 require_once ROOT_PATH . '/config/init.php';
 
 // Récupération de l'URI actuelle
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$uri = (string)parse_url($requestUri, PHP_URL_PATH);
 
 // Gestion des routes
 if ($uri === '/list') {
@@ -41,5 +43,8 @@ if ($uri === '/list') {
     $file = TEMPLATES_DIR . '/pages' . $uri . '.php';
     if (file_exists($file)) {
         require $file;
+    } else {
+        header("HTTP/1.0 404 Not Found");
+        require TEMPLATES_DIR . '/pages/404.php';
     }
 }

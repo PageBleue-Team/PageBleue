@@ -7,9 +7,14 @@ use App\Domain\Repository\StageRepository;
 use App\Domain\Repository\TuteurRepository;
 
 class EntrepriseController {
-    private $entrepriseRepo;
-    private $stageRepo;
-    private $tuteurRepo;
+    /** @var EntrepriseRepository */
+    private EntrepriseRepository $entrepriseRepo;
+    
+    /** @var StageRepository */
+    private StageRepository $stageRepo;
+    
+    /** @var TuteurRepository */
+    private TuteurRepository $tuteurRepo;
     
     public function __construct() 
     {
@@ -19,14 +24,23 @@ class EntrepriseController {
         $this->tuteurRepo = new TuteurRepository($pdo);
     }
     
-    public function listAction(int $page = 1, array $filters = []) 
+    /**
+     * @param int $page
+     * @param array<string, mixed> $filters
+     * @return array{enterprises: array<int, array<string, mixed>>, total_pages: int}
+     */
+    public function listAction(int $page = 1, array $filters = []): array 
     {
         // Logique de liste
         $result = $this->entrepriseRepo->listEntreprises($page, 10, $filters);
         return ['enterprises' => $result['data'], 'total_pages' => $result['lastPage']];
     }
     
-    public function showAction(int $id) 
+    /**
+     * @param int $id
+     * @return array{enterprise: array<string, mixed>, stages: array<int, array<string, mixed>>, tuteurs: array<int, array<string, mixed>>}
+     */
+    public function showAction(int $id): array 
     {
         $enterprise = $this->entrepriseRepo->getEntrepriseWithRelations($id);
         if (!$enterprise) {

@@ -4,6 +4,10 @@ Use \App\Controller\SecurityController;
 
 class Utils {
     public static function safeInclude(string $filePath): mixed {
+        if (!defined('ROOT_PATH')) {
+            throw new \RuntimeException('ROOT_PATH constant is not defined');
+        }
+        
         $fullPath = ROOT_PATH . '/' . ltrim($filePath, '/');
         if (file_exists($fullPath)) {
             return require_once $fullPath;
@@ -22,7 +26,7 @@ class Utils {
 
     /**
      * Récupère les liens de navigation
-     * @return array<string, string> Liste des liens de navigation où la clé est le nom du lien et la valeur est l'URL
+     * @return array<string, string> Tableau associatif des liens de navigation
      */
     public static function getNavLinks(): array {
         $navLinks = [
@@ -43,7 +47,13 @@ class Utils {
     public function formatDate(?string $date): string 
     {
         if (!$date) return 'Non renseigné';
-        return date('d/m/Y', strtotime($date));
+        
+        $timestamp = strtotime($date);
+        if ($timestamp === false) {
+            return 'Date invalide';
+        }
+        
+        return date('d/m/Y', $timestamp);
     }
 
     /**

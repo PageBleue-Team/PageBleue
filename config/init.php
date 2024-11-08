@@ -1,6 +1,8 @@
 <?php
-// Chargement des fichiers de configuration dans le bon ordre
+// Chargement des constantes depuis paths.php
 require_once __DIR__ . '/Package/paths.php';
+
+// Chargement des fichiers de configuration
 require_once ROOT_PATH . '/vendor/autoload.php';
 
 // Chargement des variables d'environnement
