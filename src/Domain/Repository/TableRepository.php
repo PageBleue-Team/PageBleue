@@ -5,7 +5,7 @@ use Exception;
 use App\Domain\Entity\EntityRepository;
 
 class TableRepository extends EntityRepository {
-    private array $blacklistedTables = ['login_logs', 'users', 'Entreprises_Activite'];
+    private readonly array $blacklistedTables = ['login_logs', 'users', 'Entreprises_Activite'];
 
     public function getTables(): array {
         $stmt = $this->pdo->query("SHOW TABLES");
