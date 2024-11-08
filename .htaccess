@@ -1,8 +1,16 @@
 # Lien racine (pas de /index.php)
 DirectoryIndex /public/index.php
-# Redirections différentes pages
+
 RewriteEngine On
 RewriteBase /
+
+# Configuration des types MIME
+AddType application/javascript .js
+AddType text/css .css
+AddType image/webp .webp
+
+# Redirection des assets vers le dossier public
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 
 # Réécriture pour /list
 RewriteRule ^list(/.*)?$ public/index.php [L,QSA]
@@ -21,6 +29,11 @@ RewriteRule ^panel$ templates/admin/dashboard.php [L]
 RewriteCond %{THE_REQUEST} \s/+login\.php [NC]
 RewriteRule ^ /login [L,R=301]
 RewriteRule ^login$ templates/auth/login.php [L]
+
+# Rediriger tout le reste vers public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [L,QSA]
 
 # Time Zone
 SetEnv TZ Europe/Paris

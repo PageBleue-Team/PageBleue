@@ -5,3 +5,4 @@ composer.phar
 /var/cache/*
 Arborescense.txt
 *.log
+*.webp
