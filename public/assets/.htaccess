@@ -1,0 +1,14 @@
+# Autoriser l'accès aux assets
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+
+# Configuration des types MIME
+AddType application/javascript .js
+AddType text/css .css
+AddType image/webp .webp
+
+# Activer la compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/css application/javascript
+</IfModule> 
