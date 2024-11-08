@@ -16,8 +16,8 @@ class Utils {
     }
 
     public static function getLogoUrl(int $entrepriseId): string {
-        $logoPath = LOGO_DIR . '/' . $entrepriseId . '.webp';
-        return file_exists($logoPath) ? $logoPath : LOGO_DIR . '/default.png';
+        $logoPath = LOGO_PATH . '/' . $entrepriseId . '.webp';
+        return file_exists($logoPath) ? $logoPath : LOGO_PATH . '/default.png';
     }
 
     /**
@@ -38,6 +38,12 @@ class Utils {
         }
 
         return $navLinks;
+    }
+
+    public function formatDate(?string $date): string 
+    {
+        if (!$date) return 'Non renseigné';
+        return date('d/m/Y', strtotime($date));
     }
 
     /**

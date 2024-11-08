@@ -4,7 +4,7 @@
  */
 
 // Définitions de chemins
-require_once __DIR__ . '../../config/Package/paths.php';
+require_once __DIR__ . '/../config/Package/paths.php';
 
 // Gestion des erreurs
 $debug = getenv('APP_ENV') === 'development';
@@ -23,61 +23,23 @@ try {
 } catch (Exception $e) {
     die('Erreur : fichier .env manquant');
 }
-
 // Chargement de la configuration
 require_once ROOT_PATH . '/config/init.php';
 
-// Initialisation du routeur
-$router = require ROOT_PATH . '/config/Package/routes.php';
-
-// Récupération de la requête
+// Récupération de l'URI actuelle
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$method = $_SERVER['REQUEST_METHOD'];
 
-try {
-    // Recherche de la route
-    $route = $router->match($uri, $method);
-
-    if (!$route) {
-        throw new Exception('Page non trouvée', 404);
+// Gestion des routes
+if ($uri === '/list') {
+    require TEMPLATES_DIR . '/pages/list.php';
+} elseif (preg_match('#^/list/(\d+)$#', $uri, $matches)) {
+    $showEnterprise = (int)$matches[1];
+    require TEMPLATES_DIR . '/pages/list.php';
+} elseif ($uri === '/' || $uri === '') {
+    require TEMPLATES_DIR . '/pages/home.php';
+} else {
+    $file = TEMPLATES_DIR . '/pages' . $uri . '.php';
+    if (file_exists($file)) {
+        require $file;
     }
-
-    // Vérification authentification
-    if ($route['options']['auth'] && empty($_SESSION['user'])) {
-        header('Location: /login');
-        exit;
-    }
-
-    // Instanciation du contrôleur
-    $controllerName = "App\\Controller\\" . $route['controller'];
-    if (!class_exists($controllerName)) {
-        throw new Exception("Contrôleur non trouvé", 500);
-    }
-
-    $controller = new $controllerName();
-    $action = $route['action'];
-
-    if (!method_exists($controller, $action)) {
-        throw new Exception("Action non trouvée", 500);
-    }
-
-    // Exécution de l'action avec les paramètres
-    $controller->$action($route['params'] ?? []);
-
-} catch (Exception $e) {
-    $statusCode = $e->getCode() ?: 500;
-    header("HTTP/1.0 $statusCode");
-
-    // Log de l'erreur
-    error_log(sprintf(
-        "[%s] %s in %s:%d",
-        date('Y-m-d H:i:s'),
-        $e->getMessage(),
-        $e->getFile(),
-        $e->getLine()
-    ));
-
-    // Affichage de la page d'erreur
-    $errorFile = ROOT_PATH . "/templates/pages/{$statusCode}.php";
-    include file_exists($errorFile) ? $errorFile : ROOT_PATH . '/templates/pages/500.php';
 }

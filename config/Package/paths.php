@@ -1,4 +1,12 @@
 <?php
-define('ROOT_PATH', __DIR__ . '/../..');
-define('CACHE_DIR', ROOT_PATH . '/var/cache');
-define('LOGO_DIR', ROOT_PATH . '/public/assets/images/logos');
+
+// Définition des chemins absolus
+define('ROOT_PATH', dirname(dirname(__DIR__)));
+define('CONFIG_PATH', ROOT_PATH . '/config');
+define('TEMPLATES_DIR', ROOT_PATH . '/templates');
+define('PUBLIC_PATH', ROOT_PATH . '/public');
+define('ASSETS_PATH', PUBLIC_PATH . '/assets');
+define('LOGO_PATH', ASSETS_PATH . '/images/logos');
+define('VAR_PATH', ROOT_PATH . '/var');
+define('CACHE_PATH', VAR_PATH . '/cache');
+define('LOGS_PATH', VAR_PATH . '/logs');

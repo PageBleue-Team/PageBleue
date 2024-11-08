@@ -1,8 +1,9 @@
 <?php
-namespace App\Repository;
+namespace App\Domain\Repository;
 
 use Exception;
 use PDO;
+use App\Domain\Entity\EntityRepository;
 
 class EntrepriseRepository extends EntityRepository {
 
@@ -151,7 +152,7 @@ class EntrepriseRepository extends EntityRepository {
         $sql = "SELECT e.*, 
                        a.numero, a.rue, a.code_postal, a.commune, a.lieu_dit, a.complement,
                        c.mail, c.telephone, c.site_web,
-                       j.SIREN, j.SIRET, j.creation, j.employés
+                       j.SIREN, j.SIRET, j.RSC, j.activite, j.activite_main, j.creation, j.employés
                 FROM Entreprises e
                 LEFT JOIN Adresse a ON e.adresse_id = a.id
                 LEFT JOIN Contact c ON e.contact_id = c.id

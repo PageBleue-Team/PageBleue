@@ -6,6 +6,10 @@ if (!function_exists('safeInclude')) {
 use Config\Utils;
 $Utils = new Utils();
 
+use App\Domain\Repository\EntrepriseRepository;
+
+$entrepriseRepo = new EntrepriseRepository($pdo);
+
 ?>
 <div class="col-md-4 mb-4">
     <div class="card enterprise-card" onclick="window.location.href='/list?id=<?php echo htmlspecialchars($enterprise['id']); ?>'">

@@ -1,8 +1,7 @@
 <?php
-namespace App\Repository;
+namespace App\Domain\Entity;
 
 use PDO;
-use Exception;
 
 abstract class EntityRepository {
     protected PDO $pdo;

@@ -2,11 +2,10 @@
 DirectoryIndex /public/index.php
 # Redirections différentes pages
 RewriteEngine On
-# Règles de redirection
-# /list
-RewriteCond %{THE_REQUEST} \s/+list\.php [NC]
-RewriteRule ^ /list [L,R=301]
-RewriteRule ^list$ templates/pages/list.php [L]
+RewriteBase /
+
+# Réécriture pour /list
+RewriteRule ^list(/.*)?$ public/index.php [L,QSA]
 
 # /form
 RewriteCond %{THE_REQUEST} \s/+form\.php [NC]
@@ -22,17 +21,22 @@ RewriteRule ^panel$ templates/admin/dashboard.php [L]
 RewriteCond %{THE_REQUEST} \s/+login\.php [NC]
 RewriteRule ^ /login [L,R=301]
 RewriteRule ^login$ templates/auth/login.php [L]
+
 # Time Zone
 SetEnv TZ Europe/Paris
+
 # Prevent viewing of .htaccess file
 <Files .htaccess>
     order allow,deny
     deny from all
 </Files>
+
 # Prevent directory listings
 Options All -Indexes
+
 # Protect sensitive directories
 RewriteRule ^(config|src) - [F]
+
 # Pages d'erreurs
 ErrorDocument 403 "Désolé, vous n'avez pas le droit d'accéder à ce fichier"
 ErrorDocument 404 "Vous êtes perdu, je crois"
