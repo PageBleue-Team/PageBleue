@@ -1,11 +1,6 @@
 <?php
 namespace App\Services;
 
-// Inclusion du fichier de configuration
-require_once __DIR__ . '/../../config/config.php';
-define('MAX_IMAGE_SIZE', $_ENV['MAX_IMAGE_SIZE']);
-define('UPLOAD_DIR', $_ENV['UPLOAD_DIR']);
-
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Exception;
@@ -14,37 +9,44 @@ class ImageService {
     private ImageManager $manager;
     private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
     private int $maxFileSize = 5242880; // 5MB
+    private string $uploadDir;
     
     public function __construct() {
         $this->manager = new ImageManager(new Driver());
+        $this->uploadDir = PUBLIC_PATH . '/assets/images/logos';
+        
+        // Créer le dossier s'il n'existe pas
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0755, true);
+        }
     }
     
     /**
      * Gère l'upload et le traitement d'un logo
      * @param array $file Fichier uploadé ($_FILES['logo'])
-     * @return string|null Chemin du fichier traité ou null en cas d'erreur
+     * @param int $enterpriseId ID de l'entreprise
+     * @return bool Succès de l'opération
      */
-    public function handleLogoUpload(array $file): ?string {
+    public function handleLogoUpload(array $file, int $enterpriseId): bool {
         try {
             $this->validateUpload($file);
             
             $image = $this->manager->read($file['tmp_name']);
             
             // Redimensionnement avec conservation du ratio
-            $image->scale(width: MAX_IMAGE_SIZE, height: MAX_IMAGE_SIZE);
+            $image->scale(width: 300, height: 300);
             
-            // Génération du nom de fichier unique
-            $filename = uniqid('logo_') . '.webp';
-            $filepath = UPLOAD_DIR . '/' . $filename;
+            // Sauvegarde en WebP avec l'ID de l'entreprise
+            $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
             
             // Conversion et sauvegarde en WebP
             $image->toWebp(quality: 90)->save($filepath);
             
-            return $filename;
+            return true;
             
         } catch (Exception $e) {
             error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
-            return null;
+            return false;
         }
     }
     
@@ -80,12 +82,12 @@ class ImageService {
     }
     
     /**
-     * Supprime un logo
-     * @param string $filename
+     * Supprime le logo d'une entreprise
+     * @param int $enterpriseId
      * @return bool
      */
-    public function deleteLogo(string $filename): bool {
-        $filepath = UPLOAD_DIR . '/' . $filename;
+    public function deleteLogo(int $enterpriseId): bool {
+        $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
         if (file_exists($filepath)) {
             return unlink($filepath);
         }
