@@ -5,7 +5,11 @@
         <h1 class="mb-4"><?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?></h1>
         <div class="row">
             <div class="col-md-2">
-                <img src="<?php echo !empty($enterprise['id']) ? '/uploads/logos/' . htmlspecialchars($enterprise['id']) : ROOT_PATH . './../public/assets/images/logos/default.png'; ?>" class="img-fluid enterprise-logo mb-3" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                <img src="<?php 
+                    $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
+                    $defaultPath = '/assets/images/logos/default.png';
+                    echo file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
+                ?>" class="img-fluid enterprise-logo mb-3" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
             </div>
             <div class="col-md-8">
                 <h2 class="section-title">Informations générales</h2>

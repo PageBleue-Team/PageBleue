@@ -16,7 +16,11 @@
                                 <?php endif; ?>
                                 <div class="card-body d-flex">
                                     <div class="enterprise-logo-container">
-                                        <img src="<?php echo !empty($enterprise['logo']) ? 'data:image/jpeg;base64,' . base64_encode($enterprise['logo']) : '/images/logos/default.png'; ?>" class="enterprise-logo" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                                        <img src="<?php 
+                                            $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
+                                            $defaultPath = '/assets/images/logos/default.png';
+                                            echo file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
+                                        ?>" class="enterprise-logo" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
                                     </div>
                                     <div>
                                         <h5 class="card-title"><?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?></h5>
