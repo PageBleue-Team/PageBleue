@@ -28,8 +28,12 @@ $team = SiteConfig::$team;
     <!-- Navbar -->
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
 
-    <!-- Entreprise Card -->
-    <?php include ROOT_PATH . '/templates/components/enterprise-card.php'; ?>
+    <!-- Section Entreprises -->
+    <section class="container mt-5">
+        <div class="enterprises-container">
+            <?php include ROOT_PATH . '/templates/components/enterprise-card.php'; ?>
+        </div>
+    </section>
 
     <!-- Section À propos -->
     <section class="container mt-5" id="story">
@@ -82,6 +86,7 @@ $team = SiteConfig::$team;
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="application/javascript" src="/public/assets/js/home.js"></script>
 </body>
 
 </html>
