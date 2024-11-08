@@ -11,15 +11,6 @@ class Utils {
         throw new \Exception("File not found: $filePath");
     }
 
-    public static function includeWidget(string $name): void {
-        $filePath = ROOT_PATH . "/templates/layout/{$name}.php";
-        if (file_exists($filePath)) {
-            require_once $filePath;
-        } else {
-            error_log("Widget non trouvé : {$name}");
-        }
-    }
-
     public static function nullSafe(mixed $value, string $default = "Non Renseigné"): string {
         return $value !== null && $value !== '' ? $value : $default;
     }
@@ -63,12 +54,6 @@ class Utils {
 // Fonctions de compatibilité
 function safeInclude(string $filePath): mixed {
     return Utils::safeInclude($filePath);
-}
-
-
-// A supprimer !!!!
-function includeWidget(string $name): void {
-    Utils::includeWidget($name);
 }
 
 function nullSafe(mixed $value, string $default = "Non Renseigné"): string {
