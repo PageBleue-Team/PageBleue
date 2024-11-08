@@ -28,12 +28,10 @@ $googleVerification = SiteConfig::$googleVerification;
     <!-- Styles Navbar + Footer -->
     <link rel="stylesheet" href="/public/assets/css/footer.css">
     <link rel="stylesheet" href="/public/assets/css/navbar.css">
-    <!-- Dépend page active -->
-     
-    
+
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="manifest" href="/assets/images/favicons/site.webmanifest">
+    <link rel="manifest" href="/public/assets/images/favicons/site.webmanifest">
     <link rel="icon" href="/public/assets/images/favicons/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/public/assets/images/favicons/apple-touch-icon.png">
     
