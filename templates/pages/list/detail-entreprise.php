@@ -36,6 +36,7 @@
             <div class="info-item"><span class="info-label">SIREN :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['SIREN'])); ?></div>
             <div class="info-item"><span class="info-label">SIRET :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['SIRET'])); ?></div>
             <div class="info-item"><span class="info-label">RSC :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['RSC'])); ?></div>
+            <div class="info-item"><span class="info-label">Date de création :</span> <?php echo htmlspecialchars($Utils->nullSafe($Utils->formatDate($enterprise['creation']))); ?></div>
             <div class="info-item"><span class="info-label">Activité :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['activite'])); ?></div>
             <div class="info-item"><span class="info-label">Activité principale :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['activite_main'])); ?></div>
             <div class="info-item"><span class="info-label">Nombre d'employés :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['employés'])); ?></div>
