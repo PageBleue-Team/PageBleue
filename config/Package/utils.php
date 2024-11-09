@@ -74,18 +74,16 @@ class Utils
         return $navLinks;
     }
 
-    public function formatDate(?string $date): string
+    public function formatDate(?string $date): string 
     {
-        if (!$date) {
-            return 'Non renseigné';
-        }
-
-        $timestamp = strtotime($date);
-        if ($timestamp === false) {
+        if (!$date) return 'Non renseigné';
+        
+        try {
+            $dateTime = new \DateTimeImmutable($date);
+            return $dateTime->format('d/m/Y');
+        } catch (\Exception $e) {
             return 'Date invalide';
         }
-
-        return date('d/m/Y', $timestamp);
     }
 
     /**
@@ -102,7 +100,32 @@ class Utils
 // Fonctions de compatibilité
 function safeInclude(string $filePath): mixed
 {
-    return Utils::safeInclude($filePath);
+    if (!defined('ROOT_PATH')) {
+        throw new \RuntimeException('ROOT_PATH constant is not defined');
+    }
+    // Nettoyer et valider le chemin
+    $filePath = filter_var($filePath, FILTER_SANITIZE_STRING);
+    $normalizedPath = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filePath);
+    
+    // Vérifier les caractères dangereux
+    if (preg_match('/[<>:"\\|?*]/', $normalizedPath)) {
+        throw new \Exception("Caractères non autorisés dans le chemin");
+    }
+    
+    $fullPath = ROOT_PATH . '/' . ltrim($filePath, '/');
+    
+    // Vérifier que le chemin final est dans le répertoire autorisé
+    $realPath = realpath($fullPath);
+    $rootRealPath = realpath(ROOT_PATH);
+    if ($realPath === false || $rootRealPath === false || 
+        !str_starts_with($realPath, $rootRealPath)) {
+        throw new \Exception("Accès au chemin non autorisé");
+    }
+    
+    if (file_exists($fullPath)) {
+        return require_once $fullPath;
+    }
+    throw new \Exception("File not found: $filePath");
 }
 
 function nullSafe(mixed $value, string $default = "Non Renseigné"): string
