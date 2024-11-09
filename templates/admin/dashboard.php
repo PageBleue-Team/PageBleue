@@ -69,6 +69,7 @@ function convertToWebP($sourcePath, $destinationPath)
 {
     $info = getimagesize($sourcePath);
     $isTransparent = false;
+    $image = null;
 
     switch ($info['mime']) {
         case 'image/jpeg':
@@ -81,10 +82,13 @@ function convertToWebP($sourcePath, $destinationPath)
             }
             break;
         case 'image/webp':
-            // Si l'image est déjà en WebP, on la copie simplement
             return copy($sourcePath, $destinationPath);
         default:
             return false;
+    }
+
+    if (!$image) {
+        return false;
     }
 
     if ($isTransparent) {
@@ -93,11 +97,12 @@ function convertToWebP($sourcePath, $destinationPath)
         imagesavealpha($image, true);
     }
 
-    // Convertir et sauvegarder en WebP
-    $result = imagewebp($image, $destinationPath, 90);
-    imagedestroy($image);
-
-    return $result;
+    try {
+        $result = imagewebp($image, $destinationPath, 90);
+        return $result;
+    } finally {
+        imagedestroy($image);
+    }
 }
 
 // Fonction pour gérer l'upload et la conversion du logo
