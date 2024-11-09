@@ -23,8 +23,8 @@ class SiteConfig {
         // Configuration de base
         self::$siteName = $_ENV['WEBSITE'];
         self::$logoURL = $_ENV['ORGANIZATION_LOGO_PATH'];
-        self::$descriptionLength = isset($_ENV['DESCRIPTION_LENGTH']) 
-            ? intval($_ENV['DESCRIPTION_LENGTH']) 
+        self::$descriptionLength = isset($_ENV['DESCRIPTION_LENGTH'])
+            ? intval($_ENV['DESCRIPTION_LENGTH'])
             : 250;
 
         // Meta données

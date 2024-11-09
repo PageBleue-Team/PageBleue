@@ -78,8 +78,8 @@ $team = SiteConfig::$team;
     <div class="background-animation">
         <?php for ($i = 0; $i < 15; $i++): ?>
             <span style="
-                left: <?php echo rand(0, 100); ?>%; 
-                top: <?php echo rand(0, 100); ?>%; 
+                left: <?php echo rand(0, 100); ?>%;
+                top: <?php echo rand(0, 100); ?>%;
                 animation-delay: -<?php echo rand(0, 25); ?>s;"></span>
         <?php endfor; ?>
     </div>

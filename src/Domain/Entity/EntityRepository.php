@@ -5,11 +5,11 @@ use PDO;
 
 abstract class EntityRepository {
     protected PDO $pdo;
-    
+
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
-    
+
     /**
      * Récupère un enregistrement par son ID
      * @param string $table
@@ -22,7 +22,7 @@ abstract class EntityRepository {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ?: null;
     }
-    
+
     /**
      * Crée un nouvel enregistrement
      * @param string $table
@@ -32,16 +32,16 @@ abstract class EntityRepository {
     protected function create(string $table, array $data): int {
         $columns = implode(', ', array_keys($data));
         $values = implode(', ', array_fill(0, count($data), '?'));
-        
+
         $stmt = $this->pdo->prepare("
-            INSERT INTO `$table` ($columns) 
+            INSERT INTO `$table` ($columns)
             VALUES ($values)
         ");
-        
+
         $stmt->execute(array_values($data));
         return (int)$this->pdo->lastInsertId();
     }
-    
+
     /**
      * Met à jour un enregistrement
      * @param string $table
@@ -51,16 +51,16 @@ abstract class EntityRepository {
      */
     protected function update(string $table, int $id, array $data): bool {
         $sets = implode(', ', array_map(fn($key) => "$key = ?", array_keys($data)));
-        
+
         $stmt = $this->pdo->prepare("
-            UPDATE `$table` 
-            SET $sets 
+            UPDATE `$table`
+            SET $sets
             WHERE id = ?
         ");
-        
+
         return $stmt->execute([...array_values($data), $id]);
     }
-    
+
     /**
      * Supprime un enregistrement
      * @param string $table
@@ -71,7 +71,7 @@ abstract class EntityRepository {
         $stmt = $this->pdo->prepare("DELETE FROM `$table` WHERE id = ?");
         return $stmt->execute([$id]);
     }
-    
+
     /**
      * Vérifie si un enregistrement existe
      * @param string $table

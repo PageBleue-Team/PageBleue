@@ -5,7 +5,7 @@
         <h1 class="mb-4"><?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?></h1>
         <div class="row">
             <div class="col-md-2">
-                <img src="<?php 
+                <img src="<?php
                     $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
                     $defaultPath = '/assets/images/logos/default.png';
                     echo file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
@@ -15,9 +15,9 @@
                 <h2 class="section-title">Informations générales</h2>
                 <div class="info-item"><span class="info-label">Téléphone :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['telephone'])); ?></div>
                 <div class="info-item"><span class="info-label">Email :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['mail'])); ?></div>
-                <div class="info-item"><span class="info-label">Adresse :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['numero'])) . ' ' . 
-                 htmlspecialchars($Utils->nullSafe($enterprise['rue'])) . ', ' . 
-                 htmlspecialchars($Utils->nullSafe($enterprise['code_postal'])) . ' ' . 
+                <div class="info-item"><span class="info-label">Adresse :</span> <?php echo htmlspecialchars($Utils->nullSafe($enterprise['numero'])) . ' ' .
+                 htmlspecialchars($Utils->nullSafe($enterprise['rue'])) . ', ' .
+                 htmlspecialchars($Utils->nullSafe($enterprise['code_postal'])) . ' ' .
                  htmlspecialchars($Utils->nullSafe($enterprise['commune'])); ?></div>
                 <?php if (!empty($enterprise['site_web'])): ?>
                     <div class="info-item">
@@ -62,4 +62,4 @@
     </div>
     <?php include ROOT_PATH . '/templates/layout/footer.php'; ?>
 </body>
-</html> 
+</html>

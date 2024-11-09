@@ -16,7 +16,7 @@
                                 <?php endif; ?>
                                 <div class="card-body d-flex">
                                     <div class="enterprise-logo-container">
-                                        <img src="<?php 
+                                        <img src="<?php
                                             $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
                                             $defaultPath = '/assets/images/logos/default.png';
                                             echo file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
@@ -57,4 +57,4 @@
     </div>
     <?php include ROOT_PATH . '/templates/layout/footer.php'; ?>
 </body>
-</html> 
+</html>

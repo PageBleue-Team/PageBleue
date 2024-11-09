@@ -7,7 +7,7 @@ class Utils {
         if (!defined('ROOT_PATH')) {
             throw new \RuntimeException('ROOT_PATH constant is not defined');
         }
-        
+
         $fullPath = ROOT_PATH . '/' . ltrim($filePath, '/');
         if (file_exists($fullPath)) {
             return require_once $fullPath;
@@ -44,15 +44,15 @@ class Utils {
         return $navLinks;
     }
 
-    public function formatDate(?string $date): string 
+    public function formatDate(?string $date): string
     {
         if (!$date) return 'Non renseigné';
-        
+
         $timestamp = strtotime($date);
         if ($timestamp === false) {
             return 'Date invalide';
         }
-        
+
         return date('d/m/Y', $timestamp);
     }
 

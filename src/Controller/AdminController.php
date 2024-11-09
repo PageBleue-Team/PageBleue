@@ -3,7 +3,7 @@ namespace App\Controller;
 
 use App\Domain\Repository\TableRepository;
 
-class AdminController 
+class AdminController
 {
     private SecurityController $authService;
     private TableRepository $tableRepository;
@@ -19,7 +19,7 @@ class AdminController
     /**
      * Page d'accueil du tableau de bord admin
      */
-    public function dashboard(): void 
+    public function dashboard(): void
     {
         // Vérification de l'authentification
         if (!$this->authService->isAdminLoggedIn()) {
@@ -30,7 +30,7 @@ class AdminController
         // Récupération des données de toutes les tables
         $tables = $this->tableRepository->getTables();
         $tableData = [];
-        
+
         foreach ($tables as $table) {
             $tableData[$table] = $this->tableRepository->getTableData($table);
         }

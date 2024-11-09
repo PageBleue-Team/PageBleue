@@ -5,7 +5,7 @@ use PDO;
 class TuteurRepository {
     /** @var PDO */
     private PDO $pdo;
-    
+
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
@@ -15,10 +15,10 @@ class TuteurRepository {
      * @param int $entrepriseId
      * @return array<int, array<string, mixed>>
      */
-    public function getTuteursByEntreprise(int $entrepriseId): array 
+    public function getTuteursByEntreprise(int $entrepriseId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM Tuteur WHERE entreprise_id = ?");
         $stmt->execute([$entrepriseId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-} 
+}

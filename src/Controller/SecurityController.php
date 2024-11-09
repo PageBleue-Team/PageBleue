@@ -43,7 +43,7 @@ class SecurityController
         if ($this->isSessionExpired()) {
             return false;
         }
-        return isset($_SESSION[self::ADMIN_SESSION_KEY]) && 
+        return isset($_SESSION[self::ADMIN_SESSION_KEY]) &&
                $_SESSION[self::ADMIN_SESSION_KEY] === true;
     }
 
@@ -111,7 +111,7 @@ class SecurityController
         }
 
         $isExpired = (time() - $_SESSION[self::LAST_ACTIVITY_KEY]) > self::SESSION_LIFETIME;
-        
+
         if ($isExpired) {
             $this->adminLogout();
             return true;

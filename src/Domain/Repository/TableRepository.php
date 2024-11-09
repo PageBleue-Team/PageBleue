@@ -32,17 +32,17 @@ class TableRepository extends EntityRepository {
      */
     public function getTableData(string $table, int $page = 1, int $perPage = 20): array {
         $this->validateTable($table);
-        
+
         $offset = ($page - 1) * $perPage;
         $stmt = $this->pdo->prepare("
-            SELECT * FROM `$table` 
+            SELECT * FROM `$table`
             LIMIT :limit OFFSET :offset
         ");
-        
+
         $stmt->bindValue(':limit', $perPage, \PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
         $stmt->execute();
-        
+
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
