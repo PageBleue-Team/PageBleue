@@ -1,6 +1,5 @@
 <?php
-
-require_once 'config.php'; // Assurez-vous que ce fichier contient vos paramètres de connexion à la base de données
+require_once __DIR__ . '/config/init.php';
 
 // Fonction pour hacher un mot de passe
 function hashPassword($password)
@@ -9,17 +8,19 @@ function hashPassword($password)
     return password_hash($password, PASSWORD_DEFAULT);
 }
 
+use Config\Database;
+
 try {
-    $pdo = getDbConnection();
-// Utilisez votre fonction de connexion à la base de données
+    // Utilisez votre fonction de connexion à la base de données
+    $pdo = Database::getInstance()->getConnection();
 
     // Récupérer tous les utilisateurs
     $stmt = $pdo->query("SELECT id, password FROM Users");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// Mettre à jour chaque mot de passe
+    // Mettre à jour chaque mot de passe
     $updateStmt = $pdo->prepare("UPDATE Users SET password = :password WHERE id = :id");
     foreach ($users as $user) {
-    // Vérifiez si le mot de passe n'est pas déjà haché
+        // Vérifiez si le mot de passe n'est pas déjà haché
         if (password_get_info($user['password'])['algoName'] === 'unknown') {
             $hashedPassword = hashPassword($user['password']);
             $updateStmt->execute([
