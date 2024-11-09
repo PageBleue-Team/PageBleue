@@ -26,8 +26,32 @@ class Utils
 
     public static function getLogoUrl(int $entrepriseId): string
     {
+        if (!defined('LOGO_PATH')) {
+            throw new \RuntimeException('LOGO_PATH constant is not defined');
+        }
+        
+        if ($entrepriseId <= 0) {
+            throw new \InvalidArgumentException('ID entreprise invalide');
+        }
+
         $logoPath = LOGO_PATH . '/' . $entrepriseId . '.webp';
-        return file_exists($logoPath) ? $logoPath : LOGO_PATH . '/default.png';
+        
+        if (file_exists($logoPath)) {
+            // Vérifier le type MIME du fichier
+            $mimeType = mime_content_type($logoPath);
+            if (!in_array($mimeType, ['image/webp'])) {
+                error_log("Type de fichier logo invalide pour entreprise $entrepriseId: $mimeType");
+                return LOGO_PATH . '/default.png';
+            }
+            return $logoPath;
+        }
+        
+        $defaultLogo = LOGO_PATH . '/default.png';
+        if (!file_exists($defaultLogo)) {
+            throw new \RuntimeException('Logo par défaut non trouvé');
+        }
+        
+        return $defaultLogo;
     }
 
     /**
