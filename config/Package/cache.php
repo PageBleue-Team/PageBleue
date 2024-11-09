@@ -9,6 +9,13 @@ class Cache
 
     public function __construct(string $cacheDir, int $defaultTtl = 3600)
     {
+        if ($defaultTtl <= 0) {
+            throw new \RuntimeException("Le TTL doit être positif");
+        }
+        $cacheDir = realpath($cacheDir) ?: $cacheDir;
+        if (empty($cacheDir) || strpos($cacheDir, '..') !== false) {
+            throw new \RuntimeException("Chemin du cache invalide");
+        }
         $this->cacheDir = $cacheDir;
         $this->defaultTtl = $defaultTtl;
         $this->initCacheDir();
@@ -17,8 +24,11 @@ class Cache
     private function initCacheDir(): void
     {
         if (!is_dir($this->cacheDir)) {
-            if (!mkdir($this->cacheDir, 0755, true)) {
+            if (!mkdir($this->cacheDir, 0750, true)) {
                 throw new \RuntimeException("Une erreur est survenue lors de la création du dossier Cache");
+            }
+            if (!chmod($this->cacheDir, 0750)) {
+                throw new \RuntimeException("Impossible de définir les permissions du dossier Cache");
             }
         }
     }
