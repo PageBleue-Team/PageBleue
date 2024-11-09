@@ -43,21 +43,35 @@ class Cache
 
     private function getCacheFilePath(string $key): string
     {
-        return $this->cacheDir . '/' . md5($key) . '.cache';
+        return rtrim($this->cacheDir, '/') . '/' . hash('sha256', $key) . '.cache';
     }
 
     private function get(string $cacheFile): mixed
     {
+        if (!is_readable($cacheFile)) {
+            throw new \RuntimeException("Le fichier cache n'est pas lisible: $cacheFile");
+        }
         $content = file_get_contents($cacheFile);
         if ($content === false) {
             throw new \RuntimeException("Impossible de lire le fichier cache: $cacheFile");
         }
-        return unserialize($content);
+        $data = @unserialize($content);
+        if ($data === false && $content !== serialize(false)) {
+            throw new \RuntimeException("Données du cache corrompues");
+        }
+        return $data;
     }
 
     private function put(string $cacheFile, mixed $data): void
     {
-        file_put_contents($cacheFile, serialize($data));
+        $tempFile = $cacheFile . '.tmp';
+        if (file_put_contents($tempFile, serialize($data), LOCK_EX) === false) {
+            throw new \RuntimeException("Échec de l'écriture des données dans le cache");
+        }
+        if (!rename($tempFile, $cacheFile)) {
+            @unlink($tempFile);
+            throw new \RuntimeException("Échec de la finalisation du cache");
+        }
     }
 
     public function forget(string $key): bool
