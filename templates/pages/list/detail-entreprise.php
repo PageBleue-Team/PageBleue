@@ -19,7 +19,7 @@
                  htmlspecialchars($Utils->nullSafe($enterprise['rue'])) . ', ' .
                  htmlspecialchars($Utils->nullSafe($enterprise['code_postal'])) . ' ' .
                  htmlspecialchars($Utils->nullSafe($enterprise['commune'])); ?></div>
-                <?php if (!empty($enterprise['site_web'])): ?>
+                <?php if (!empty($enterprise['site_web'])) : ?>
                     <div class="info-item">
                         <span class="info-label">Site web :</span>
                         <a href="<?php echo htmlspecialchars($enterprise['site_web']); ?>" target="_blank">
@@ -42,10 +42,10 @@
         </div>
 
         <!-- Section tuteurs -->
-        <?php if (!empty($tuteurs)): ?>
+        <?php if (!empty($tuteurs)) : ?>
             <div class="mt-4">
                 <h2 class="section-title">Tuteur(s)</h2>
-                <?php foreach ($tuteurs as $tuteur): ?>
+                <?php foreach ($tuteurs as $tuteur) : ?>
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($tuteur['nom'] . ' ' . $tuteur['prenom']); ?></h5>

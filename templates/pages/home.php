@@ -53,7 +53,7 @@ $team = SiteConfig::$team;
             <div class="team-section mt-4">
                 <h3 class="h5 text-primary mb-3">Notre équipe :</h3>
                 <div class="row">
-                    <?php foreach ($team as $member): ?>
+                    <?php foreach ($team as $member) : ?>
                         <div class="col-md-4 text-center mb-3">
                             <div class="team-member">
                                 <i class="fas fa-user-circle fa-3x mb-2 text-primary"></i>
@@ -76,7 +76,7 @@ $team = SiteConfig::$team;
 
     <!-- Animation de fond -->
     <div class="background-animation">
-        <?php for ($i = 0; $i < 15; $i++): ?>
+        <?php for ($i = 0; $i < 15; $i++) : ?>
             <span style="
                 left: <?php echo rand(0, 100); ?>%;
                 top: <?php echo rand(0, 100); ?>%;

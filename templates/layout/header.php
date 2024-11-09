@@ -3,7 +3,7 @@ if (!function_exists('safeInclude')) {
     require_once __DIR__ . '/../../config/init.php';
 }
 
-Use Config\SiteConfig;
+use Config\SiteConfig;
 $SiteConfig = new SiteConfig();
 $SiteConfig->init();
 

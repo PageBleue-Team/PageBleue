@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use Config\Database;
@@ -6,16 +7,14 @@ use App\Domain\Repository\EntrepriseRepository;
 use App\Domain\Repository\StageRepository;
 use App\Domain\Repository\TuteurRepository;
 
-class EntrepriseController {
+class EntrepriseController
+{
     /** @var EntrepriseRepository */
     private EntrepriseRepository $entrepriseRepo;
-
-    /** @var StageRepository */
+/** @var StageRepository */
     private StageRepository $stageRepo;
-
-    /** @var TuteurRepository */
+/** @var TuteurRepository */
     private TuteurRepository $tuteurRepo;
-
     public function __construct()
     {
         $pdo = Database::getInstance()->getConnection();
@@ -50,7 +49,6 @@ class EntrepriseController {
 
         $stages = $this->stageRepo->getStagesByEntreprise($id);
         $tuteurs = $this->tuteurRepo->getTuteursByEntreprise($id);
-
         return [
             'enterprise' => $enterprise,
             'stages' => $stages,

@@ -7,7 +7,7 @@ use Config\Utils;
 $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
 
-Use Config\SiteConfig;
+use Config\SiteConfig;
 Config\SiteConfig::init();
 
 $SiteConfig = new SiteConfig();
@@ -29,11 +29,11 @@ $logoURL = SiteConfig::$logoURL;
                     <?php
                     // Check si NavLinks
                     if (!empty($navLinks)) {
-                    foreach ($navLinks as $name => $link) {
-                    echo '<li><a href="' . htmlspecialchars($link) . '" class="text-white">' . htmlspecialchars($name) . '</a></li>';
-                    }
+                        foreach ($navLinks as $name => $link) {
+                            echo '<li><a href="' . htmlspecialchars($link) . '" class="text-white">' . htmlspecialchars($name) . '</a></li>';
+                        }
                     } else {
-                    echo '<li>Aucun lien disponible.</li>'; // Message si aucun liens n'est référencé
+                        echo '<li>Aucun lien disponible.</li>'; // Message si aucun liens n'est référencé
                     }
                     ?>
                 </ul>

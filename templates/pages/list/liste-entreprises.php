@@ -3,13 +3,13 @@
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
     <div class="container mt-5" style="padding-top: 60px;">
         <h1>Liste des entreprises</h1>
-        <?php if (!empty($enterprises)): ?>
+        <?php if (!empty($enterprises)) : ?>
             <div class="row">
-                <?php foreach ($enterprises as $enterprise): ?>
+                <?php foreach ($enterprises as $enterprise) : ?>
                     <div class="col-12 mb-4">
                         <a href="/list/<?php echo $enterprise['id']; ?>" class="card-link">
                             <div class="card">
-                                <?php if ($enterprise['lasallien']): ?>
+                                <?php if ($enterprise['lasallien']) : ?>
                                     <div class="lasalle-badge">
                                         <i class="fas fa-user-graduate"></i>
                                     </div>
@@ -44,14 +44,14 @@
             <!-- Pagination -->
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
                         <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
                             <a class="page-link" href="/list?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                         </li>
                     <?php endfor; ?>
                 </ul>
             </nav>
-        <?php else: ?>
+        <?php else : ?>
             <p>Aucune entreprise trouvée.</p>
         <?php endif; ?>
     </div>

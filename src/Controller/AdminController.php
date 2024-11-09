@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Domain\Repository\TableRepository;
@@ -7,11 +8,8 @@ class AdminController
 {
     private SecurityController $authService;
     private TableRepository $tableRepository;
-
-    public function __construct(
-        SecurityController $authService,
-        TableRepository $tableRepository,
-    ) {
+    public function __construct(SecurityController $authService, TableRepository $tableRepository,)
+    {
         $this->authService = $authService;
         $this->tableRepository = $tableRepository;
     }
@@ -30,7 +28,6 @@ class AdminController
         // Récupération des données de toutes les tables
         $tables = $this->tableRepository->getTables();
         $tableData = [];
-
         foreach ($tables as $table) {
             $tableData[$table] = $this->tableRepository->getTableData($table);
         }

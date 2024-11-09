@@ -97,7 +97,6 @@ class SecurityController
             $_SESSION[self::LAST_ACTIVITY_KEY] = time();
 
             return true;
-
         } catch (\Exception $e) {
             error_log("Erreur lors de la tentative de connexion : " . $e->getMessage());
             return false;

@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../config/config.php';
 use Spatie\ImageOptimizer\OptimizerChainFactory;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use \App\Controller\SecurityController;
+use App\Controller\SecurityController;
 
 // Inclusion des widgets nécessaires pour l'interface utilisateur
 includeWidget('navbar');
@@ -30,20 +30,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
 }
 
 // Fonction pour obtenir la structure d'une table
-function getTableStructure($pdo, $tableName) {
+function getTableStructure($pdo, $tableName)
+{
     $stmt = $pdo->prepare("DESCRIBE $tableName");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Fonction pour obtenir la liste des tables de la base de données
-function getTables($pdo) {
+function getTables($pdo)
+{
     $stmt = $pdo->query("SHOW TABLES");
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 // Fonction pour obtenir les données d'une table
-function getTableData($pdo, $table, $page = 1, $perPage = 20) {
+function getTableData($pdo, $table, $page = 1, $perPage = 20)
+{
     $offset = ($page - 1) * $perPage;
     $stmt = $pdo->prepare("SELECT * FROM `$table` LIMIT :limit OFFSET :offset");
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
@@ -62,7 +65,8 @@ $tables = array_diff(getTables($pdo), $blacklistedTables);
 $manager = new ImageManager(new Driver());
 
 // Fonction de conversion en WebP
-function convertToWebP($sourcePath, $destinationPath) {
+function convertToWebP($sourcePath, $destinationPath)
+{
     $info = getimagesize($sourcePath);
     $isTransparent = false;
 
@@ -97,7 +101,8 @@ function convertToWebP($sourcePath, $destinationPath) {
 }
 
 // Fonction pour gérer l'upload et la conversion du logo
-function handleLogoUpload($file, $entrepriseId) {
+function handleLogoUpload($file, $entrepriseId)
+{
     try {
         if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
             throw new Exception("Aucun fichier n'a été uploadé");
@@ -144,10 +149,16 @@ function handleLogoUpload($file, $entrepriseId) {
 
         // Redimensionnement
         imagecopyresampled(
-            $resized, $source,
-            0, 0, 0, 0,
-            $newWidth, $newHeight,
-            $width, $height
+            $resized,
+            $source,
+            0,
+            0,
+            0,
+            0,
+            $newWidth,
+            $newHeight,
+            $width,
+            $height
         );
 
         // Chemin du fichier de destination
@@ -161,7 +172,6 @@ function handleLogoUpload($file, $entrepriseId) {
         imagedestroy($resized);
 
         return $result;  // Return true if logo was saved successfully, false otherwise
-
     } catch (Exception $e) {
         error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
         return false;
@@ -304,15 +314,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     default:
                         // Traitement générique sécurisé
-                        $columns = array_keys(array_filter($_POST, function($key) {
+                        $columns = array_keys(array_filter($_POST, function ($key) {
                             return !in_array($key, ['action', 'table', 'csrf_token'], true);
                         }, ARRAY_FILTER_USE_KEY));
 
-                        $placeholders = array_map(function($col) { return ":$col"; }, $columns);
+                        $placeholders = array_map(function ($col) {
+                            return ":$col";
+                        }, $columns);
                         $sql = "INSERT INTO `" . $pdo->quote($table) . "` (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
 
                         $stmt = $pdo->prepare($sql);
-                        $values = array_combine($placeholders, array_map(function($key) {
+                        $values = array_combine($placeholders, array_map(function ($key) {
                             return filter_input(INPUT_POST, $key);
                         }, $columns));
                         $stmt->execute($values);
@@ -471,9 +483,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $realLogoPath = realpath($logoPath);
                         $realLogoDir = realpath(LOGO_DIR);
 
-                        if ($realLogoPath !== false &&
+                        if (
+                            $realLogoPath !== false &&
                             $realLogoDir !== false &&
-                            strpos($realLogoPath, $realLogoDir) === 0) {
+                            strpos($realLogoPath, $realLogoDir) === 0
+                        ) {
                             if (!unlink($realLogoPath)) {
                                 error_log("Impossible de supprimer le logo: $logoPath");
                             }
@@ -492,7 +506,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['success_message'] = "Opération effectuée avec succès";
         header('Location: ' . htmlspecialchars($_SERVER['PHP_SELF']));
         exit();
-
     } catch (Exception $e) {
         $pdo->rollBack();
         error_log("Erreur lors de l'opération sur la table " . htmlspecialchars($table) . ": " . $e->getMessage());
@@ -505,7 +518,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Pour ne pas update la page H24
-function handleAjaxRequest() {
+function handleAjaxRequest()
+{
     $action = $_POST['action'] ?? '';
     $table = $_POST['table'] ?? '';
     $id = $_POST['id'] ?? null;
@@ -653,7 +667,7 @@ foreach ($tables as $table) {
         <div class="panel-content">
             <!-- Onglets pour les différentes tables -->
             <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <?php foreach ($tables as $index => $table): ?>
+                <?php foreach ($tables as $index => $table) : ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link <?php echo $index === 0 ? 'active' : ''; ?>"
                                 id="<?php echo $table; ?>-tab"
@@ -671,7 +685,7 @@ foreach ($tables as $table) {
 
             <!-- Contenu des onglets -->
             <div class="tab-content" id="myTabContent">
-                <?php foreach ($tables as $index => $table): ?>
+                <?php foreach ($tables as $index => $table) : ?>
                     <div class="tab-pane fade <?php echo $index === 0 ? 'show active' : ''; ?>"
                         id="<?php echo $table; ?>"
                         role="tabpanel"
@@ -688,14 +702,14 @@ foreach ($tables as $table) {
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <?php foreach (getTableStructure($pdo, $table) as $column): ?>
+                                        <?php foreach (getTableStructure($pdo, $table) as $column) : ?>
                                             <th><?php echo ucfirst($column['Field']); ?></th>
                                         <?php endforeach; ?>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($tableData[$table] as $row): ?>
+                                    <?php foreach ($tableData[$table] as $row) : ?>
                                         <tr>
                                             <td class="logo-cell">
                                                 <img src="<?php echo getLogoUrl($row['id']); ?>" alt="Logo" class="img-fluid" style="max-width: 50px; max-height: 50px;">
@@ -721,7 +735,7 @@ foreach ($tables as $table) {
     </div>
 
     <!-- Modals d'ajout et d'édition pour chaque table -->
-    <?php foreach ($tables as $table): ?>
+    <?php foreach ($tables as $table) : ?>
         <!-- Modal d'ajout -->
         <div class="modal fade" id="add<?php echo ucfirst($table); ?>Modal" tabindex="-1" aria-labelledby="add<?php echo ucfirst($table); ?>ModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -734,15 +748,15 @@ foreach ($tables as $table) {
                         <input type="hidden" name="action" value="add">
                         <input type="hidden" name="table" value="<?php echo $table; ?>">
 
-                        <?php foreach (getTableStructure($pdo, $table) as $column): ?>
-                            <?php if ($column['Field'] !== 'id'): ?>
+                        <?php foreach (getTableStructure($pdo, $table) as $column) : ?>
+                            <?php if ($column['Field'] !== 'id') : ?>
                                 <div class="mb-3">
                                     <label for="add_<?php echo $column['Field']; ?>" class="form-label"><?php echo ucfirst($column['Field']); ?></label>
 
-                                    <?php if ($column['Field'] === 'logo'): ?>
+                                    <?php if ($column['Field'] === 'logo') : ?>
                                         <input type="file" class="form-control" id="add_<?php echo $column['Field']; ?>" name="<?php echo $column['Field']; ?>" accept="image/*">
                                         <small class="form-text text-muted">Formats acceptés : PNG, JPEG, WebP, JPG. L'image sera convertie en WebP.</small>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <input type="text" class="form-control" id="add_<?php echo $column['Field']; ?>" name="<?php echo $column['Field']; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                     <?php endif; ?>
                                 </div>
@@ -756,8 +770,8 @@ foreach ($tables as $table) {
         </div>
 
         <!-- Modals d'édition -->
-        <?php foreach ($tableData[$table] as $row): ?>
-            <?php if (isset($row['id'])): ?>
+        <?php foreach ($tableData[$table] as $row) : ?>
+            <?php if (isset($row['id'])) : ?>
             <div class="modal fade" id="edit<?php echo ucfirst($table); ?>Modal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="edit<?php echo ucfirst($table); ?>ModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -770,18 +784,18 @@ foreach ($tables as $table) {
                             <input type="hidden" name="table" value="<?php echo $table; ?>">
                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
 
-                            <?php foreach (getTableStructure($pdo, $table) as $column): ?>
-                                <?php if ($column['Field'] !== 'id'): ?>
+                            <?php foreach (getTableStructure($pdo, $table) as $column) : ?>
+                                <?php if ($column['Field'] !== 'id') : ?>
                                     <div class="mb-3">
                                         <label for="<?php echo $column['Field'] . $row['id']; ?>" class="form-label"><?php echo ucfirst($column['Field']); ?></label>
 
-                                        <?php if ($column['Field'] === 'logo'): ?>
-                                            <?php if (!empty($row['logo'])): ?>
+                                        <?php if ($column['Field'] === 'logo') : ?>
+                                            <?php if (!empty($row['logo'])) : ?>
                                                 <img src="<?php echo htmlspecialchars($row['logo']); ?>" alt="Logo actuel" class="img-fluid mb-2" style="max-width: 100px; max-height: 100px;">
                                             <?php endif; ?>
                                             <input type="file" class="form-control" id="<?php echo $column['Field'] . $row['id']; ?>" name="<?php echo $column['Field']; ?>" accept="image/*">
                                             <small class="form-text text-muted">Laissez vide pour conserver le logo actuel. Formats acceptés : PNG, JPEG, WebP, JPG.</small>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <input type="text" class="form-control" id="<?php echo $column['Field'] . $row['id']; ?>" name="<?php echo $column['Field']; ?>" value="<?php echo htmlspecialchars($row[$column['Field']] ?? ''); ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                         <?php endif; ?>
                                     </div>

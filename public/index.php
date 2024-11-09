@@ -1,11 +1,11 @@
 <?php
+
 /**
  * Point d'entrée principal de l'application
  */
 
 // Chargement des constantes depuis paths.php
 require_once __DIR__ . '/../config/Package/paths.php';
-
 // Gestion des erreurs
 $debug = getenv('APP_ENV') === 'development';
 if ($debug) {
@@ -15,7 +15,6 @@ if ($debug) {
 
 // Chargement des dépendances
 require_once ROOT_PATH . '/vendor/autoload.php';
-
 // Chargement des variables d'environnement
 try {
     $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
@@ -26,11 +25,9 @@ try {
 
 // Chargement de la configuration
 require_once ROOT_PATH . '/config/init.php';
-
 // Récupération de l'URI actuelle
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $uri = (string)parse_url($requestUri, PHP_URL_PATH);
-
 // Gestion des routes
 if ($uri === '/list') {
     require TEMPLATES_DIR . '/pages/list.php';

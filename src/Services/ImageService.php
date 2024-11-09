@@ -1,24 +1,25 @@
 <?php
+
 namespace App\Services;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Exception;
 
-class ImageService {
+class ImageService
+{
     private ImageManager $manager;
-
-    /** @var array<int, string> */
+/** @var array<int, string> */
     private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-
-    private int $maxFileSize = 5242880; // 5MB
+    private int $maxFileSize = 5242880;
+// 5MB
     private string $uploadDir;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->manager = new ImageManager(new Driver());
         $this->uploadDir = PUBLIC_PATH . '/assets/images/logos';
-
-        // Créer le dossier s'il n'existe pas
+// Créer le dossier s'il n'existe pas
         if (!is_dir($this->uploadDir)) {
             mkdir($this->uploadDir, 0755, true);
         }
@@ -36,23 +37,18 @@ class ImageService {
      * @param int $enterpriseId ID de l'entreprise
      * @return bool Succès de l'opération
      */
-    public function handleLogoUpload(array $file, int $enterpriseId): bool {
+    public function handleLogoUpload(array $file, int $enterpriseId): bool
+    {
         try {
             $this->validateUpload($file);
-
             $image = $this->manager->read($file['tmp_name']);
-
-            // Redimensionnement avec conservation du ratio
+// Redimensionnement avec conservation du ratio
             $image->scale(width: 300, height: 300);
-
-            // Sauvegarde en WebP avec l'ID de l'entreprise
+// Sauvegarde en WebP avec l'ID de l'entreprise
             $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
-
-            // Conversion et sauvegarde en WebP
+// Conversion et sauvegarde en WebP
             $image->toWebp(quality: 90)->save($filepath);
-
             return true;
-
         } catch (Exception $e) {
             error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
             return false;
@@ -70,7 +66,8 @@ class ImageService {
      * } $file
      * @throws Exception
      */
-    private function validateUpload(array $file): void {
+    private function validateUpload(array $file): void
+    {
         // Vérifie si le fichier est vide
         if (empty($file['tmp_name'])) {
             throw new Exception("Aucun fichier n'a été uploadé");
@@ -87,7 +84,6 @@ class ImageService {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
-
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
             throw new Exception("Type de fichier non autorisé");
         }
@@ -102,7 +98,8 @@ class ImageService {
      * @param int $enterpriseId
      * @return bool
      */
-    public function deleteLogo(int $enterpriseId): bool {
+    public function deleteLogo(int $enterpriseId): bool
+    {
         $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
         if (file_exists($filepath)) {
             return unlink($filepath);

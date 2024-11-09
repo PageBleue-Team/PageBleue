@@ -1,12 +1,16 @@
 <?php
+
 namespace App\Domain\Repository;
+
 use PDO;
 
-class TuteurRepository {
+class TuteurRepository
+{
     /** @var PDO */
     private PDO $pdo;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
     }
 

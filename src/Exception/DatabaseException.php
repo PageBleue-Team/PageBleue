@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exception;
 
 class DatabaseException extends \RuntimeException
@@ -23,10 +24,6 @@ class DatabaseException extends \RuntimeException
      */
     public static function fromPDOException(\PDOException $pdoException): DatabaseException
     {
-        return new self(
-            $pdoException->getMessage(),
-            $pdoException->getCode(),
-            $pdoException
-        );
+        return new self($pdoException->getMessage(), $pdoException->getCode(), $pdoException);
     }
 }
