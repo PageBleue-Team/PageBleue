@@ -1,15 +1,3 @@
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-.enterprise-logo {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: contain;
-}
-
 .star-rating {
     color: #ffc107;
 }
@@ -17,6 +5,12 @@ body {
 .card {
     position: relative;
     overflow: hidden;
+    transition: var(--transition-speed) all ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .lasalle-badge {
@@ -38,12 +32,6 @@ body {
     font-size: 20px;
 }
 
-.section-title {
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
-
 .info-item {
     margin-bottom: 10px;
 }
@@ -59,13 +47,4 @@ body {
 
 .card-link:hover {
     text-decoration: none;
-}
-
-.enterprise-logo-container {
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
 }
