@@ -13,7 +13,7 @@ class EntrepriseRepository extends EntityRepository
      * @param int $limit Nombre d'entreprises à retourner
      * @return array<int, array<string, mixed>>
      */
-    public function getFeaturedEntreprises(int $limit = 5): array
+    public function getFeaturedEntreprises(int $limit = 20): array
     {
         $sql = "SELECT e.*,
                     a.numero, a.rue, a.code_postal, a.commune,
@@ -247,7 +247,7 @@ class EntrepriseRepository extends EntityRepository
     }
 
     /**
-     * Vérifie si un SIRET existe déj�
+     * Vérifie si un SIRET existe déj�
      * @param string $siret
      * @param int|null $excludeId
      * @return bool

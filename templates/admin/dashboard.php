@@ -1,20 +1,18 @@
 <?php
-// Inclusion du fichier de configuration
-require_once __DIR__ . '/../../config/config.php';
+// Inclusion de configurations
+if (!function_exists('safeInclude')) {
+    require_once __DIR__ . '/../../config/init.php';
+}
+
+use Config\Paths;
+use Config\Database;
+$pdo = Database::getInstance()->getConnection();
 
 // Importation des classes nécessaires pour le traitement des images
 use Spatie\ImageOptimizer\OptimizerChainFactory;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Controller\SecurityController;
-
-// Inclusion des widgets nécessaires pour l'interface utilisateur
-includeWidget('navbar');
-$navLinks = getNavLinks();
-includeWidget('footer');
-
-// Établissement de la connexion à la base de données
-$pdo = getDbConnection();
 
 // Vérification de l'authentification de l'administrateur
 $SecurityController = new SecurityController();
@@ -167,7 +165,7 @@ function handleLogoUpload($file, $entrepriseId)
         );
 
         // Chemin du fichier de destination
-        $destinationPath = LOGO_DIR . '/' . $entrepriseId . '.webp';
+        $destinationPath = LOGOS_URL . '/' . $entrepriseId . '.webp';
 
         // Conversion et sauvegarde en WebP
         $result = imagewebp($resized, $destinationPath, 90);
@@ -181,6 +179,15 @@ function handleLogoUpload($file, $entrepriseId)
         error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
         return false;
     }
+}
+
+// Ajout de la fonction getLogoUrl manquante
+function getLogoUrl(int $enterpriseId): string {
+    $logoPath = PUBLIC_PATH . '/assets/images/logos/' . $enterpriseId . '.webp';
+    if (file_exists($logoPath)) {
+        return '/assets/images/logos/' . $enterpriseId . '.webp';
+    }
+    return '/assets/images/default-logo.webp'; // Image par défaut
 }
 
 // Traitement des actions POST (ajout, modification, suppression)
@@ -482,11 +489,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Si c'est une entreprise, supprimer aussi le logo de manière sécurisée
                 if ($table === 'Entreprises') {
-                    $logoPath = LOGO_DIR . '/' . $id . '.webp';
+                    $logoPath = LOGOS_URL . '/' . $id . '.webp';
                     if (file_exists($logoPath) && is_file($logoPath)) {
                         // Vérification supplémentaire du chemin pour éviter la traversée de répertoire
                         $realLogoPath = realpath($logoPath);
-                        $realLogoDir = realpath(LOGO_DIR);
+                        $realLogoDir = realpath(LOGOS_URL);
 
                         if (
                             $realLogoPath !== false &&
@@ -529,7 +536,7 @@ function handleAjaxRequest()
     $table = $_POST['table'] ?? '';
     $id = $_POST['id'] ?? null;
 
-    $pdo = getDbConnection();
+    $pdo = Database::getInstance()->getConnection();
 
     switch ($action) {
         case 'add':
@@ -585,10 +592,6 @@ foreach ($tables as $table) {
             });
         });
     });
-
-    function updateTable(data) {
-        // Code pour mettre à jour le tableau HTML avec les nouvelles données
-    }
     </script>
     <style>
         /* Styles CSS pour l'interface d'administration */
@@ -659,7 +662,8 @@ foreach ($tables as $table) {
     </style>
 </head>
 <body>
-    <?php renderNavbar($siteName); ?>
+    <!-- Navbar -->
+    <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
 
     <div class="container mt-5" style="padding-top: 30px;">
         <div class="container d-flex justify-content-between align-items-center">
@@ -716,9 +720,17 @@ foreach ($tables as $table) {
                                 <tbody>
                                     <?php foreach ($tableData[$table] as $row) : ?>
                                         <tr>
-                                            <td class="logo-cell">
-                                                <img src="<?php echo getLogoUrl($row['id']); ?>" alt="Logo" class="img-fluid" style="max-width: 50px; max-height: 50px;">
-                                            </td>
+                                            <?php foreach (getTableStructure($pdo, $table) as $column) : ?>
+                                                <?php if ($column['Field'] === 'logo' && $table === 'Entreprises') : ?>
+                                                    <td class="logo-cell">
+                                                        <img src="<?php echo getLogoUrl($row['id']); ?>" 
+                                                             alt="Logo" 
+                                                             class="img-fluid">
+                                                    </td>
+                                                <?php else : ?>
+                                                    <td><?php echo htmlspecialchars($row[$column['Field']] ?? ''); ?></td>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
                                             <td class="action-buttons">
                                                 <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#edit<?php echo ucfirst($table); ?>Modal<?php echo $row['id']; ?>">Éditer</button>
                                                 <form method="post" style="display:inline;">
@@ -816,7 +828,8 @@ foreach ($tables as $table) {
         <?php endforeach; ?>
     <?php endforeach; ?>
 
-    <?php renderFooter($siteName, $navLinks, $logoURL); ?>
+    <!-- Footer -->
+    <?php include ROOT_PATH . '/templates/layout/footer.php'; ?>
 
     <script>
         // Fonction de validation du formulaire

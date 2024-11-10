@@ -41,18 +41,26 @@ class ImageService
     {
         try {
             $this->validateUpload($file);
-            $image = $this->manager->read($file['tmp_name']);
-// Redimensionnement avec conservation du ratio
-            $image->scale(width: 300, height: 300);
-// Sauvegarde en WebP avec l'ID de l'entreprise
-            $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
-// Conversion et sauvegarde en WebP
-            $image->toWebp(quality: 90)->save($filepath);
-            return true;
+            return $this->processAndSaveImage($file, $enterpriseId);
         } catch (Exception $e) {
             error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Traite et sauvegarde l'image
+     * @param array{tmp_name: string} $file
+     * @param int $enterpriseId
+     * @return bool
+     */
+    private function processAndSaveImage(array $file, int $enterpriseId): bool
+    {
+        $image = $this->manager->read($file['tmp_name']);
+        $image->scale(width: 300, height: 300);
+        
+        $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
+        return $image->toWebp(quality: 90)->save($filepath) !== false;
     }
 
     /**
