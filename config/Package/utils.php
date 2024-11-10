@@ -106,7 +106,7 @@ function safeInclude(string $filePath): mixed
         throw new \RuntimeException('ROOT_PATH constant is not defined');
     }
     // Nettoyer et valider le chemin
-    $filePath = filter_var($filePath, FILTER_SANITIZE_STRING);
+    $filePath = htmlspecialchars($filePath, ENT_QUOTES, 'UTF-8');
     $normalizedPath = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filePath);
 
     // Vérifier les caractères dangereux
