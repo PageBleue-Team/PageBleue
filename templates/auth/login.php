@@ -1,122 +1,53 @@
 <?php
 if (!function_exists('safeInclude')) {
-    require_once './../config/init.php';
+    require_once __DIR__ . '/../../config/init.php';
 }
 
 use Config\Utils;
+use Config\Database;
+use App\Controller\AdminController;
+use App\Controller\SecurityController;
+use App\Domain\Repository\TableRepository;
 
 $Utils = new Utils();
-
 $navLinks = $Utils->getNavLinks();
 
-// Activer le mode débogage (à désactiver en production)
-define('DEBUG_MODE', false);
+// Obtenir la connexion PDO via le singleton Database
+$pdo = Database::getInstance()->getConnection();
 
-// Fonction pour enregistrer les erreurs détaillées
-function logDetailedError($message)
-{
-    $logFile = __DIR__ . '/../../var/logs/login_errors.log';
-    $timestamp = date('Y-m-d H:i:s');
-    $logMessage = "[$timestamp] $message\n";
-    if (!file_put_contents($logFile, $logMessage, FILE_APPEND)) {
-        error_log("Impossible d'écrire dans le fichier de log: $logFile");
-    }
-}
+// Créer les dépendances nécessaires
+$securityController = new SecurityController();
+$tableRepository = new TableRepository($pdo);
+$adminController = new AdminController($securityController, $tableRepository);
 
-// Fonction pour afficher les erreurs de manière sécurisée
-function displayError($publicMessage, $detailedMessage)
-{
-    global $error;
-    $error = $publicMessage;
-    if (DEBUG_MODE) {
-        $error .= " (Debug: $detailedMessage)";
-    }
-    logDetailedError($detailedMessage);
-}
+$error = '';
 
 // Forcer HTTPS
 // if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
 //     header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 // }
 
-$error = '';
-$pdo = getDbConnection();
-
 // Générer ou récupérer le jeton CSRF
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrf_token = $_SESSION['csrf_token'];
+$csrf_token = $securityController->generateCsrfToken();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Vérifier le jeton CSRF
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        displayError("Erreur de validation du formulaire. Veuillez réessayer.", "CSRF token mismatch");
+    if (!$securityController->validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Erreur de validation du formulaire. Veuillez réessayer.";
     } else {
-        $username = $_POST['username'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $result = $securityController->attemptLogin(
+            $_POST['username'] ?? '', 
+            $_POST['password'] ?? ''
+        );
 
-        // Validation des entrées
-        if (empty($username) || empty($password) || strlen($username) > 50) {
-            displayError("Nom d'utilisateur ou mot de passe invalide.", "Empty input or username too long");
-        } else {
-            try {
-                $stmt = $pdo->prepare("SELECT id, username, password, login_attempts, last_attempt_time FROM Users WHERE username = :username");
-                $stmt->execute(['username' => $username]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                // Vérification du verrouillage de compte
-                $lockout_time = 15 * 60; // 15 minutes
-                $max_attempts = 5;
-
-                if ($user && $user['login_attempts'] >= $max_attempts && time() - strtotime($user['last_attempt_time']) < $lockout_time) {
-                    displayError("Compte temporairement verrouillé. Veuillez réessayer plus tard.", "Account locked due to excessive attempts");
-                    logLoginAttempt($username, false);
-                } elseif ($user) {
-                    // Débogage : afficher le hash stocké
-                    if (DEBUG_MODE) {
-                        error_log("Stored hash: " . $user['password']);
-                        error_log("Entered password: " . $password);
-                    }
-
-                    if (password_verify($password, $user['password'])) {
-                        $_SESSION['user_id'] = $user['id'];
-                        $_SESSION['username'] = $user['username'];
-
-                        // Réinitialiser les tentatives de connexion
-                        $stmt = $pdo->prepare("UPDATE Users SET login_attempts = 0 WHERE id = :id");
-                        $stmt->execute(['id' => $user['id']]);
-
-                        logLoginAttempt($username, true);
-                        $_SESSION['admin_logged_in'] = true;
-                        $_SESSION['user_id'] = $user['id'];
-                        $_SESSION['username'] = $user['username'];
-
-                        // Régénérer l'ID de session pour prévenir la fixation de session
-                        session_regenerate_id(true);
-
-                        header('Location: panel');
-                        exit;
-                    } else {
-                        // Incrémenter les tentatives de connexion
-                        $stmt = $pdo->prepare("UPDATE Users SET login_attempts = login_attempts + 1, last_attempt_time = NOW() WHERE id = :id");
-                        $stmt->execute(['id' => $user['id']]);
-                        displayError("Nom d'utilisateur ou mot de passe incorrect.", "Password mismatch for user: $username");
-                        logLoginAttempt($username, false);
-                    }
-                } else {
-                    displayError("Nom d'utilisateur ou mot de passe incorrect.", "User not found: $username");
-                    logLoginAttempt($username, false);
-                }
-            } catch (PDOException $e) {
-                displayError("Une erreur est survenue. Veuillez réessayer plus tard.", "Database error: " . $e->getMessage());
-            }
+        if ($result['success']) {
+            header('Location: panel');
+            exit;
         }
+        
+        $error = $result['error'];
     }
 
-    // Régénérer le jeton CSRF après chaque tentative
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    $csrf_token = $_SESSION['csrf_token'];
+    $csrf_token = $securityController->refreshCsrfToken();
 }
 ?>
 <!-- Header -->
