@@ -15,7 +15,7 @@ $googleVerification = SiteConfig::$googleVerification;
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title><?php echo htmlspecialchars($siteName); ?></title>
     <meta name="google-site-verification" content="<?php echo htmlspecialchars($googleVerification); ?>" />
     <meta name="description" content="<?php echo htmlspecialchars($metaDescription); ?>">
@@ -28,6 +28,9 @@ $googleVerification = SiteConfig::$googleVerification;
     <!-- Styles Navbar + Footer -->
     <link rel="stylesheet" href="/assets/css/footer.css">
     <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/home.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/list.css">
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
