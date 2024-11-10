@@ -76,35 +76,27 @@ addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    function toggleNavbar(show) {
-        if (show === undefined) {
-            show = !navbarCollapse.classList.contains("show");
-        }
-        
-        navbarCollapse.style.transition = "transform 0.3s ease-in-out";
-        
-        if (show) {
-            navbarCollapse.classList.add("show");
-            setTimeout(() => {
-                navbarCollapse.style.transform = "translateY(0)";
-            }, 10);
-        } else {
-            navbarCollapse.style.transform = "translateY(-100%)";
-            navbarCollapse.addEventListener("transitionend", function handler() {
-                navbarCollapse.classList.remove("show");
-                navbarCollapse.removeEventListener("transitionend", handler);
-            });
-        }
-        
-        navbarToggler.setAttribute("aria-expanded", show);
-    }
-
-    if (navbarToggler && navbarCollapse) {
+    if (navbarToggler) {
         navbarToggler.addEventListener("click", function(e) {
             e.preventDefault();
             e.stopPropagation();
             toggleNavbar();
         });
+    }
+
+    function toggleNavbar(show) {
+        const isCurrentlyShown = navbarCollapse.classList.contains("show");
+        const shouldShow = show !== undefined ? show : !isCurrentlyShown;
+        
+        if (shouldShow) {
+            navbarCollapse.classList.add("show");
+            document.body.classList.add('menu-open');
+        } else {
+            navbarCollapse.classList.remove("show");
+            document.body.classList.remove('menu-open');
+        }
+        
+        navbarToggler.setAttribute("aria-expanded", shouldShow);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -153,15 +145,24 @@ addEventListener("DOMContentLoaded", function() {
     
     function setupMobileAnimation() {
         if (isMobile()) {
-            navbarCollapse.style.transition = "transform 0.3s ease-in-out";
-            navbarCollapse.style.transform = "translateY(-100%)";
-        } else {
-            navbarCollapse.style.transition = "";
-            navbarCollapse.style.transform = "";
             navbarCollapse.classList.remove("show");
+            document.body.classList.remove('menu-open');
         }
     }
 
     setupMobileAnimation();
     window.addEventListener("resize", setupMobileAnimation);
+
+    resetSlider();
+
+    // Ajouter cet événement pour gérer les clics en dehors
+    document.addEventListener('click', function(e) {
+        if (navbarCollapse.classList.contains('show')) {
+            const isClickInside = navbarCollapse.contains(e.target) || 
+                                navbarToggler.contains(e.target);
+            if (!isClickInside) {
+                toggleNavbar(false);
+            }
+        }
+    });
 });
