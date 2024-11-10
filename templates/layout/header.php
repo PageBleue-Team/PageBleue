@@ -26,7 +26,6 @@ $googleVerification = SiteConfig::$googleVerification;
     <!-- CSS Root (Styles principaux) -->
     <link rel="stylesheet" href="/assets/css/main.css">
     <!-- Styles Navbar + Footer -->
-    <link rel="stylesheet" href="/assets/css/footer.css">
     <link rel="stylesheet" href="/assets/css/navbar.css">
     <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/footer.css">
