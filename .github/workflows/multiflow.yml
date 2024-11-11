@@ -16,8 +16,9 @@ jobs:
     - name: 🧱 Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3.12'
-        tools: composer:v2
+        php-version: '8.3'
+        coverage: xdebug
+        tools: composer:v2, phpstan, phpcs
     - name: 🎣 Récupération répertoire de cache composer
       id: composer-cache
       run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
@@ -31,7 +32,6 @@ jobs:
       run: composer install --prefer-dist --no-progress
     - name: 🧹 Vérification du code
       run: |
-        composer require --dev phpstan/phpstan squizlabs/php_codesniffer
         vendor/bin/phpstan analyse --configuration=phpstan.neon
         vendor/bin/phpcs ./
   deploy:
@@ -66,3 +66,6 @@ jobs:
           /README.md
           .gitignore
           .env.exemple
+          phpstan.neon
+          phpcs.xml
+          tests/
