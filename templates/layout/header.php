@@ -26,6 +26,9 @@ $googleVerification = SiteConfig::$googleVerification;
 
             // Vérifier d'abord le chemin
             switch (path) {
+                case '/':
+                    navLinkName = 'Accueil';
+                    break;
                 case '/form':
                     navLinkName = 'Formulaire';
                     break;
@@ -37,6 +40,12 @@ $googleVerification = SiteConfig::$googleVerification;
                     break;
                 case '/login':
                     navLinkName = 'Connexion';
+                    break;
+                case '/legal':
+                    navLinkName = 'Mentions légales';
+                    break;
+                case '/404':
+                    navLinkName = 'Perdu ?';
                     break;
             }
 
@@ -111,7 +120,7 @@ $googleVerification = SiteConfig::$googleVerification;
     <link rel="stylesheet" href="/assets/css/footer.css">
     <link rel="stylesheet" href="/assets/css/list.css">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
-
+    <link rel="stylesheet" href="/assets/css/legal.css">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="/assets/images/favicons/site.webmanifest">
@@ -120,4 +129,9 @@ $googleVerification = SiteConfig::$googleVerification;
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/images/favicons/favicon.png">
+
+    <!-- Scripts nécessaires pour Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
