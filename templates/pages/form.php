@@ -17,8 +17,8 @@ $navLinks = $Utils->getNavLinks();
   <!-- Navbar -->
   <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
 
-  <div class="container" style="text-align: center;">
-    <h2 class="mb-4">Arrive bientôt...</h2>
+  <div class="container" style="margin: auto; vertical-align: middle; text-align: center;">
+    <h2>Arrive bientôt...</h2>
   </div>
 
   <!-- Footer -->
