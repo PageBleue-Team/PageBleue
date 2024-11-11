@@ -8,7 +8,7 @@
     
     /* Dimensions */
     --container-max-width: 1200px;
-    --navbar-height: 35px;
+    --navbar-height: 65px;
     
     /* Animations */
     --transition-speed: 0.3s;
@@ -79,7 +79,7 @@ html {
     color: var(--primary-blue);
     border-bottom: 2px solid var(--primary-blue);
     padding-bottom: 0.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-weight: 600;
     width: fit-content;
 }

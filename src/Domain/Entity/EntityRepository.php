@@ -3,7 +3,6 @@
 namespace App\Domain\Entity;
 
 use PDO;
-use Config\Database;
 
 abstract class EntityRepository
 {

@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Config\Database;
 use App\Domain\Repository\EntrepriseRepository;
 use App\Domain\Repository\StageRepository;
 use App\Domain\Repository\TuteurRepository;

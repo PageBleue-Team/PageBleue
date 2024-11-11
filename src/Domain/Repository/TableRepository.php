@@ -4,7 +4,6 @@ namespace App\Domain\Repository;
 
 use Exception;
 use App\Domain\Entity\EntityRepository;
-use Config\Database;
 
 class TableRepository extends EntityRepository
 {

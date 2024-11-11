@@ -1,7 +1,7 @@
 <?php include ROOT_PATH . '/templates/layout/header.php'; ?>
 <body>
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
-    <div class="container mt-5" style="padding-top: 60px;">
+    <div class="container">
         <h1 class="mb-4"><?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?></h1>
         <div class="row">
             <div class="col-md-2">

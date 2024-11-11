@@ -3,9 +3,7 @@
 namespace App\Controller;
 
 use App\Domain\Repository\TableRepository;
-use App\Domain\Repository\UsersRepository;
 use App\Services\ImageService;
-use Config\Database;
 
 class AdminController
 {
