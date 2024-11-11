@@ -5,38 +5,21 @@ namespace App\Services;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Exception;
+use Config\Database;
 
 class ImageService
 {
     private ImageManager $manager;
-/** @var array<int, string> */
     private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    private int $maxFileSize = 5242880;
-// 5MB
-    private string $uploadDir;
+    private int $maxFileSize = 5242880; // 5MB
+    private \PDO $db;
 
     public function __construct()
     {
         $this->manager = new ImageManager(new Driver());
-        $this->uploadDir = PUBLIC_PATH . '/assets/images/logos';
-// Créer le dossier s'il n'existe pas
-        if (!is_dir($this->uploadDir)) {
-            mkdir($this->uploadDir, 0755, true);
-        }
+        $this->db = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Gère l'upload et le traitement d'un logo
-     * @param array{
-     *     name: string,
-     *     type: string,
-     *     tmp_name: string,
-     *     error: int,
-     *     size: int
-     * } $file Fichier uploadé ($_FILES['logo'])
-     * @param int $enterpriseId ID de l'entreprise
-     * @return bool Succès de l'opération
-     */
     public function handleLogoUpload(array $file, int $enterpriseId): bool
     {
         try {
@@ -48,38 +31,32 @@ class ImageService
         }
     }
 
-    /**
-     * Traite et sauvegarde l'image
-     * @param array{tmp_name: string} $file
-     * @param int $enterpriseId
-     * @return bool
-     */
     private function processAndSaveImage(array $file, int $enterpriseId): bool
     {
         try {
             $image = $this->manager->read($file['tmp_name']);
             $image->scale(width: 300, height: 300);
 
-            $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
-            $image->toWebp(quality: 90)->save($filepath);
-            return true;
+            // Convertir l'image en WebP et la récupérer comme chaîne de caractères
+            $imageData = (string) $image->toWebp(quality: 90);
+
+            // Mettre à jour la base de données
+            $stmt = $this->db->prepare(
+                "UPDATE Entreprises 
+                SET logo = :logo 
+                WHERE id = :id"
+            );
+
+            return $stmt->execute([
+                ':logo' => $imageData,
+                ':id' => $enterpriseId
+            ]);
         } catch (Exception $e) {
             error_log("Erreur lors de la sauvegarde de l'image: " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Valide le fichier uploadé
-     * @param array{
-     *     name: string,
-     *     type: string,
-     *     tmp_name: string,
-     *     error: int,
-     *     size: int
-     * } $file
-     * @throws Exception
-     */
     private function validateUpload(array $file): void
     {
         // Vérifie si le fichier est vide
@@ -107,17 +84,60 @@ class ImageService
         }
     }
 
-    /**
-     * Supprime le logo d'une entreprise
-     * @param int $enterpriseId
-     * @return bool
-     */
     public function deleteLogo(int $enterpriseId): bool
     {
-        $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
-        if (file_exists($filepath)) {
-            return unlink($filepath);
+        try {
+            $stmt = $this->db->prepare(
+                "UPDATE Entreprises 
+                SET logo = NULL 
+                WHERE id = :id"
+            );
+            return $stmt->execute([':id' => $enterpriseId]);
+        } catch (Exception $e) {
+            error_log("Erreur lors de la suppression du logo: " . $e->getMessage());
+            return false;
         }
-        return false;
+    }
+
+    // Pour l'affichage de l'image
+    public function getLogo(int $enterpriseId): void
+    {
+        $stmt = $this->db->prepare(
+            "SELECT logo 
+            FROM Entreprises 
+            WHERE id = :id"
+        );
+        $stmt->execute([':id' => $enterpriseId]);
+        $result = $stmt->fetch();
+
+        if ($result && $result['logo']) {
+            header('Content-Type: image/webp');
+            echo $result['logo'];
+            exit;
+        }
+
+        header('HTTP/1.0 404 Not Found');
+        exit;
+    }
+
+    /**
+     * Traite une image uploadée et la retourne au format WebP
+     * @param array $file Le fichier uploadé ($_FILES['logo'])
+     * @return string|null Les données de l'image en WebP ou null en cas d'erreur
+     */
+    public function processUploadedImage(array $file): ?string
+    {
+        try {
+            $this->validateUpload($file);
+            
+            $image = $this->manager->read($file['tmp_name']);
+            $image->scale(width: 300, height: 300);
+
+            // Convertir l'image en WebP et la récupérer comme chaîne de caractères
+            return (string) $image->toWebp(quality: 90);
+        } catch (Exception $e) {
+            error_log("Erreur lors du traitement de l'image: " . $e->getMessage());
+            return null;
+        }
     }
 }
