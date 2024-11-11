@@ -3,6 +3,9 @@
 namespace App\Domain\Entity;
 
 use PDO;
+use InvalidArgumentException;
+use RuntimeException;
+use PDOException;
 
 abstract class EntityRepository
 {
@@ -21,10 +24,17 @@ abstract class EntityRepository
      */
     protected function findById(string $table, int $id): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM `$table` WHERE id = ?");
-        $stmt->execute([$id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ?: null;
+        if (!$this->isValidTableName($table)) {
+            throw new InvalidArgumentException('Nom de table invalide');
+        }
+        $stmt = $this->pdo->prepare('SELECT * FROM ' . $this->quoteIdentifier($table) . ' WHERE id = ?');
+        try {
+            $stmt->execute([$id]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ?: null;
+        } catch (PDOException $e) {
+            throw new RuntimeException('Erreur lors de la récupération des données', 0, $e);
+        }
     }
 
     /**
@@ -86,5 +96,13 @@ abstract class EntityRepository
         $stmt = $this->pdo->prepare("SELECT 1 FROM `$table` WHERE id = ?");
         $stmt->execute([$id]);
         return (bool)$stmt->fetch();
+    }
+
+    protected function isValidTableName(string $table): bool {
+        return preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $table) === 1;
+    }
+
+    protected function quoteIdentifier(string $identifier): string {
+        return '`' . str_replace('`', '``', $identifier) . '`';
     }
 }
