@@ -117,7 +117,11 @@ class AdminController
 
     private function isAjaxRequest(): bool
     {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        return (
+            isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' &&
+            isset($_SERVER['HTTP_ACCEPT']) &&
+            strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false
+        );
     }
 }
