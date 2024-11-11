@@ -144,6 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Fermer la modale
                     const modal = document.getElementById(modalId);
+                    if (!modal) {
+                        console.error(`Aucun modal trouvé avec l'id ${modalId}`);
+                        return;
+                    }
                     const bsModal = bootstrap.Modal.getInstance(modal);
                     bsModal.hide();
                     
