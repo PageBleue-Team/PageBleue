@@ -40,7 +40,23 @@ class SiteConfig
         self::$mainDescription = $texts['main_description'];
         self::$historyDescription = $texts['history_description'];
 
+        private static function validateTeamMember(array $member): void
+        {
+            $required = ['name', 'role', 'filiere'];
+            foreach ($required as $field) {
+                if (!isset($member[$field]) || !is_string($member[$field])) {
+                    throw new \RuntimeException("Champ '$field' invalide pour un membre de l'équipe");
+                }
+            }
+        }
+
         // Configuration de l'équipe
-        self::$team = $texts['team'];
-    }
+        $team = $texts['team'];
+        if (!is_array($team)) {
+            throw new \RuntimeException("La configuration de l'équipe doit être un tableau");
+        }
+        foreach ($team as $member) {
+            self::validateTeamMember($member);
+        }
+        self::$team = $team;
 }
