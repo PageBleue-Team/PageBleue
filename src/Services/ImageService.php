@@ -10,6 +10,7 @@ use Config\Database;
 class ImageService
 {
     private ImageManager $manager;
+    /** @var array<string> */
     private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
     private int $maxFileSize = 5242880; // 5MB
     private \PDO $db;
@@ -20,6 +21,15 @@ class ImageService
         $this->db = Database::getInstance()->getConnection();
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     tmp_name: string,
+     *     error: int,
+     *     size: int
+     * } $file
+     */
     public function handleLogoUpload(array $file, int $enterpriseId): bool
     {
         try {
@@ -31,6 +41,15 @@ class ImageService
         }
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     tmp_name: string,
+     *     error: int,
+     *     size: int
+     * } $file
+     */
     private function processAndSaveImage(array $file, int $enterpriseId): bool
     {
         try {
@@ -57,6 +76,16 @@ class ImageService
         }
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     tmp_name: string,
+     *     error: int,
+     *     size: int
+     * } $file
+     * @throws Exception
+     */
     private function validateUpload(array $file): void
     {
         // Vérifie si le fichier est vide
@@ -122,7 +151,13 @@ class ImageService
 
     /**
      * Traite une image uploadée et la retourne au format WebP
-     * @param array $file Le fichier uploadé ($_FILES['logo'])
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     tmp_name: string,
+     *     error: int,
+     *     size: int
+     * } $file Le fichier uploadé ($_FILES['logo'])
      * @return string|null Les données de l'image en WebP ou null en cas d'erreur
      */
     public function processUploadedImage(array $file): ?string

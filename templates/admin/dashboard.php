@@ -69,10 +69,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                 <ul class="nav nav-tabs card-header-tabs" id="tableTabs" role="tablist">
                     <?php foreach ($tables as $index => $table) : ?>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link <?php echo $index === 0 ? 'active' : ''; ?>" 
-                                    id="tab-<?php echo htmlspecialchars($table); ?>" 
+                            <button class="nav-link <?= $index === 0 ? 'active' : '' ?>" 
+                                    id="tab-<?= htmlspecialchars($table) ?>" 
                                     data-bs-toggle="tab" 
-                                    data-bs-target="#content-<?php echo htmlspecialchars($table); ?>" 
+                                    data-bs-target="#content-<?= htmlspecialchars($table) ?>" 
                                     type="button" 
                                     role="tab">
                                 <?php echo htmlspecialchars($table); ?>
@@ -85,15 +85,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
             <div class="card-body">
                 <div class="tab-content" id="tableTabsContent">
                     <?php foreach ($tables as $index => $table) : ?>
-                        <div class="tab-pane <?php echo $index === 0 ? 'active' : ''; ?>" 
-                             id="content-<?php echo htmlspecialchars($table); ?>" 
+                        <div class="tab-pane <?= $index === 0 ? 'active' : '' ?>" 
+                             id="content-<?= htmlspecialchars($table) ?>" 
                              role="tabpanel">
                             
                             <!-- Bouton pour ouvrir la modale -->
                             <div class="mb-3">
                                 <button type="button" 
                                         class="btn btn-primary" 
-                                        data-bs-target="addModal<?php echo htmlspecialchars($table); ?>">
+                                        data-bs-target="addModal<?= htmlspecialchars($table) ?>">
                                     <i class="fas fa-plus"></i> Ajouter
                                 </button>
                             </div>
@@ -121,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                                     <?php foreach ($columns as $column) : ?>
                                                         <td>
                                                             <?php if ($column === 'logo' && !empty($row[$column])) : ?>
-                                                                <img src="data:image/webp;base64,<?php echo base64_encode($row[$column]); ?>" 
+                                                                <img src="data:image/webp;base64,<?= base64_encode($row[$column]); ?>" 
                                                                      alt="Logo" 
                                                                      style="max-width: 50px; max-height: 50px;">
                                                             <?php else : ?>
@@ -130,10 +130,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                                         </td>
                                                     <?php endforeach; ?>
                                                     <td>
-                                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $table . $row['id']; ?>">
+                                                        <button class="btn btn-sm btn-warning" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#editModal<?= $table . $row['id'] ?>">
                                                             Modifier
                                                         </button>
-                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $table . $row['id']; ?>">
+                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $table . $row['id'] ?>">
                                                             Supprimer
                                                         </button>
                                                     </td>
@@ -141,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                             <?php endforeach; ?>
                                         <?php else : ?>
                                             <tr>
-                                                <td colspan="<?php echo count($columns) + 1; ?>" class="text-center">
+                                                <td colspan="<?= count($columns) + 1 ?>" class="text-center">
                                                     Aucune donnée disponible
                                                 </td>
                                             </tr>
@@ -165,7 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
     <!-- Modales pour chaque table -->
     <?php foreach ($tables as $table) : ?>
         <!-- Modal -->
-        <div class="modal" id="addModal<?php echo htmlspecialchars($table); ?>" tabindex="-1">
+        <div class="modal" id="addModal<?= htmlspecialchars($table) ?>" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -175,7 +177,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                     <form method="POST" enctype="multipart/form-data" class="add-form">
                         <input type="hidden" name="action" value="add">
                         <input type="hidden" name="table" value="<?php echo htmlspecialchars($table); ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                         
                         <div class="modal-body">
                             <?php
@@ -225,7 +227,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
         <!-- Modales d'édition pour chaque ligne -->
         <?php if (!empty($tableData[$table])) : ?>
             <?php foreach ($tableData[$table] as $row) : ?>
-                <div class="modal" id="editModal<?php echo $table . $row['id']; ?>" tabindex="-1">
+                <div class="modal" id="editModal<?= $table . $row['id'] ?>" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -290,7 +292,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
         <!-- Modales de suppression pour chaque ligne -->
         <?php if (!empty($tableData[$table])) : ?>
             <?php foreach ($tableData[$table] as $row) : ?>
-                <div class="modal" id="deleteModal<?php echo $table . $row['id']; ?>" tabindex="-1">
+                <div class="modal" id="deleteModal<?= $table . $row['id'] ?>" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">

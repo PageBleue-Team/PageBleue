@@ -6,6 +6,8 @@ use Exception;
 use App\Domain\Entity\EntityRepository;
 use PDO;
 
+use function Config\app_log;
+
 class TableRepository extends EntityRepository
 {
     /** @var array<int, string> */
@@ -168,6 +170,7 @@ class TableRepository extends EntityRepository
 
     /**
      * Valide les données d'une adresse
+     * @param array<string, string|null> $data
      * @throws Exception si la validation échoue
      */
     private function validateAdresse(array $data): void
@@ -190,8 +193,10 @@ class TableRepository extends EntityRepository
 
     /**
      * Vérifie l'existence d'un ID dans une table
+     * @param string $table
+     * @param int $id
      */
-    private function checkForeignKeyExists(string $table, $id): bool
+    private function checkForeignKeyExists(string $table, int $id): bool
     {
         try {
             $sql = "SELECT 1 FROM `$table` WHERE id = ? LIMIT 1";
@@ -293,7 +298,7 @@ class TableRepository extends EntityRepository
     /**
      * Récupère la structure d'une table
      * @param string $table
-     * @return array<string, array>
+     * @return array<string, array<string, string|null>>
      */
     public function getTableStructure(string $table): array
     {

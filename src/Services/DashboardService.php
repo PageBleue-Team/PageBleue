@@ -2,28 +2,33 @@
 
 namespace App\Services;
 
-use App\Domain\Repository\EntrepriseRepository;
 use App\Domain\Repository\TableRepository;
 use PDO;
 
 class DashboardService
 {
     private TableRepository $tableRepository;
-    private EntrepriseRepository $entrepriseRepository;
     private ImageService $imageService;
 
     public function __construct(
         TableRepository $tableRepository,
-        EntrepriseRepository $entrepriseRepository,
         ImageService $imageService
     ) {
         $this->tableRepository = $tableRepository;
-        $this->entrepriseRepository = $entrepriseRepository;
         $this->imageService = $imageService;
     }
 
     /**
-     * Gère les opérations CRUD pour toutes les tables
+     * @param array<string, string|int> $postData Les données POST
+     * @param array{
+     *     logo?: array{
+     *         name: string,
+     *         type: string,
+     *         tmp_name: string,
+     *         error: int,
+     *         size: int
+     *     }
+     * }|null $files Les fichiers uploadés
      */
     public function handleTableOperation(string $action, string $table, array $postData, ?array $files = null): bool
     {
@@ -31,7 +36,7 @@ class DashboardService
             switch ($action) {
                 case 'add':
                     $data = $this->prepareData($table, $postData, $files);
-                    return $this->tableRepository->addRecord($table, $data) !== null;
+                    return $this->tableRepository->addRecord($table, $data);
 
                 case 'edit':
                     $id = (int)($postData['id'] ?? 0);
@@ -57,6 +62,19 @@ class DashboardService
         }
     }
 
+    /**
+     * @param array<string, string|int> $postData
+     * @param array{
+     *     logo?: array{
+     *         name: string,
+     *         type: string,
+     *         tmp_name: string,
+     *         error: int,
+     *         size: int
+     *     }
+     * }|null $files
+     * @return array<string, string|int>
+     */
     private function prepareData(string $table, array $postData, ?array $files = null): array
     {
         $data = array_filter($postData, function ($key) {
@@ -75,7 +93,10 @@ class DashboardService
     }
 
     /**
-     * Récupère les données pour l'affichage du dashboard
+     * @return array{
+     *     tables: array<int, string>,
+     *     tableData: array<string, array<int, array<string, mixed>>>
+     * }
      */
     public function getDashboardData(): array
     {

@@ -6,17 +6,17 @@ use App\Domain\Repository\TableRepository;
 use App\Services\ImageService;
 use Exception;
 
+use function Config\app_log;
+
 class AdminController
 {
     private TableRepository $tableRepository;
-    private SecurityController $securityController;
     private ImageService $imageService;
 
     public function __construct()
     {
         $pdo = \Config\Database::getInstance()->getConnection();
         $this->tableRepository = new TableRepository($pdo);
-        $this->securityController = new SecurityController();
         $this->imageService = new ImageService();
     }
 
