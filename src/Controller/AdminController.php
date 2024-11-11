@@ -106,7 +106,7 @@ class AdminController
     {
         header('Content-Type: application/json; charset=utf-8');
         header('X-Content-Type-Options: nosniff');
-        
+
         $action = $_POST['action'] ?? '';
         $table = $_POST['table'] ?? '';
 
