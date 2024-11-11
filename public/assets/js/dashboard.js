@@ -72,6 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+
                 let data;
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
