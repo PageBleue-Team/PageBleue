@@ -42,6 +42,6 @@ if ($uri === '/list') {
         require $file;
     } else {
         header("HTTP/1.0 404 Not Found");
-        require TEMPLATES_DIR . '/pages/404.php';
+        require TEMPLATES_DIR . '/pages/error/404.php';
     }
 }
