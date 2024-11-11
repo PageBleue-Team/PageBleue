@@ -27,7 +27,10 @@ class EntrepriseController
     /**
      * @param int $page
      * @param array<string, mixed> $filters
-     * @return array{enterprises: array<int, array<string, mixed>>, total_pages: int}
+     * @return array{
+     *     enterprises: array<int, array<string, mixed>>,
+     *     total_pages: int
+     * }
      */
     public function listAction(int $page = 1, array $filters = []): array
     {
@@ -38,7 +41,11 @@ class EntrepriseController
 
     /**
      * @param int $id
-     * @return array{enterprise: array<string, mixed>, stages: array<int, array<string, mixed>>, tuteurs: array<int, array<string, mixed>>}
+     * @return array{
+     *     enterprise: array<string, mixed>,
+     *     stages: array<int, array<string, mixed>>,
+     *     tuteurs: array<int, array<string, mixed>>
+     * }
      */
     public function showAction(int $id): array
     {

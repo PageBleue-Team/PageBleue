@@ -1,14 +1,12 @@
 <?php
 
 require_once __DIR__ . '/config/init.php';
-// Fonction pour hacher un mot de passe
-function hashPassword($password)
-{
-
-    return password_hash($password, PASSWORD_DEFAULT);
-}
 
 use Config\Database;
+use App\Services\HashPassword;
+$hashPassword = new HashPassword();
+
+
 try {
 // Utilisez votre fonction de connexion à la base de données
     $pdo = Database::getInstance()->getConnection();
@@ -20,7 +18,7 @@ try {
     foreach ($users as $user) {
     // Vérifiez si le mot de passe n'est pas déjà haché
         if (password_get_info($user['password'])['algoName'] === 'unknown') {
-            $hashedPassword = hashPassword($user['password']);
+            $hashedPassword = $hashPassword->hashPassword($user['password']);
             $updateStmt->execute([
                 'password' => $hashedPassword,
                 'id' => $user['id']

@@ -91,7 +91,10 @@ class SecurityController
             }
 
             if ($usersRepository->isAccountLocked($user)) {
-                return ['success' => false, 'error' => "Compte temporairement verrouillé. Veuillez réessayer plus tard."];
+                return [
+                    'success' => false,
+                    'error' => "Compte temporairement verrouillé. Veuillez réessayer plus tard."
+                ];
             }
 
             if ($usersRepository->verifyPassword($password, $user)) {

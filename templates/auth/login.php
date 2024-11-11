@@ -95,7 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
 
     <div class="container-fluid d-flex justify-content-center align-items-center flex-grow-1">
-        <div class="col-md-8 col-lg-6 col-xl-4 p-4" style="background-color: white; border-radius: 8px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1);">
+        <div 
+            class="col-md-8 col-lg-6 col-xl-4 p-4" 
+            style="
+                background-color: white; 
+                border-radius: 8px; 
+                box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
+            "
+        >
             <h2 class="mb-4">Connexion</h2>
             <?php if ($error) : ?>
                 <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>

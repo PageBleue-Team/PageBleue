@@ -21,7 +21,11 @@ class UsersRepository extends EntityRepository
      */
     public function findByUsername(string $username): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT id, username, password, login_attempts, last_attempt_time FROM Users WHERE username = :username");
+        $stmt = $this->pdo->prepare(
+            "SELECT id, username, password, login_attempts, last_attempt_time 
+            FROM Users 
+            WHERE username = :username"
+        );
         $stmt->execute(['username' => $username]);
         return $stmt->fetch() ?: null;
     }
@@ -36,7 +40,11 @@ class UsersRepository extends EntityRepository
     {
         $this->pdo->beginTransaction();
         try {
-            $stmt = $this->pdo->prepare("UPDATE Users SET login_attempts = login_attempts + 1, last_attempt_time = NOW() WHERE id = :id");
+            $stmt = $this->pdo->prepare(
+                "UPDATE Users 
+                SET login_attempts = login_attempts + 1, last_attempt_time = NOW() 
+                WHERE id = :id"
+            );
             $stmt->execute(['id' => $userId]);
             $this->pdo->commit();
         } catch (Exception $e) {

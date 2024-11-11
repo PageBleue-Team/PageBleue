@@ -34,15 +34,30 @@ try {
 <!-- Structure de la navbar -->
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
-        <a class="navbar-brand" href="<?php echo htmlspecialchars($navLinks['Accueil']); ?>"><?php echo htmlspecialchars($siteName); ?></a>
-        <button class="navbar-toggler" id="navbarToggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" 
+           href="<?php echo htmlspecialchars($navLinks['Accueil']); ?>">
+            <?php echo htmlspecialchars($siteName); ?>
+        </a>
+        
+        <button 
+            class="navbar-toggler" 
+            id="navbarToggler" 
+            type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#navbarNav" 
+            aria-controls="navbarNav" 
+            aria-expanded="false" 
+            aria-label="Toggle navigation"
+        >
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 position-relative">
                 <?php foreach ($navLinks as $name => $link) : ?>
                     <li class="nav-item">
-                        <a class="nav-link<?php echo ($activePage == $name) ? ' active' : ''; ?><?php echo ($name == "Panel") ? ' admin-link' : ''; ?>"
+                        <a class="nav-link<?php echo ($activePage == $name) ? ' active' : ''; ?>
+                            <?php echo ($name == "Panel") ? ' admin-link' : ''; ?>"
                            href="<?php echo htmlspecialchars($link); ?>"
                            data-nav="<?php echo htmlspecialchars(strtolower($name)); ?>">
                             <?php echo htmlspecialchars($name); ?>
@@ -51,8 +66,15 @@ try {
                 <?php endforeach; ?>
                 <div class="nav-slider"></div>
             </ul>
+
             <div class="search-container">
-                <input class="form-control search-input" type="search" placeholder="Rechercher une entreprise" aria-label="Search" id="search-input">
+                <input 
+                    class="form-control search-input" 
+                    type="search" 
+                    placeholder="Rechercher une entreprise" 
+                    aria-label="Search" 
+                    id="search-input"
+                >
                 <i class="fas fa-search search-icon"></i>
             </div>
         </div>

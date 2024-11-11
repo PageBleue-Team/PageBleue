@@ -15,7 +15,11 @@ class LoginLogger
         $user = $stmt->fetch();
         $user_id = $user ? $user['id'] : null;
 // Log tentative
-        $stmt = $pdo->prepare("INSERT INTO login_logs (user_id, username, ip_address, user_agent, success) VALUES (:user_id, :username, :ip_address, :user_agent, :success)");
+        $sql = "INSERT INTO login_logs "
+            . "(user_id, username, ip_address, user_agent, success) "
+            . "VALUES "
+            . "(:user_id, :username, :ip_address, :user_agent, :success)";
+        $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'user_id' => $user_id,
             'username' => $username,

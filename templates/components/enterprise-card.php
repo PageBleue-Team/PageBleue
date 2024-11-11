@@ -39,13 +39,12 @@ $chunks = array_chunk($enterprises, 5);
                     <?php foreach ($group as $enterprise) : ?>
                         <div class="card-wrapper">
                             <div class="card h-100 shadow-sm mx-2">
-                                <?php if ($enterprise['lasallien']) :
-                                    ?>
-                                    <div class="position-absolute top-0 end-0 m-2 bg-primary rounded-circle p-2 text-white">
+                                <?php if ($enterprise['lasallien']) : ?>
+                                    <div class="position-absolute top-0 end-0 m-2 bg-primary rounded-circle p-2 
+                                        text-white">
                                         <i class="fas fa-user-graduate"></i>
                                     </div>
-                                    <?php
-                                endif; ?>
+                                <?php endif; ?>
 
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">

@@ -16,24 +16,35 @@
                                 <?php endif; ?>
                                 <div class="card-body d-flex">
                                     <div class="enterprise-logo-container">
-                                        <img src="<?php
-                                            $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
-                                            $defaultPath = '/assets/images/logos/default.png';
-                                            echo file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
-                                        ?>" class="enterprise-logo" alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>">
+                                        <?php
+                                        $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
+                                        $defaultPath = '/assets/images/logos/default.png';
+                                        $finalPath = file_exists(PUBLIC_PATH . $logoPath)
+                                            ? $logoPath
+                                            : $defaultPath;
+                                        ?>
+                                        <img 
+                                            src="<?php echo $finalPath; ?>" 
+                                            class="enterprise-logo" 
+                                            alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>"
+                                        >
                                     </div>
                                     <div>
-                                        <h5 class="card-title"><?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?></h5>
-                                        <p class="card-text">
-                                            <?php
-                                            $description = isset($enterprise['description']) ? htmlspecialchars($Utils->nullSafe($enterprise['description'])) : 'Non renseigné';
-                                            if ($description === "Non renseigné") {
-                                                echo "Aucune description disponible";
-                                            } else {
-                                                echo htmlspecialchars(mb_substr($description, 0, 150)) . (mb_strlen($description) > 150 ? '...' : '');
-                                            }
-                                            ?>
-                                        </p>
+                                        <h5 class="card-title">
+                                            <?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?>
+                                        </h5>
+                                        <?php
+                                        $description = isset($enterprise['description'])
+                                            ? htmlspecialchars($Utils->nullSafe($enterprise['description']))
+                                            : 'Non renseigné';
+
+                                        if ($description === "Non renseigné") {
+                                            echo "Aucune description disponible";
+                                        } else {
+                                            $truncated = htmlspecialchars(mb_substr($description, 0, 150));
+                                            echo $truncated . (mb_strlen($description) > 150 ? '...' : '');
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +83,10 @@
                         if ($end < $total_pages - 1) {
                             echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                         }
-                        echo '<li class="page-item"><a class="page-link" href="/list?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                        echo '<li class="page-item">' .
+                             '<a class="page-link" href="/list?page=' . $total_pages . '">' .
+                             $total_pages .
+                             '</a></li>';
                     }
                     ?>
 
