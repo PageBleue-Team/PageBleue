@@ -13,7 +13,9 @@ function initLogs(): void
 {
     // Créer le dossier logs s'il n'existe pas
     if (!file_exists(dirname(LOG_FILE))) {
-        mkdir(dirname(LOG_FILE), 0777, true);
+        if (!mkdir(dirname(LOG_FILE), 0755, true)) {
+            throw new \RuntimeException('Impossible de créer le répertoire de logs');
+        }
     }
 }
 
