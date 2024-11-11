@@ -76,6 +76,9 @@ class SecurityController
         session_write_close();
     }
 
+    /**
+     * @return array{success: bool, error?: string}
+     */
     public function attemptLogin(string $username, string $password): array
     {
         if (empty($username) || empty($password) || strlen($username) > 50) {
@@ -109,6 +112,9 @@ class SecurityController
         }
     }
 
+    /**
+     * @param array{id: int, username: string} $user
+     */
     private function createUserSession(array $user): void
     {
         $_SESSION['user_id'] = $user['id'];
