@@ -50,5 +50,7 @@
 }
 
 .fixed-bottom {
-    bottom: 170px !important;
+    position: static !important;
+    margin-top: auto;
+    margin-bottom: 2rem;
 }   
