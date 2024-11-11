@@ -532,6 +532,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 function handleAjaxRequest()
 {
+    // Validation du type de contenu
+    if (!isset($_SERVER['CONTENT_TYPE']) || strpos($_SERVER['CONTENT_TYPE'], 'application/x-www-form-urlencoded') !== 0) {
+        http_response_code(415);
+        exit(json_encode(['error' => 'Type de contenu non supporté']));
+    }
+
     // Limitation de taux
     $ip = $_SERVER['REMOTE_ADDR'];
     $key = "rate_limit:ajax:$ip";
