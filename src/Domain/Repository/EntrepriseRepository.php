@@ -202,7 +202,7 @@ class EntrepriseRepository extends EntityRepository
         $params = [];
         if (!empty($filters['search'])) {
             $whereClauses[] = "e.nom LIKE :search";
-            $params['search'] = "%{$filters['search']}%";
+            $params['search'] = '%' . str_replace(['%', '_'], ['\%', '\_'], $filters['search']) . '%';
         }
 
         if (isset($filters['lasallien'])) {
