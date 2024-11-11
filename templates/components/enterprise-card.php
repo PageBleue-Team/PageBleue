@@ -11,9 +11,11 @@ if (!function_exists('safeInclude')) {
 use Config\Utils;
 use Config\Database;
 use App\Domain\Repository\EntrepriseRepository;
+use App\Services\ImageService;
 $Utils = new Utils();
 $pdo = Database::getInstance()->getConnection();
 $entrepriseRepo = new EntrepriseRepository($pdo);
+$imageService = new ImageService();
 // Récupère 5 entreprises aléatoires
 $nbEntreprises = 5;
 $enterprises = $entrepriseRepo->getFeaturedEntreprises($nbEntreprises);
@@ -49,11 +51,13 @@ $chunks = array_chunk($enterprises, 5);
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
                                         <div class="me-2" style="width: 35px; height: 35px;">
-                                            <img src="<?php
-                                                $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
-                                            $defaultPath = '/assets/images/logos/default.png';
-                                            echo file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
-                                            ?>" class="w-100 h-100 object-fit-contain" alt="Logo">
+                                            <?php $logo = base64_encode($enterprise['logo'] ?? ''); ?>
+                                            <img 
+                                                src="data:image/webp;base64,<?php echo $logo; ?>" 
+                                                class="w-100 h-100 object-fit-contain" 
+                                                alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>"
+                                                onerror="this.src='/assets/images/logos/default.png'"
+                                            >
                                         </div>
 
                                         <h5 class="card-title mb-0 h6">
