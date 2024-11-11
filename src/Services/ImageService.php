@@ -129,7 +129,7 @@ class ImageService
     {
         try {
             $this->validateUpload($file);
-            
+
             $image = $this->manager->read($file['tmp_name']);
             $image->scale(width: 300, height: 300);
 

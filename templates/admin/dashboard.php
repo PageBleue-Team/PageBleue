@@ -161,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
     <script src="/assets/js/dashboard.js"></script>
 
     <!-- Modales pour chaque table -->
-    <?php foreach ($tables as $table): ?>
+    <?php foreach ($tables as $table) : ?>
         <!-- Modal Ajout -->
         <div class="modal" id="addModal<?php echo $table; ?>" tabindex="-1">
             <div class="modal-dialog">
@@ -176,39 +176,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                             <input type="hidden" name="table" value="<?php echo htmlspecialchars($table); ?>">
                             <input type="hidden" name="csrf_token" value="<?php echo $SecurityController->generateCsrfToken(); ?>">
                             
-                            <?php 
+                            <?php
                             $structure = $tableRepository->getTableStructure($table);
-                            foreach ($structure as $column): 
-                                if ($column['Field'] !== 'id'):
-                            ?>
+                            foreach ($structure as $column) :
+                                if ($column['Field'] !== 'id') :
+                                    ?>
                                 <div class="mb-3">
                                     <label class="form-label"><?php echo htmlspecialchars($column['Field']); ?></label>
-                                    <?php if ($column['Field'] === 'logo'): ?>
+                                    <?php if ($column['Field'] === 'logo') : ?>
                                         <input type="file" class="form-control" name="<?php echo $column['Field']; ?>" accept="image/*">
-                                    <?php elseif ($tableRepository->isForeignKey($column['Field'])): ?>
-                                        <?php 
+                                    <?php elseif ($tableRepository->isForeignKey($column['Field'])) : ?>
+                                        <?php
                                         $referencedTable = ucfirst(str_replace('_id', '', $column['Field']));
                                         $foreignData = $tableRepository->getForeignKeyData($referencedTable);
                                         ?>
                                         <select class="form-select" name="<?php echo $column['Field']; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                             <option value="">Sélectionnez...</option>
-                                            <?php foreach ($foreignData as $item): ?>
+                                            <?php foreach ($foreignData as $item) : ?>
                                                 <option value="<?php echo $item['id']; ?>"
                                                         <?php echo ($item['id'] == $tableRepository->getNextId($table)) ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($item['display_value']); ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <input type="text" 
                                                class="form-control" 
                                                name="<?php echo $column['Field']; ?>"
                                                <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                     <?php endif; ?>
                                 </div>
-                            <?php 
+                                    <?php
                                 endif;
-                            endforeach; 
+                            endforeach;
                             ?>
                         </div>
                         <div class="modal-footer">
@@ -221,8 +221,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
         </div>
 
         <!-- Modales d'édition pour chaque ligne -->
-        <?php if (!empty($tableData[$table])): ?>
-            <?php foreach ($tableData[$table] as $row): ?>
+        <?php if (!empty($tableData[$table])) : ?>
+            <?php foreach ($tableData[$table] as $row) : ?>
                 <div class="modal" id="editModal<?php echo $table . $row['id']; ?>" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -237,33 +237,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                     <input type="hidden" name="csrf_token" value="<?php echo $SecurityController->generateCsrfToken(); ?>">
 
-                                    <?php foreach ($structure as $column): ?>
-                                        <?php if ($column['Field'] !== 'id'): ?>
+                                    <?php foreach ($structure as $column) : ?>
+                                        <?php if ($column['Field'] !== 'id') : ?>
                                             <div class="mb-3">
                                                 <label class="form-label"><?php echo htmlspecialchars($column['Field']); ?></label>
-                                                <?php if ($column['Field'] === 'logo'): ?>
-                                                    <?php if (!empty($row[$column['Field']])): ?>
+                                                <?php if ($column['Field'] === 'logo') : ?>
+                                                    <?php if (!empty($row[$column['Field']])) : ?>
                                                         <img src="data:image/webp;base64,<?php echo base64_encode($row[$column['Field']]); ?>" 
                                                              alt="Logo actuel" 
                                                              class="img-fluid mb-2" 
                                                              style="max-width: 100px;">
                                                     <?php endif; ?>
                                                     <input type="file" class="form-control" name="<?php echo $column['Field']; ?>" accept="image/*">
-                                                <?php elseif ($tableRepository->isForeignKey($column['Field'])): ?>
-                                                    <?php 
+                                                <?php elseif ($tableRepository->isForeignKey($column['Field'])) : ?>
+                                                    <?php
                                                     $referencedTable = ucfirst(str_replace('_id', '', $column['Field']));
                                                     $foreignData = $tableRepository->getForeignKeyData($referencedTable);
                                                     ?>
                                                     <select class="form-select" name="<?php echo $column['Field']; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                                         <option value="">Sélectionnez...</option>
-                                                        <?php foreach ($foreignData as $item): ?>
+                                                        <?php foreach ($foreignData as $item) : ?>
                                                             <option value="<?php echo $item['id']; ?>" 
                                                                     <?php echo ($row[$column['Field']] == $item['id']) ? 'selected' : ''; ?>>
                                                                 <?php echo htmlspecialchars($item['display_value']); ?>
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <input type="text" 
                                                            class="form-control" 
                                                            name="<?php echo $column['Field']; ?>"

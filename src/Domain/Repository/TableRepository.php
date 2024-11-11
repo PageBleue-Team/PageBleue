@@ -66,21 +66,21 @@ class TableRepository extends EntityRepository
     public function addRecord(string $table, array $data): ?int
     {
         $this->validateTable($table);
-        
-        $filteredData = array_filter($data, function($key) {
+
+        $filteredData = array_filter($data, function ($key) {
             return !in_array($key, ['action', 'table', 'csrf_token']);
         }, ARRAY_FILTER_USE_KEY);
 
         $columns = implode(', ', array_map(fn($col) => "`$col`", array_keys($filteredData)));
         $values = implode(', ', array_fill(0, count($filteredData), '?'));
-        
+
         $sql = "INSERT INTO `$table` ($columns) VALUES ($values)";
         $stmt = $this->pdo->prepare($sql);
-        
+
         if ($stmt->execute(array_values($filteredData))) {
             return (int)$this->pdo->lastInsertId();
         }
-        
+
         return null;
     }
 
@@ -186,10 +186,10 @@ class TableRepository extends EntityRepository
 
             // Utiliser le nom correct de la table
             $realTableName = $tableMapping[$tableName] ?? $tableName;
-            
+
             // Obtenir le prochain ID disponible
             $nextId = $this->getNextId($realTableName);
-            
+
             // Récupérer les données existantes avec l'ID dans l'affichage
             $displayColumns = [
                 'Entreprises' => ['id', 'nom'],
@@ -202,12 +202,12 @@ class TableRepository extends EntityRepository
             ];
 
             $columns = $displayColumns[$realTableName] ?? ['id'];
-            
+
             // Construire la partie CONCAT avec l'ID en premier
-            $displayColumn = "CONCAT('(ID #', id, ') ', " . 
-                (count($columns) > 1 ? 
-                    implode(", ' ', ", array_slice($columns, 1)) : 
-                    $columns[0]) . 
+            $displayColumn = "CONCAT('(ID #', id, ') ', " .
+                (count($columns) > 1 ?
+                    implode(", ' ', ", array_slice($columns, 1)) :
+                    $columns[0]) .
                 ")";
 
             // Récupérer les enregistrements existants
@@ -221,7 +221,7 @@ class TableRepository extends EntityRepository
                 'id' => $nextId,
                 'display_value' => "(ID potentiel #$nextId)"
             ];
-            
+
             return $existingData;
         } catch (\Exception $e) {
             error_log("Erreur dans getForeignKeyData: " . $e->getMessage());
@@ -262,16 +262,16 @@ class TableRepository extends EntityRepository
     public function updateRecord(string $table, int $id, array $data): bool
     {
         $this->validateTable($table);
-        
-        $filteredData = array_filter($data, function($key) {
+
+        $filteredData = array_filter($data, function ($key) {
             return !in_array($key, ['action', 'table', 'id', 'csrf_token']);
         }, ARRAY_FILTER_USE_KEY);
 
         $setClause = implode(', ', array_map(fn($col) => "`$col` = ?", array_keys($filteredData)));
-        
+
         $sql = "UPDATE `$table` SET $setClause WHERE id = ?";
         $stmt = $this->pdo->prepare($sql);
-        
+
         return $stmt->execute([...array_values($filteredData), $id]);
     }
 }

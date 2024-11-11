@@ -59,7 +59,7 @@ class DashboardService
 
     private function prepareData(string $table, array $postData, ?array $files = null): array
     {
-        $data = array_filter($postData, function($key) {
+        $data = array_filter($postData, function ($key) {
             return !in_array($key, ['action', 'table', 'id', 'csrf_token']);
         }, ARRAY_FILTER_USE_KEY);
 
