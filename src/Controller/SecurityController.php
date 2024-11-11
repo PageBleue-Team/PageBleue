@@ -25,16 +25,13 @@ class SecurityController
     public function home(): void
     {
         try {
-            // Vérifier si le fichier existe avant de l'inclure
-            $templatePath = '../templates/pages/home.php';
+            $templatePath = dirname(__DIR__, 2) . '/templates/pages/home.php';
             if (!file_exists($templatePath)) {
                 throw new \RuntimeException('Template non trouvé : ' . $templatePath);
             }
             include $templatePath;
         } catch (\Exception $e) {
-            // Log l'erreur
             error_log("Erreur dans home() : " . $e->getMessage());
-            // Rediriger vers une page d'erreur
             header('Location: /error');
             exit;
         }
