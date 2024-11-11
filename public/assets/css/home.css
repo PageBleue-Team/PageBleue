@@ -29,8 +29,8 @@
 
 .carousel-control-prev,
 .carousel-control-next {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     top: 50%;
     transform: translateY(-50%);
     border-radius: 50%;
