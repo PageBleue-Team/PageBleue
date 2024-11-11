@@ -56,8 +56,11 @@ class DashboardService
                 default:
                     throw new \Exception("Action non reconnue");
             }
-        } catch (\Exception $e) {
+        } catch (\InvalidArgumentException $e) {
             error_log($e->getMessage());
+            return false;
+        } catch (\Exception $e) {
+                         error_log($e->getMessage());
             return false;
         }
     }
