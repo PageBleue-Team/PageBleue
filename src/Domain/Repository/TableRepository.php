@@ -67,21 +67,21 @@ class TableRepository extends EntityRepository
     public function addRecord(string $table, array $data): int
     {
         $this->validateTable($table);
-        
+
         $filteredData = $this->filterPostData($data);
         $columns = array_keys($filteredData);
         $placeholders = array_map(fn($col) => ":$col", $columns);
-        
+
         $sql = sprintf(
             "INSERT INTO `%s` (%s) VALUES (%s)",
             $table,
             implode(', ', $columns),
             implode(', ', $placeholders)
         );
-        
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($filteredData);
-        
+
         return (int)$this->pdo->lastInsertId();
     }
 
@@ -92,7 +92,7 @@ class TableRepository extends EntityRepository
      */
     private function filterPostData(array $data): array
     {
-        return array_filter($data, function($key) {
+        return array_filter($data, function ($key) {
             return !in_array($key, ['action', 'table', 'csrf_token'], true);
         }, ARRAY_FILTER_USE_KEY);
     }
@@ -106,29 +106,29 @@ class TableRepository extends EntityRepository
     public function editRecord(string $table, array $data): void
     {
         $this->validateTable($table);
-        
+
         if (!isset($data['id'])) {
             throw new Exception("L'ID est requis pour la modification");
         }
-        
+
         $id = $data['id'];
         $filteredData = $this->filterPostData($data);
-        
+
         // Création des paires colonne=:colonne pour la requête UPDATE
         $setPairs = array_map(
             fn($column) => "`$column` = :$column",
             array_keys($filteredData)
         );
-        
+
         $sql = sprintf(
             "UPDATE `%s` SET %s WHERE id = :id",
             $table,
             implode(', ', $setPairs)
         );
-        
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([...$filteredData, 'id' => $id]);
-        
+
         if ($stmt->rowCount() === 0) {
             throw new Exception("Aucun enregistrement n'a été modifié");
         }
@@ -143,11 +143,11 @@ class TableRepository extends EntityRepository
     public function deleteRecord(string $table, int|string $id): void
     {
         $this->validateTable($table);
-        
+
         $sql = sprintf("DELETE FROM `%s` WHERE id = :id", $table);
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
-        
+
         if ($stmt->rowCount() === 0) {
             throw new Exception("Aucun enregistrement n'a été supprimé");
         }

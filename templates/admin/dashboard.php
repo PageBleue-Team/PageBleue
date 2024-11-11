@@ -182,7 +182,8 @@ function handleLogoUpload($file, $entrepriseId)
 }
 
 // Ajout de la fonction getLogoUrl manquante
-function getLogoUrl(int $enterpriseId): string {
+function getLogoUrl(int $enterpriseId): string
+{
     $logoPath = PUBLIC_PATH . '/assets/images/logos/' . $enterpriseId . '.webp';
     if (file_exists($logoPath)) {
         return '/assets/images/logos/' . $enterpriseId . '.webp';

@@ -54,7 +54,7 @@
                     <?php
                     $start = max(1, $page - 2);
                     $end = min($total_pages, $page + 2);
-                    
+
                     if ($start > 1) {
                         echo '<li class="page-item"><a class="page-link" href="/list?page=1">1</a></li>';
                         if ($start > 2) {

@@ -58,7 +58,7 @@ class ImageService
     {
         $image = $this->manager->read($file['tmp_name']);
         $image->scale(width: 300, height: 300);
-        
+
         $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
         return $image->toWebp(quality: 90)->save($filepath) !== false;
     }

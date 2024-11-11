@@ -40,7 +40,7 @@ class UsersRepository extends EntityRepository
      */
     public function isAccountLocked(array $user): bool
     {
-        return $user['login_attempts'] >= self::MAX_ATTEMPTS && 
+        return $user['login_attempts'] >= self::MAX_ATTEMPTS &&
                (time() - strtotime($user['last_attempt_time']) < self::LOCKOUT_TIME);
     }
 

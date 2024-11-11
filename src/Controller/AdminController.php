@@ -14,7 +14,7 @@ class AdminController
     private ImageService $imageService;
 
     public function __construct(
-        SecurityController $securityController, 
+        SecurityController $securityController,
         TableRepository $tableRepository
     ) {
         $this->securityController = $securityController;
@@ -108,7 +108,7 @@ class AdminController
     {
         $action = $_POST['action'] ?? '';
         $table = $_POST['table'] ?? '';
-        
+
         $data = $this->tableRepository->getTableData($table);
         echo json_encode($data);
         exit;
@@ -116,7 +116,7 @@ class AdminController
 
     private function isAjaxRequest(): bool
     {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 }

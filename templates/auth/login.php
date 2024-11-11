@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Erreur de validation du formulaire. Veuillez réessayer.";
     } else {
         $result = $securityController->attemptLogin(
-            $_POST['username'] ?? '', 
+            $_POST['username'] ?? '',
             $_POST['password'] ?? ''
         );
 
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: panel');
             exit;
         }
-        
+
         $error = $result['error'];
     }
 

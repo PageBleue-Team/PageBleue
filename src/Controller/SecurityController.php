@@ -105,7 +105,6 @@ class SecurityController
 
             $usersRepository->incrementLoginAttempts($user['id']);
             return ['success' => false, 'error' => "Nom d'utilisateur ou mot de passe incorrect."];
-
         } catch (\Exception $e) {
             error_log($e->getMessage());
             return ['success' => false, 'error' => "Une erreur est survenue. Veuillez réessayer plus tard."];

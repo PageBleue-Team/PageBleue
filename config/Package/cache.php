@@ -39,7 +39,7 @@ class Cache
         $cacheFile = $this->getCacheFilePath($key);
         $lockFile = $cacheFile . '.lock';
         $lockHandle = fopen($lockFile, 'w+');
-        
+
         if (!$lockHandle || !flock($lockHandle, LOCK_EX)) {
             throw new \RuntimeException("Impossible d'acquérir le verrou");
         }
