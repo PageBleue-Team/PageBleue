@@ -89,9 +89,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                              id="content-<?php echo htmlspecialchars($table); ?>" 
                              role="tabpanel">
                             
-                            <!-- Bouton Ajouter -->
+                            <!-- Bouton pour ouvrir la modale -->
                             <div class="mb-3">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal<?php echo $table; ?>">
+                                <button type="button" 
+                                        class="btn btn-primary" 
+                                        data-bs-target="addModal<?php echo htmlspecialchars($table); ?>">
                                     <i class="fas fa-plus"></i> Ajouter
                                 </button>
                             </div>
@@ -162,20 +164,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
 
     <!-- Modales pour chaque table -->
     <?php foreach ($tables as $table) : ?>
-        <!-- Modal Ajout -->
-        <div class="modal" id="addModal<?php echo $table; ?>" tabindex="-1">
+        <!-- Modal -->
+        <div class="modal" id="addModal<?php echo htmlspecialchars($table); ?>" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Ajouter - <?php echo htmlspecialchars($table); ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data" class="add-form">
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="table" value="<?php echo htmlspecialchars($table); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        
                         <div class="modal-body">
-                            <input type="hidden" name="action" value="add">
-                            <input type="hidden" name="table" value="<?php echo htmlspecialchars($table); ?>">
-                            <input type="hidden" name="csrf_token" value="<?php echo $SecurityController->generateCsrfToken(); ?>">
-                            
                             <?php
                             $structure = $tableRepository->getTableStructure($table);
                             foreach ($structure as $column) :
@@ -277,6 +279,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                                     <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+
+        <!-- Modales de suppression pour chaque ligne -->
+        <?php if (!empty($tableData[$table])) : ?>
+            <?php foreach ($tableData[$table] as $row) : ?>
+                <div class="modal" id="deleteModal<?php echo $table . $row['id']; ?>" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Êtes-vous sûr de vouloir supprimer cet élément ?</p>
+                                <?php if ($table === 'Entreprises' && !empty($row['nom'])) : ?>
+                                    <p>Entreprise : <strong><?php echo htmlspecialchars($row['nom']); ?></strong></p>
+                                <?php endif; ?>
+                            </div>
+                            <form method="POST" class="delete-form">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="table" value="<?php echo htmlspecialchars($table); ?>">
+                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo $SecurityController->generateCsrfToken(); ?>">
+                                
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
                                 </div>
                             </form>
                         </div>

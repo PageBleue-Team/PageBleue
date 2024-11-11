@@ -2,88 +2,125 @@
 
 namespace App\Controller;
 
-use App\Services\DashboardService;
-use App\Services\ImageService;
 use App\Domain\Repository\TableRepository;
-use App\Domain\Repository\EntrepriseRepository;
-use Config\Database;
+use App\Services\ImageService;
+use Exception;
 
 class AdminController
 {
+    private TableRepository $tableRepository;
     private SecurityController $securityController;
-    private DashboardService $dashboardService;
+    private ImageService $imageService;
 
     public function __construct()
     {
-        $pdo = Database::getInstance()->getConnection();
-
-        // Initialisation des repositories
-        $tableRepository = new TableRepository($pdo);
-        $entrepriseRepository = new EntrepriseRepository($pdo);
-        $imageService = new ImageService();
-
-        // Initialisation des services
+        $pdo = \Config\Database::getInstance()->getConnection();
+        $this->tableRepository = new TableRepository($pdo);
         $this->securityController = new SecurityController();
-        $this->dashboardService = new DashboardService(
-            $tableRepository,
-            $entrepriseRepository,
-            $imageService
-        );
+        $this->imageService = new ImageService();
     }
 
-    public function getDashboardData(): array
-    {
-        return $this->dashboardService->getDashboardData();
-    }
-
-    public function dashboard(): void
-    {
-        if (!$this->securityController->isAdminLoggedIn()) {
-            header('Location: login');
-            exit();
-        }
-
-        // Traitement des actions POST
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->handlePostAction();
-        }
-
-        // Récupération des données
-        $dashboardData = $this->dashboardService->getDashboardData();
-
-        // S'assurer que les variables sont disponibles pour le template
-        $tables = $dashboardData['tables'];
-        $tableData = $dashboardData['tableData'];
-
-        require_once ROOT_PATH . '/templates/admin/dashboard.php';
-    }
-
-    private function handlePostAction(): void
+    /**
+     * Gère la soumission des formulaires
+     */
+    public function handleFormSubmission(): void
     {
         try {
-            if (!$this->securityController->validateCsrfToken($_POST['csrf_token'] ?? '')) {
-                throw new \Exception("Erreur de validation du formulaire");
+            app_log("=== Début handleFormSubmission ===");
+
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Méthode non autorisée');
             }
 
-            $action = filter_input(INPUT_POST, 'action');
-            $table = filter_input(INPUT_POST, 'table');
+            if (!isset($_POST['action'], $_POST['table'])) {
+                throw new Exception('Paramètres manquants');
+            }
 
-            $success = $this->dashboardService->handleTableOperation(
-                $action,
-                $table,
-                $_POST,
-                $_FILES ?? null
-            );
+            $action = $_POST['action'];
+            $table = $_POST['table'];
 
-            $_SESSION['success_message'] = $success
-                ? "Opération effectuée avec succès"
-                : "Une erreur est survenue lors de l'opération";
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            $_SESSION['error_message'] = "Une erreur est survenue lors de l'opération";
+            app_log("Action: $action, Table: $table");
+            app_log("POST reçu: " . print_r($_POST, true));
+
+            switch ($action) {
+                case 'add':
+                    $filteredData = array_filter($_POST, function ($key) {
+                        return !in_array($key, ['action', 'table', 'csrf_token']);
+                    }, ARRAY_FILTER_USE_KEY);
+
+                    // Traitement du logo si présent
+                    if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                        $logoData = $this->imageService->processUploadedImage($_FILES['logo']);
+                        if ($logoData !== null) {
+                            $filteredData['logo'] = $logoData;
+                            app_log("Logo traité avec succès");
+                        } else {
+                            app_log("Échec du traitement du logo");
+                        }
+                    }
+
+                    try {
+                        $result = $this->tableRepository->addRecord($table, $filteredData);
+                        if ($result) {
+                            echo json_encode([
+                                'success' => true,
+                                'message' => 'Enregistrement ajouté avec succès'
+                            ]);
+                        } else {
+                            throw new Exception("Erreur lors de l'ajout de l'enregistrement");
+                        }
+                    } catch (Exception $e) {
+                        throw new Exception("Erreur de validation : " . $e->getMessage());
+                    }
+                    break;
+
+                case 'delete':
+                    if (!isset($_POST['id'])) {
+                        throw new Exception("ID manquant");
+                    }
+
+                    $id = (int)$_POST['id'];
+                    $result = $this->tableRepository->deleteRecord($table, $id);
+
+                    if ($result) {
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Enregistrement supprimé avec succès'
+                        ]);
+                    } else {
+                        throw new Exception("Erreur lors de la suppression de l'enregistrement");
+                    }
+                    break;
+
+                default:
+                    throw new Exception('Action non reconnue');
+            }
+        } catch (Exception $e) {
+            app_log("ERREUR: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Récupère les données pour le tableau de bord
+     * @return array<string, mixed>
+     */
+    public function getDashboardData(): array
+    {
+        $tables = $this->tableRepository->getAllTables();
+        $tableData = [];
+
+        foreach ($tables as $table) {
+            $tableData[$table] = $this->tableRepository->getAllRecords($table);
         }
 
-        header('Location: ' . htmlspecialchars($_SERVER['PHP_SELF']));
-        exit();
+        return [
+            'tables' => $tables,
+            'tableData' => $tableData
+        ];
     }
 }

@@ -4,7 +4,6 @@ namespace App\Domain\Repository;
 
 use Exception;
 use App\Domain\Entity\EntityRepository;
-use Config\Database;
 use PDO;
 
 class TableRepository extends EntityRepository
@@ -50,10 +49,42 @@ class TableRepository extends EntityRepository
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Valide le nom d'une table
+     * @param string $table
+     * @throws Exception si le nom de la table est invalide
+     */
     private function validateTable(string $table): void
     {
-        if (in_array($table, $this->blacklistedTables)) {
-            throw new Exception("Table non autorisée");
+        // Liste des tables autorisées
+        $allowedTables = [
+            'Activite',
+            'Adresse',
+            'Contact',
+            'Entreprises',
+            'Entreprises_Activite',  // Ajout de la table de liaison
+            'Juridique',
+            'Stage',
+            'Tuteur',
+            'Users',
+            'login_logs'
+        ];
+
+        if (!in_array($table, $allowedTables)) {
+            throw new Exception("Table non autorisée: $table");
+        }
+
+        // Vérification supplémentaire avec la base de données
+        $stmt = $this->pdo->prepare("
+            SELECT 1 
+            FROM information_schema.TABLES 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = ?
+        ");
+        $stmt->execute([$table]);
+
+        if (!$stmt->fetch()) {
+            throw new Exception("Table inexistante: $table");
         }
     }
 
@@ -61,27 +92,116 @@ class TableRepository extends EntityRepository
      * Ajoute un enregistrement dans une table
      * @param string $table
      * @param array<string, mixed> $data
-     * @return int|null
+     * @return bool
      */
-    public function addRecord(string $table, array $data): ?int
+    public function addRecord(string $table, array $data): bool
     {
-        $this->validateTable($table);
+        try {
+            app_log("=== Début addRecord pour la table $table ===");
+            app_log("Données reçues : " . print_r($data, true));
 
-        $filteredData = array_filter($data, function ($key) {
-            return !in_array($key, ['action', 'table', 'csrf_token']);
-        }, ARRAY_FILTER_USE_KEY);
+            $this->validateTable($table);
 
-        $columns = implode(', ', array_map(fn($col) => "`$col`", array_keys($filteredData)));
-        $values = implode(', ', array_fill(0, count($filteredData), '?'));
+            // Validation spécifique pour la table Adresse
+            if ($table === 'Adresse') {
+                $this->validateAdresse($data);
+            }
 
-        $sql = "INSERT INTO `$table` ($columns) VALUES ($values)";
-        $stmt = $this->pdo->prepare($sql);
+            // Vérification des clés étrangères pour la table Entreprises
+            if ($table === 'Entreprises') {
+                $foreignKeys = [
+                    'adresse_id' => 'Adresse',
+                    'contact_id' => 'Contact',
+                    'juridique_id' => 'Juridique'
+                ];
 
-        if ($stmt->execute(array_values($filteredData))) {
-            return (int)$this->pdo->lastInsertId();
+                foreach ($foreignKeys as $key => $refTable) {
+                    if (isset($data[$key])) {
+                        $exists = $this->checkForeignKeyExists($refTable, $data[$key]);
+                        if (!$exists) {
+                            app_log("Erreur: L'ID {$data[$key]} n'existe pas dans la table $refTable");
+                            throw new \Exception("L'ID référencé dans $key n'existe pas dans la table $refTable");
+                        }
+                    }
+                }
+            }
+
+            if (empty($data)) {
+                app_log("Erreur: Aucune donnée à insérer");
+                return false;
+            }
+
+            $columns = array_keys($data);
+            $values = array_fill(0, count($data), '?');
+
+            $sql = sprintf(
+                "INSERT INTO `%s` (`%s`) VALUES (%s)",
+                $table,
+                implode('`, `', $columns),
+                implode(', ', $values)
+            );
+
+            app_log("SQL préparé: $sql");
+            app_log("Valeurs à insérer:");
+            app_log(print_r(array_values($data), true));
+
+            $stmt = $this->pdo->prepare($sql);
+            $result = $stmt->execute(array_values($data));
+
+            if (!$result) {
+                app_log("Erreur PDO: " . print_r($stmt->errorInfo(), true));
+            }
+
+            app_log("Résultat de l'insertion: " . ($result ? "succès" : "échec"));
+            if ($result) {
+                app_log("ID inséré: " . $this->pdo->lastInsertId());
+            }
+            app_log("=== Fin addRecord ===");
+
+            return $result;
+        } catch (Exception $e) {
+            app_log("ERREUR dans addRecord: " . $e->getMessage());
+            app_log("Trace: " . $e->getTraceAsString());
+            return false;
+        }
+    }
+
+    /**
+     * Valide les données d'une adresse
+     * @throws Exception si la validation échoue
+     */
+    private function validateAdresse(array $data): void
+    {
+        $hasNumero = !empty($data['numero']);
+        $hasRue = !empty($data['rue']);
+        $hasLieuDit = !empty($data['lieu_dit']);
+
+        // Vérifier si on a soit (numéro + rue) soit lieu-dit
+        $hasNumeroRue = $hasNumero && $hasRue;
+
+        if (!$hasNumeroRue && !$hasLieuDit) {
+            throw new Exception('Une adresse doit avoir soit un numéro et une rue, soit un lieu-dit');
         }
 
-        return null;
+        if ($hasLieuDit && ($hasNumero || $hasRue)) {
+            throw new Exception('Une adresse ne peut pas avoir à la fois un lieu-dit et un numéro/rue');
+        }
+    }
+
+    /**
+     * Vérifie l'existence d'un ID dans une table
+     */
+    private function checkForeignKeyExists(string $table, $id): bool
+    {
+        try {
+            $sql = "SELECT 1 FROM `$table` WHERE id = ? LIMIT 1";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetchColumn() !== false;
+        } catch (\Exception $e) {
+            app_log("Erreur lors de la vérification de la clé étrangère: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -136,19 +256,37 @@ class TableRepository extends EntityRepository
     /**
      * Supprime un enregistrement d'une table
      * @param string $table
-     * @param int|string $id
+     * @param int $id
      * @throws Exception
      */
-    public function deleteRecord(string $table, int|string $id): void
+    public function deleteRecord(string $table, int $id): bool
     {
-        $this->validateTable($table);
+        try {
+            app_log("=== Début deleteRecord pour la table $table ===");
+            app_log("ID à supprimer : $id");
 
-        $sql = sprintf("DELETE FROM `%s` WHERE id = :id", $table);
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $id]);
+            $this->validateTable($table);
 
-        if ($stmt->rowCount() === 0) {
-            throw new Exception("Aucun enregistrement n'a été supprimé");
+            // Vérifier si l'enregistrement existe
+            $checkSql = "SELECT 1 FROM `$table` WHERE id = ?";
+            $checkStmt = $this->pdo->prepare($checkSql);
+            $checkStmt->execute([$id]);
+
+            if ($checkStmt->fetchColumn() === false) {
+                app_log("Enregistrement non trouvé");
+                return false;
+            }
+
+            // Supprimer l'enregistrement
+            $sql = "DELETE FROM `$table` WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $result = $stmt->execute([$id]);
+
+            app_log($result ? "Suppression réussie" : "Échec de la suppression");
+            return $result;
+        } catch (Exception $e) {
+            app_log("ERREUR dans deleteRecord : " . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -273,5 +411,58 @@ class TableRepository extends EntityRepository
         $stmt = $this->pdo->prepare($sql);
 
         return $stmt->execute([...array_values($filteredData), $id]);
+    }
+
+    /**
+     * Récupère toutes les tables de la base de données pour l'affichage dans le dashboard
+     * @return array<int, string>
+     */
+    public function getAllTables(): array
+    {
+        try {
+            // Liste des tables à exclure du dashboard
+            $excludedTables = [
+                'login_logs',
+                'Users',
+                'Entreprises_Activite'  // On exclut la table de liaison de l'affichage
+            ];
+
+            // Récupérer le nom de la base de données depuis PDO
+            $dbName = $this->pdo->query('SELECT DATABASE()')->fetchColumn();
+
+            // Requête pour obtenir toutes les tables
+            $stmt = $this->pdo->query("
+                SELECT TABLE_NAME 
+                FROM information_schema.TABLES 
+                WHERE TABLE_SCHEMA = '$dbName' 
+                AND TABLE_NAME NOT IN ('" . implode("','", $excludedTables) . "')
+                ORDER BY TABLE_NAME
+            ");
+
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (Exception $e) {
+            error_log("Erreur dans getAllTables: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère tous les enregistrements d'une table
+     * @param string $table
+     * @return array<int, array<string, mixed>>
+     */
+    public function getAllRecords(string $table): array
+    {
+        try {
+            $this->validateTable($table);
+
+            $stmt = $this->pdo->prepare("SELECT * FROM `$table`");
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Erreur dans getAllRecords pour la table $table: " . $e->getMessage());
+            return [];
+        }
     }
 }
