@@ -199,8 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $action = filter_input(INPUT_POST, 'action');
-    $table = filter_input(INPUT_POST, 'table');
+    $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $table = filter_input(INPUT_POST, 'table', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     // Validation de la table
     if (!in_array($table, $tables, true)) {
@@ -538,8 +538,8 @@ function handleAjaxRequest()
     }
 
     // Validation des entrées
-    $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
-    $table = filter_input(INPUT_POST, 'table', FILTER_SANITIZE_STRING);
+    $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $table = filter_input(INPUT_POST, 'table', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
     if (!$action || !$table) {
