@@ -30,8 +30,19 @@ class SiteConfig
             : 250;
 
         // Chargement des textes depuis le fichier YAML
-        $texts = Yaml::parseFile(dirname(__DIR__, 2) . '/public/texts/site.yaml')['site'];
-
+        $yamlPath = dirname(__DIR__, 2) . '/public/texts/site.yaml';
+        if (!file_exists($yamlPath)) {
+            throw new \RuntimeException("Le fichier de configuration YAML est manquant");
+        }
+        try {
+            $yaml = Yaml::parseFile($yamlPath);
+            if (!isset($yaml['site'])) {
+                throw new \RuntimeException("La section 'site' est manquante dans le fichier YAML");
+            }
+            $texts = $yaml['site'];
+        } catch (\Exception $e) {
+            throw new \RuntimeException("Erreur lors du chargement du fichier YAML: " . $e->getMessage());
+        }
         // Meta données
         self::$metaDescription = $texts['meta_description'];
         self::$googleVerification = $_ENV['GOOGLE_CONSOLE_KEY'];
