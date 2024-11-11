@@ -44,7 +44,7 @@ html, body {
 
 /* Ajoutez cette règle séparément pour html */
 html {
-    scroll-padding-top: var(--navbar-height);
+    scroll-padding-top: 60px;
 }
 
 /* Pour les écrans plus grands */
