@@ -23,11 +23,22 @@ class SiteConfig
     public static function init(): void
     {
         // Configuration de base
-        self::$siteName = $_ENV['WEBSITE'];
-        self::$logoURL = $_ENV['ORGANIZATION_LOGO_PATH'];
-        self::$descriptionLength = isset($_ENV['DESCRIPTION_LENGTH'])
-            ? intval($_ENV['DESCRIPTION_LENGTH'])
-            : 250;
+        private static function getEnvOrFail(string $key): string 
+        {
+            if (!isset($_ENV[$key])) {
+                throw new \RuntimeException("La variable d'environnement '$key' est requise");
+            }
+            return $_ENV[$key];
+        }
+
+        public static function init(): void
+        {
+            // Configuration de base
+            self::$siteName = self::getEnvOrFail('WEBSITE');
+            self::$logoURL = self::getEnvOrFail('ORGANIZATION_LOGO_PATH');
+            self::$descriptionLength = isset($_ENV['DESCRIPTION_LENGTH'])
+                ? intval($_ENV['DESCRIPTION_LENGTH'])
+                : 250;
 
         // Chargement des textes depuis le fichier YAML
         $yamlPath = dirname(__DIR__, 2) . '/public/texts/site.yaml';
