@@ -532,12 +532,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 function handleAjaxRequest()
 {
+    // Limitation de taux
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $key = "rate_limit:ajax:$ip";
+    if (isset($_SESSION[$key])) {
+        $requests = $_SESSION[$key];
+        if ($requests['count'] > 100 && time() - $requests['time'] < 3600) {
+            http_response_code(429);
+            exit(json_encode(['error' => 'Trop de requêtes']));
+        }
+        if (time() - $requests['time'] >= 3600) {
+            $_SESSION[$key] = ['count' => 1, 'time' => time()];
+        } else {
+            $_SESSION[$key]['count']++;
+        }
+    } else {
+        $_SESSION[$key] = ['count' => 1, 'time' => time()];
+    }
+
     // Validation CSRF
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         http_response_code(403);
         exit(json_encode(['error' => 'Token CSRF invalide']));
     }
-
     // Validation des entrées
     $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $table = filter_input(INPUT_POST, 'table', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
