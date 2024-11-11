@@ -2,6 +2,22 @@
 
 require_once __DIR__ . '/../config/init.php';
 use App\Controller\AdminController;
+
+// Prevent caching of AJAX responses
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
+// Security headers
+header('X-Content-Type-Options: nosniff');
+header('X-XSS-Protection: 1; mode=block');
+
+// Verify CSRF token
+if (!isset($_SERVER['HTTP_X_CSRF_TOKEN']) || $_SERVER['HTTP_X_CSRF_TOKEN'] !== $_SESSION['csrf_token']) {
+    http_response_code(403);
+    exit(json_encode(['success' => false, 'message' => 'Invalid CSRF token']));
+}
+
 header('Content-Type: application/json');
 try {
     // Validate request method
