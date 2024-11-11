@@ -98,6 +98,34 @@ class Utils
         $currentPage = basename($_SERVER['REQUEST_URI']);
         return $currentPage;
     }
+
+    /**
+     * Récupère le nom de la navlink correspondant à la page actuelle
+     * @return string Nom de la navlink ou 'Inconnu' si non trouvé
+     */
+    public static function getCurrentNavLinkName(): string
+    {
+        // Récupérer l'URL actuelle
+        $currentUrl = $_SERVER['REQUEST_URI'];
+        error_log("Current URL: $currentUrl");
+
+        // Récupérer la partie avant le fragment
+        $currentPage = strtok($currentUrl, '#'); // Prendre tout avant le #
+        $currentPage = rtrim($currentPage, '/'); // Enlever le slash final si présent
+        error_log("Current Page: $currentPage");
+
+        $navLinks = self::getNavLinks();
+
+        foreach ($navLinks as $name => $url) {
+            $url = rtrim($url, '/'); // Enlever le slash final pour la comparaison
+            error_log("Comparing current page: $currentPage with nav link: $url");
+            if ($url === $currentPage) {
+                return $name; // Retourner le nom de la navlink
+            }
+        }
+
+        return 'Inconnu'; // Retourner 'Inconnu' si aucune correspondance n'est trouvée
+    }
 }
 
 // Fonctions de compatibilité
