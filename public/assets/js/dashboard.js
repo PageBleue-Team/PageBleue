@@ -182,8 +182,13 @@ document.addEventListener('DOMContentLoaded', function() {
             numeroRueFields.style.display = 'block';
             lieuDitField.style.display = 'none';
             // Activer les champs numéro et rue
-            numeroRueFields.querySelectorAll('input').forEach(input => input.required = true);
-            lieuDitField.querySelector('input').required = false;
+            numeroRueFields.querySelectorAll('input').forEach(input => {
+                input.required = true;
+            });
+            const lieuDitInput = lieuDitField.querySelector('input');
+            if (lieuDitInput) {
+                lieuDitInput.required = false;
+            }
             // Réinitialiser le lieu-dit
             lieuDitField.querySelector('input').value = '';
         } else {
