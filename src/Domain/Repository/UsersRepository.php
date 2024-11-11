@@ -52,6 +52,8 @@ class UsersRepository extends EntityRepository
      */
     public function verifyPassword(string $password, array $user): bool
     {
-        return password_verify($password, $user['password']);
+        $result = password_verify($password, $user['password']);
+        time_nanosleep(0, random_int(1000, 5000));  // Ajoute un délai aléatoire
+        return $result;
     }
 }

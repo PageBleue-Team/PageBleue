@@ -32,11 +32,10 @@
 }
 
 /* Structure de base */
-html, body {
+body {
     height: 100vh;
     width: 100%;
     margin: 0;
-    scroll-padding-top: var(--navbar-height);
     background-color: white;
     color: #333;
     overflow-x: hidden;
@@ -45,19 +44,15 @@ html, body {
     flex-direction: column;
 }
 
-/* Ajoutez cette règle séparément pour html */
 html {
     scroll-padding-top: var(--navbar-height);
+    overflow-y: scroll;
 }
 
 /* Pour les écrans plus grands */
 @media (min-width: 992px) {
-    html, body {
+    body {
         padding-top: var(--navbar-height);
-    }
-    
-    html {
-        scroll-padding-top: var(--navbar-height);
     }
 }
 
