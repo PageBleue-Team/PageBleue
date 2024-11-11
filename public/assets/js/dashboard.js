@@ -128,7 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const modalId = e.target.closest('.modal').id;
+            const modalElement = e.target.closest('.modal');
+            const modalId = modalElement ? modalElement.id : null;
             const formData = new FormData(this);
 
             try {
