@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
 // Fonction pour obtenir la structure d'une table
 function getTableStructure($pdo, $tableName)
 {
-    $stmt = $pdo->prepare("DESCRIBE $tableName");
+    $stmt = $pdo->prepare("DESCRIBE " . $pdo->quote($tableName));
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
