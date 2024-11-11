@@ -35,6 +35,9 @@ class UsersRepository extends EntityRepository
         $stmt->execute(['id' => $userId]);
     }
 
+    /**
+     * @param array{login_attempts: int, last_attempt_time: string} $user
+     */
     public function isAccountLocked(array $user): bool
     {
         return $user['login_attempts'] >= self::MAX_ATTEMPTS && 

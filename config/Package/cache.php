@@ -37,13 +37,32 @@ class Cache
     {
         $ttl = $ttl ?? $this->defaultTtl;
         $cacheFile = $this->getCacheFilePath($key);
-        if ($this->isValid($cacheFile, $ttl)) {
-            return $this->get($cacheFile);
+        $lockFile = $cacheFile . '.lock';
+        $lockHandle = fopen($lockFile, 'w+');
+        
+        if (!$lockHandle || !flock($lockHandle, LOCK_EX)) {
+            throw new \RuntimeException("Impossible d'acquérir le verrou");
         }
 
-        $data = $callback();
-        $this->put($cacheFile, $data);
-        return $data;
+        try {
+            if ($this->isValid($cacheFile, $ttl)) {
+                $data = $this->get($cacheFile);
+            } else {
+                $data = $callback();
+                $this->put($cacheFile, $data);
+            }
+            return $data;
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                "Erreur lors de l'exécution du cache: " . $e->getMessage(),
+                0,
+                $e
+            );
+        } finally {
+            flock($lockHandle, LOCK_UN);
+            fclose($lockHandle);
+            @unlink($lockFile);
+        }
     }
 
     private function isValid(string $cacheFile, int $ttl): bool
