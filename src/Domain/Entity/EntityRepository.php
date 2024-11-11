@@ -98,11 +98,13 @@ abstract class EntityRepository
         return (bool)$stmt->fetch();
     }
 
-    protected function isValidTableName(string $table): bool {
+    protected function isValidTableName(string $table): bool
+    {
         return preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $table) === 1;
     }
 
-    protected function quoteIdentifier(string $identifier): string {
+    protected function quoteIdentifier(string $identifier): string
+    {
         return '`' . str_replace('`', '``', $identifier) . '`';
     }
 }

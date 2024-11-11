@@ -48,3 +48,7 @@
 .card-link:hover {
     text-decoration: none;
 }
+
+.fixed-bottom {
+    bottom: 170px !important;
+}   

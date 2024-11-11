@@ -8,7 +8,7 @@
     
     /* Dimensions */
     --container-max-width: 1200px;
-    --navbar-height: 65px;
+    --navbar-height: 65px; /* Navbar seule : 56 + 9 pour hestétique */
     
     /* Animations */
     --transition-speed: 0.3s;
@@ -42,11 +42,11 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
+    padding-top: var(--navbar-height);
 }
 
 html {
     scroll-padding-top: var(--navbar-height);
-    overflow-y: scroll;
 }
 
 /* Pour les écrans plus grands */

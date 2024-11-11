@@ -54,7 +54,7 @@
             </div>
             <!-- Pagination -->
             <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
+                <ul class="pagination justify-content-center fixed-bottom">
                     <!-- Bouton Précédent -->
                     <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
                         <a class="page-link" href="/list?page=<?php echo $page - 1; ?>">
