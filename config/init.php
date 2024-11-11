@@ -15,3 +15,5 @@ require_once __DIR__ . '/Package/cache.php';
 require_once __DIR__ . '/Package/security.php';
 require_once __DIR__ . '/Package/site.php';
 require_once __DIR__ . '/Package/utils.php';
+// Chargement du fichier de log
+require_once ROOT_PATH . '/config/Package/logs.php';
