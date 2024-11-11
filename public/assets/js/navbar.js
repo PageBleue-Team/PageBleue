@@ -99,50 +99,44 @@ addEventListener("DOMContentLoaded", function() {
         navbarToggler.setAttribute("aria-expanded", shouldShow);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const navbarToggler = document.querySelector('.navbar-toggler');
-        const body = document.body;
-        let lastScroll = 0;
-    
-        // Gestion de l'ouverture/fermeture du menu
-        navbarToggler.addEventListener('click', function() {
-            body.classList.toggle('menu-open');
-        });
-    
-        // Gestion du scroll
-        window.addEventListener('scroll', function() {
-            const currentScroll = window.pageYOffset;
-            const navbar = document.querySelector('.navbar');
-    
-            // Empêche le comportement indésirable lors du scroll
-            if (currentScroll <= 0) {
-                navbar.classList.remove('scrolled-up');
-                navbar.classList.remove('scrolled-down');
-                return;
-            }
-    
-            if (currentScroll > lastScroll && !navbar.classList.contains('scrolled-down')) {
-                // Scroll vers le bas
-                navbar.classList.remove('scrolled-up');
-                navbar.classList.add('scrolled-down');
-            } else if (currentScroll < lastScroll && navbar.classList.contains('scrolled-down')) {
-                // Scroll vers le haut
-                navbar.classList.remove('scrolled-down');
-                navbar.classList.add('scrolled-up');
-            }
-            lastScroll = currentScroll;
-        });
-    
-        // Fix pour l'adresse bar mobile
+    const body = document.body;
+    let lastScroll = 0;
+
+    // Gestion de l'ouverture/fermeture du menu
+    navbarToggler.addEventListener('click', function() {
+        body.classList.toggle('menu-open');
+    });
+
+    // Gestion du scroll
+    window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset;
+        const navbar = document.querySelector('.navbar');
+
+        if (currentScroll <= 0) {
+            navbar.classList.remove('scrolled-up');
+            navbar.classList.remove('scrolled-down');
+            return;
+        }
+
+        if (currentScroll > lastScroll && !navbar.classList.contains('scrolled-down')) {
+            navbar.classList.remove('scrolled-up');
+            navbar.classList.add('scrolled-down');
+        } else if (currentScroll < lastScroll && navbar.classList.contains('scrolled-down')) {
+            navbar.classList.remove('scrolled-down');
+            navbar.classList.add('scrolled-up');
+        }
+        lastScroll = currentScroll;
+    });
+
+    // Fix pour l'adresse bar mobile
+    const updateVh = () => {
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-    
-        window.addEventListener('resize', () => {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        });
-    });
-    
+    };
+
+    updateVh();
+    window.addEventListener('resize', updateVh);
+
     function setupMobileAnimation() {
         if (isMobile()) {
             navbarCollapse.classList.remove("show");

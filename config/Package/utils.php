@@ -64,7 +64,8 @@ class Utils
             "Accueil" => "/#",
             "Entreprises" => "/list",
             "Formulaire" => "/form",
-            "À Propos de nous" => "/#story"
+            "À Propos de nous" => "/#aboutus",
+            "Notre Histoire" => "/#story"
         ];
         $SecurityController = new SecurityController();
         if ($SecurityController->isAdminLoggedIn()) {

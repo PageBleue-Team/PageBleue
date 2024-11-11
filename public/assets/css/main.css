@@ -8,6 +8,7 @@
     
     /* Dimensions */
     --container-max-width: 1200px;
+    --navbar-height: 35px;
     
     /* Animations */
     --transition-speed: 0.3s;
@@ -32,7 +33,7 @@
 
 /* Structure de base */
 html, body {
-    min-height: 100vh;
+    height: 100vh;
     width: 100%;
     margin: 0;
     scroll-padding-top: var(--navbar-height);
@@ -40,21 +41,23 @@ html, body {
     color: #333;
     overflow-x: hidden;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Ajoutez cette règle séparément pour html */
 html {
-    scroll-padding-top: 60px;
+    scroll-padding-top: var(--navbar-height);
 }
 
 /* Pour les écrans plus grands */
 @media (min-width: 992px) {
     html, body {
-        padding-top: 80px;
+        padding-top: var(--navbar-height);
     }
     
     html {
-        scroll-padding-top: 80px;
+        scroll-padding-top: var(--navbar-height);
     }
 }
 
@@ -84,4 +87,15 @@ html {
     margin-bottom: 2rem;
     font-weight: 600;
     width: fit-content;
+}
+.section.container {
+    padding-top: var(--navbar-height);
+}
+
+/* Ajouter cette règle pour le contenu principal */
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ajout important */
 }

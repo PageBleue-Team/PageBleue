@@ -1,12 +1,9 @@
-.footer-content {
-    flex-grow: 1; /* Ensure content grows and pushes the footer down */
-}
 footer {
     width: 100%;
     background-color: var(--primary-blue);
     color: white;
     padding: 20px 0;
-    flex-shrink: 0; /* Empêche le footer de rétrécir */
+    margin-top: auto;
 }
 .footer-container {
     max-width: 1200px;

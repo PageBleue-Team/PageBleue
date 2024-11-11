@@ -1,8 +1,8 @@
 <?php include ROOT_PATH . '/templates/layout/header.php'; ?>
 <body>
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
-    <div class="container mt-5" style="padding-top: 60px;">
-        <h1>Liste des entreprises</h1>
+    <div class="container">
+        <h1 class="section-title">Liste des entreprises</h1>
         <?php if (!empty($enterprises)) : ?>
             <div class="row">
                 <?php foreach ($enterprises as $enterprise) : ?>
@@ -44,11 +44,44 @@
             <!-- Pagination -->
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
-                    <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
+                    <!-- Bouton Précédent -->
+                    <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="/list?page=<?php echo $page - 1; ?>">
+                            <span>&laquo;</span>
+                        </a>
+                    </li>
+
+                    <?php
+                    $start = max(1, $page - 2);
+                    $end = min($total_pages, $page + 2);
+                    
+                    if ($start > 1) {
+                        echo '<li class="page-item"><a class="page-link" href="/list?page=1">1</a></li>';
+                        if ($start > 2) {
+                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        }
+                    }
+
+                    for ($i = $start; $i <= $end; $i++) : ?>
                         <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
                             <a class="page-link" href="/list?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                         </li>
-                    <?php endfor; ?>
+                    <?php endfor;
+
+                    if ($end < $total_pages) {
+                        if ($end < $total_pages - 1) {
+                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        }
+                        echo '<li class="page-item"><a class="page-link" href="/list?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                    }
+                    ?>
+
+                    <!-- Bouton Suivant -->
+                    <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="/list?page=<?php echo $page + 1; ?>">
+                            <span>&raquo;</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         <?php else : ?>
