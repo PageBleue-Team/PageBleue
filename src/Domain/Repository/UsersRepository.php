@@ -34,8 +34,15 @@ class UsersRepository extends EntityRepository
 
     public function incrementLoginAttempts(int $userId): void
     {
-        $stmt = $this->pdo->prepare("UPDATE Users SET login_attempts = login_attempts + 1, last_attempt_time = NOW() WHERE id = :id");
-        $stmt->execute(['id' => $userId]);
+        $this->pdo->beginTransaction();
+        try {
+            $stmt = $this->pdo->prepare("UPDATE Users SET login_attempts = login_attempts + 1, last_attempt_time = NOW() WHERE id = :id");
+            $stmt->execute(['id' => $userId]);
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
     /**
