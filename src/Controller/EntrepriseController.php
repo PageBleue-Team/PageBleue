@@ -15,12 +15,14 @@ class EntrepriseController
     private StageRepository $stageRepo;
     /** @var TuteurRepository */
     private TuteurRepository $tuteurRepo;
-    public function __construct()
-    {
-        $pdo = Database::getInstance()->getConnection();
-        $this->entrepriseRepo = new EntrepriseRepository($pdo);
-        $this->stageRepo = new StageRepository($pdo);
-        $this->tuteurRepo = new TuteurRepository($pdo);
+    public function __construct(
+        EntrepriseRepository $entrepriseRepo,
+        StageRepository $stageRepo,
+        TuteurRepository $tuteurRepo
+    ) {
+        $this->entrepriseRepo = $entrepriseRepo;
+        $this->stageRepo = $stageRepo;
+        $this->tuteurRepo = $tuteurRepo;
     }
 
     /**
