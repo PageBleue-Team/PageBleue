@@ -1,0 +1,84 @@
+.modal {
+    z-index: 1050;
+}
+.modal-backdrop {
+    z-index: 1040;
+}
+.modal-dialog {
+    position: fixed;
+    margin: auto;
+    width: 100%;
+    max-width: 500px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+}
+.table-section {
+    display: none;
+}
+/* Style des onglets */
+.nav-tabs .nav-link {
+    color: #495057;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    margin-right: 2px;
+    transition: none !important;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Style des modales */
+.modal {
+    z-index: 1050;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+}
+
+/* Style des tableaux */
+.table-responsive {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+.table th {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+/* Style des boutons d'action */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-action + .btn-action {
+    margin-left: 0.25rem;
+}
+
+/* Suppression des animations */
+.tab-pane {
+    transition: none !important;
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Ajustements supplémentaires */
+.table-section {
+    display: none;
+}

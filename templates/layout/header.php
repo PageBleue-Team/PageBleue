@@ -110,6 +110,7 @@ $googleVerification = SiteConfig::$googleVerification;
     <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/footer.css">
     <link rel="stylesheet" href="/assets/css/list.css">
+    <link rel="stylesheet" href="/assets/css/dashboard.css">
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
