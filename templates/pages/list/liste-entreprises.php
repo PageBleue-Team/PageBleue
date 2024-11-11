@@ -16,17 +16,12 @@
                                 <?php endif; ?>
                                 <div class="card-body d-flex">
                                     <div class="enterprise-logo-container">
-                                        <?php
-                                        $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
-                                        $defaultPath = '/assets/images/logos/default.png';
-                                        $finalPath = file_exists(PUBLIC_PATH . $logoPath)
-                                            ? $logoPath
-                                            : $defaultPath;
-                                        ?>
+                                        <?php $logo = base64_encode($enterprise['logo'] ?? ''); ?>
                                         <img 
-                                            src="<?php echo $finalPath; ?>" 
+                                            src="data:image/webp;base64,<?php echo $logo; ?>" 
                                             class="enterprise-logo" 
                                             alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>"
+                                            onerror="this.src='/assets/images/logos/default.png'"
                                         >
                                     </div>
                                     <div>
@@ -54,13 +49,15 @@
             </div>
             <!-- Pagination -->
             <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center fixed-bottom">
-                    <!-- Bouton Précédent -->
-                    <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                        <a class="page-link" href="/list?page=<?php echo $page - 1; ?>">
-                            <span>&laquo;</span>
-                        </a>
-                    </li>
+                <ul class="pagination justify-content-center">
+                    <?php if ($page > 1) : ?>
+                        <!-- Bouton Précédent -->
+                        <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="/list?page=<?php echo $page - 1; ?>">
+                                <span>&laquo;</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <?php
                     $start = max(1, $page - 2);

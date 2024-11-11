@@ -10,6 +10,7 @@ use App\Domain\Repository\StageRepository;
 use App\Domain\Repository\TuteurRepository;
 use Config\Database;
 use Config\Utils;
+use App\Services\ImageService;
 
 $pdo = Database::getInstance()->getConnection();
 $entrepriseRepo = new EntrepriseRepository($pdo);
@@ -17,6 +18,7 @@ $stageRepo = new StageRepository($pdo);
 $tuteurRepo = new TuteurRepository($pdo);
 $controller = new EntrepriseController($entrepriseRepo, $stageRepo, $tuteurRepo);
 $Utils = new Utils();
+$imageService = new ImageService();
 // Si un ID d'entreprise est fourni via $showEnterprise (défini dans index.php)
 if (isset($showEnterprise)) {
     $data = $controller->showAction($showEnterprise);

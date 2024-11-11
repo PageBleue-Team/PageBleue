@@ -7,15 +7,11 @@
         </h1>
         <div class="row">
             <div class="col-md-2">
-                <?php
-                $logoPath = '/assets/images/logos/' . $enterprise['id'] . '.webp';
-                $defaultPath = '/assets/images/logos/default.png';
-                $finalPath = file_exists(PUBLIC_PATH . $logoPath) ? $logoPath : $defaultPath;
-                ?>
                 <img 
-                    src="<?php echo $finalPath; ?>" 
+                    src="data:image/webp;base64,<?php echo base64_encode($enterprise['logo'] ?? ''); ?>" 
                     class="img-fluid enterprise-logo mb-3" 
                     alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>"
+                    onerror="this.src='/assets/images/logos/default.png'"
                 >
             </div>
             <div class="col-md-8">
