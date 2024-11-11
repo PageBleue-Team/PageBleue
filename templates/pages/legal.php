@@ -13,7 +13,8 @@ try {
 }
 
 // Fonction helper pour sécuriser l'affichage
-function securePrint(?string $text): string {
+function securePrint(?string $text): string
+{
     return nl2br(htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8'));
 }
 
@@ -43,13 +44,13 @@ foreach ($requiredSections as $section) {
             <div class="mentions-content">
                 <p><?= securePrint($config['content']['main_description']) ?></p>
                 
-                <?php if (!empty($config['creators'])): ?>
+                <?php if (!empty($config['creators'])) : ?>
                 <p>Ce site web a été créé par :</p>
                 <ul class="mentions-list">
-                    <?php foreach($config['creators'] as $creator): ?>
+                    <?php foreach ($config['creators'] as $creator) : ?>
                         <li><span class="emphasis">Étudiant :</span> <?= securePrint($creator['name']) ?></li>
                     <?php endforeach; ?>
-                    <?php foreach($config['helpers'] as $helper): ?>
+                    <?php foreach ($config['helpers'] as $helper) : ?>
                         <li><span class="emphasis">Étudiant :</span> <?= securePrint($helper['name']) ?></li>
                     <?php endforeach; ?>
                     <li><span class="emphasis">Formation :</span> <?= securePrint($config['education']['formation']) ?></li>
