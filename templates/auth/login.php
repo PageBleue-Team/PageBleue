@@ -44,7 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $error = $result['error'];
+        // Message d'erreur générique pour la sécurité
+        $error = "Identifiants invalides. Veuillez réessayer.";
+        // Journalisation sécurisée de l'erreur réelle
+        if (isset($result['error'])) {
+            error_log("Erreur de connexion: " . $result['error']);
+        }
     }
 
     $csrf_token = $securityController->refreshCsrfToken();
