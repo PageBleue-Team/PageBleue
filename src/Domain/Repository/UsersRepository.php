@@ -16,6 +16,9 @@ class UsersRepository extends EntityRepository
         parent::__construct(Database::getInstance()->getConnection());
     }
 
+    /**
+     * @return array{id: int, username: string, password: string, login_attempts: int, last_attempt_time: string}|null
+     */
     public function findByUsername(string $username): ?array
     {
         $stmt = $this->pdo->prepare("SELECT id, username, password, login_attempts, last_attempt_time FROM Users WHERE username = :username");
@@ -44,6 +47,9 @@ class UsersRepository extends EntityRepository
                (time() - strtotime($user['last_attempt_time']) < self::LOCKOUT_TIME);
     }
 
+    /**
+     * @param array{id: int, username: string, password: string, login_attempts: int, last_attempt_time: string} $user
+     */
     public function verifyPassword(string $password, array $user): bool
     {
         return password_verify($password, $user['password']);

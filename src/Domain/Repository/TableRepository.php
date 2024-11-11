@@ -13,8 +13,6 @@ class TableRepository extends EntityRepository
 
     public function __construct()
     {
-        $pdo = Database::getInstance()->getConnection();
-        parent::__construct($pdo);
         $this->blacklistedTables = ['login_logs', 'users', 'Entreprises_Activite'];
     }
 

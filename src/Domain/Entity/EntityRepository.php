@@ -9,9 +9,9 @@ abstract class EntityRepository
 {
     protected PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $connection)
     {
-        $this->pdo = Database::getInstance()->getConnection();
+        $this->pdo = $connection;
     }
 
     /**

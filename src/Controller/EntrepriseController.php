@@ -11,9 +11,9 @@ class EntrepriseController
 {
     /** @var EntrepriseRepository */
     private EntrepriseRepository $entrepriseRepo;
-/** @var StageRepository */
+    /** @var StageRepository */
     private StageRepository $stageRepo;
-/** @var TuteurRepository */
+    /** @var TuteurRepository */
     private TuteurRepository $tuteurRepo;
     public function __construct()
     {

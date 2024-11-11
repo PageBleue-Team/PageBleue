@@ -8,6 +8,11 @@ use App\Domain\Entity\EntityRepository;
 
 class EntrepriseRepository extends EntityRepository
 {
+    public function __construct(\PDO $connection)
+    {
+        parent::__construct($connection);
+    }
+
     /**
      * Récupère les entreprises mises en avant
      * @param int $limit Nombre d'entreprises à retourner
@@ -247,7 +252,7 @@ class EntrepriseRepository extends EntityRepository
     }
 
     /**
-     * Vérifie si un SIRET existe déj�
+     * Vérifie si un SIRET existe déj
      * @param string $siret
      * @param int|null $excludeId
      * @return bool

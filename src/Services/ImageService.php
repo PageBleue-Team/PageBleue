@@ -56,11 +56,17 @@ class ImageService
      */
     private function processAndSaveImage(array $file, int $enterpriseId): bool
     {
-        $image = $this->manager->read($file['tmp_name']);
-        $image->scale(width: 300, height: 300);
+        try {
+            $image = $this->manager->read($file['tmp_name']);
+            $image->scale(width: 300, height: 300);
 
-        $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
-        return $image->toWebp(quality: 90)->save($filepath) !== false;
+            $filepath = $this->uploadDir . '/' . $enterpriseId . '.webp';
+            $image->toWebp(quality: 90)->save($filepath);
+            return true;
+        } catch (Exception $e) {
+            error_log("Erreur lors de la sauvegarde de l'image: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
