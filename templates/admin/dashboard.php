@@ -529,29 +529,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Pour ne pas update la page H24
 function handleAjaxRequest()
 {
-    $action = $_POST['action'] ?? '';
-    $table = $_POST['table'] ?? '';
-    $id = $_POST['id'] ?? null;
-
-    $pdo = Database::getInstance()->getConnection();
-
-    switch ($action) {
-        case 'add':
-            // Code pour ajouter un enregistrement
-            break;
-        case 'edit':
-            // Code pour éditer un enregistrement
-            break;
-        case 'delete':
-            // Code pour supprimer un enregistrement
-            break;
+    // Validation CSRF
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        http_response_code(403);
+        exit(json_encode(['error' => 'Token CSRF invalide']));
     }
 
-    // Retourner les données mises à jour
-    echo json_encode(getTableData($pdo, $table));
+    // Validation des entrées
+    $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
+    $table = filter_input(INPUT_POST, 'table', FILTER_SANITIZE_STRING);
+    $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+
+    if (!$action || !$table) {
+        http_response_code(400);
+        exit(json_encode(['error' => 'Paramètres invalides']));
+    }
+
+    try {
+        $pdo = Database::getInstance()->getConnection();
+        $pdo->beginTransaction();
+
+        switch ($action) {
+            case 'add':
+                // Implémentez la logique d'ajout sécurisée ici
+                break;
+            case 'edit':
+                // Implémentez la logique d'édition sécurisée ici
+                break;
+            case 'delete':
+                // Implémentez la logique de suppression sécurisée ici
+                break;
+            default:
+                throw new Exception('Action non valide');
+        }
+
+        $pdo->commit();
+        echo json_encode(getTableData($pdo, $table));
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        http_response_code(500);
+        error_log($e->getMessage());
+        exit(json_encode(['error' => 'Une erreur est survenue']));
+    }
     exit;
 }
 
