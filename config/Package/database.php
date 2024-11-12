@@ -22,11 +22,28 @@ class Database
 
     private function connect(): void
     {
+        $this->validateEnvironmentVariables();
         try {
             $dsn = sprintf("mysql:host=%s;dbname=%s;charset=utf8mb4", $_ENV['DB_HOST'], $_ENV['DB_NAME']);
-            $this->pdo = new \PDO($dsn, $_ENV['DB_USER'], $_ENV['DB_PASS'], $this->options);
+            $this->pdo = new \PDO(
+                $dsn,
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS'],
+                [...$this->options, \PDO::ATTR_TIMEOUT => 5]
+            );
         } catch (\PDOException $e) {
             throw DatabaseException::fromPDOException($e);
+        }
+    }
+
+    private function validateEnvironmentVariables(): void
+    {
+        $required = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+        $missing = array_filter($required, fn($var) => empty($_ENV[$var]));
+        if (!empty($missing)) {
+            throw new DatabaseException(
+                'Variables d\'environnement manquantes : ' . implode(', ', $missing)
+            );
         }
     }
 
