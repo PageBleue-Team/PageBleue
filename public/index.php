@@ -37,8 +37,10 @@ $uri = (string)parse_url($requestUri, PHP_URL_PATH);
 $securityController = new SecurityController();
 
 // Vérifier si c'est une requête AJAX
-$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
+          (!empty($_SERVER['HTTP_ACCEPT']) &&
+          strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 
 // Route pour les requêtes AJAX du panel admin
 if ($uri === '/panel/ajax' && $isAjax) {
