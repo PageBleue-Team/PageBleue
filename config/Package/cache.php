@@ -106,15 +106,34 @@ class Cache
     public function forget(string $key): bool
     {
         $cacheFile = $this->getCacheFilePath($key);
-        return file_exists($cacheFile) ? unlink($cacheFile) : false;
+        try {
+            if (!file_exists($cacheFile)) {
+                return false;
+            }
+            if (!is_writable($cacheFile)) {
+                throw new \RuntimeException("Le fichier cache n'est pas supprimable");
+            }
+            return unlink($cacheFile);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                "Erreur lors de la suppression du cache: " . $e->getMessage(),
+                0,
+                $e
+            );
+        }
     }
 
     public function clear(): void
     {
-        $files = glob($this->cacheDir . '/*.cache');
+        $pattern = rtrim($this->cacheDir, '/') . '/*.cache';
+        $files = glob($pattern);
         if ($files === false) {
             throw new \RuntimeException("Impossible de lister les fichiers cache");
         }
-        array_map('unlink', $files);
+        foreach ($files as $file) {
+            if (is_writable($file) && !unlink($file)) {
+                throw new \RuntimeException("Impossible de supprimer le fichier: $file");
+            }
+        }
     }
 }
