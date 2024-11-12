@@ -38,10 +38,10 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     $message = 'Une erreur est survenue';
-    
+
     // Log the actual error for debugging
     error_log($e->getMessage());
-    
+
     // Only show detailed errors in development
     if (defined('DEBUG_MODE') && DEBUG_MODE === true) {
         $message = $e->getMessage();
