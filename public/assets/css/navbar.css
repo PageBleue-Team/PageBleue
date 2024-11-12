@@ -144,10 +144,13 @@ nav.navbar {
         max-height: calc(100vh - var(--nav-height));
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
 
     body.menu-open {
-        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
     }
 }
 
