@@ -1,9 +1,10 @@
 parameters:
-    level: 6
+    level: 8
     paths:
         - config
         - public
         - src
+				- templates
     excludePaths:
         - vendor/*
         - var/cache/*
