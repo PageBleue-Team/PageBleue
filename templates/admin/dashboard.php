@@ -271,7 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                                 <?php else : ?>
                                                     <input type="text" 
                                                            class="form-control" 
-                                                           name="<?php echo $column['Field']; ?>"
+                                                           name="<?php echo htmlspecialchars($column['Field']); ?>"
                                                            value="<?php echo htmlspecialchars($row[$column['Field']] ?? ''); ?>"
                                                            <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                                 <?php endif; ?>
