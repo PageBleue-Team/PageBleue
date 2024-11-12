@@ -8,7 +8,12 @@ require_once ROOT_PATH . '/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
 $dotenv->load();
 // Démarrage session
-session_start();
+session_start([
+    'cookie_httponly' => true,
+    'cookie_secure' => true,
+    'cookie_samesite' => 'Lax',
+    'use_strict_mode' => true
+]);
 // Chargement des autres configurations
 require_once __DIR__ . '/Package/database.php';
 require_once __DIR__ . '/Package/cache.php';
