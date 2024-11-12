@@ -102,8 +102,18 @@ class ImageService
         }
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo === false) {
+            throw new Exception("Impossible d'initialiser finfo");
+        }
+
         $mimeType = finfo_file($finfo, $file['tmp_name']);
+        if ($mimeType === false) {
+            finfo_close($finfo);
+            throw new Exception("Impossible de déterminer le type MIME du fichier");
+        }
+
         finfo_close($finfo);
+
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
             throw new Exception("Type de fichier non autorisé");
         }

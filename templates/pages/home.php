@@ -3,8 +3,6 @@ if (!function_exists('safeInclude')) {
     require_once __DIR__ . '/../../config/init.php';
 }
 
-use Config\Utils;
-
 use Config\{Utils, SiteConfig};
 
 // Initialisation des configurations

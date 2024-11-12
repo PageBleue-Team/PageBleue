@@ -1,4 +1,45 @@
-<?php include ROOT_PATH . '/templates/layout/header.php'; ?>
+<?php
+if (!function_exists('safeInclude')) {
+    require_once __DIR__ . '/../../../config/init.php';
+}
+
+use Config\Utils;
+use Config\Database;
+use App\Domain\Repository\EntrepriseRepository;
+use App\Domain\Repository\TuteurRepository;
+
+// Initialisation des dépendances
+$Utils = new Utils();
+$pdo = Database::getInstance()->getConnection();
+$entrepriseRepo = new EntrepriseRepository($pdo);
+$tuteurRepo = new TuteurRepository($pdo);
+
+// Récupération de l'ID de l'entreprise depuis l'URL
+$enterpriseId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$enterpriseId) {
+    header('Location: /list');
+    exit;
+}
+
+// Récupération des données de l'entreprise
+try {
+    $enterprise = $entrepriseRepo->getEntrepriseWithRelations($enterpriseId);
+    if (!$enterprise) {
+        header('Location: /list');
+        exit;
+    }
+
+    // Récupération des tuteurs associés
+    $tuteurs = $tuteurRepo->getTuteursByEntreprise($enterpriseId);
+} catch (Exception $e) {
+    error_log("Erreur lors de la récupération des données de l'entreprise: " . $e->getMessage());
+    header('Location: /error');
+    exit;
+}
+
+// Inclusion du header
+include ROOT_PATH . '/templates/layout/header.php';
+?>
 <body>
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
     <div class="container">

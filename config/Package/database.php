@@ -7,7 +7,7 @@ use App\Exception\DatabaseException;
 class Database
 {
     private static ?self $instance = null;
-    private \PDO $pdo;
+    private ?\PDO $pdo = null;
 /** @var array<int, int|bool> */
     private array $options = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -57,7 +57,29 @@ class Database
 
     public function getConnection(): \PDO
     {
+        if ($this->pdo === null) {
+            $this->connect();
+        }
+
+        if ($this->pdo === null) {
+            throw new DatabaseException('Impossible d\'établir une connexion à la base de données');
+        }
+
         return $this->pdo;
+    }
+
+    public function isConnected(): bool
+    {
+        if (!isset($this->pdo)) {
+            return false;
+        }
+
+        try {
+            $this->pdo->query('SELECT 1');
+            return true;
+        } catch (\PDOException $e) {
+            return false;
+        }
     }
 
     // Empêcher le clonage

@@ -27,7 +27,11 @@ try {
 
     // Validate content type for POST requests with JSON
     if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
-        $_POST = json_decode(file_get_contents('php://input'), true);
+        $input = file_get_contents('php://input');
+        if ($input === false) {
+            throw new InvalidArgumentException('Impossible de lire les données d\'entrée');
+        }
+        $_POST = json_decode($input, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new InvalidArgumentException('JSON invalide');
         }
@@ -39,12 +43,20 @@ try {
     http_response_code(500);
     $message = 'Une erreur est survenue';
 
-    // Log the actual error for debugging
-    error_log($e->getMessage());
+    // Log l'erreur avec plus de détails
+    error_log(sprintf(
+        "Erreur AJAX: %s\nTrace: %s",
+        $e->getMessage(),
+        $e->getTraceAsString()
+    ));
 
-    // Only show detailed errors in development
-    if (defined('DEBUG_MODE') && DEBUG_MODE === true) {
-        $message = $e->getMessage();
+    // Affiche des messages d'erreur détaillés uniquement en environnement de développement
+    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'development') {
+        $message = [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ];
     }
 
     echo json_encode([

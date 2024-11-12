@@ -3,6 +3,7 @@
 namespace App\Domain\Repository;
 
 use PDO;
+use PDOException;
 
 class TuteurRepository
 {
@@ -24,7 +25,7 @@ class TuteurRepository
     {
         try {
             $stmt = $this->pdo->prepare("
-                SELECT id, nom, prenom, email, telephone 
+                SELECT id, nom, prenom, mail, telephone 
                 FROM Tuteur 
                 WHERE entreprise_id = ?
             ");

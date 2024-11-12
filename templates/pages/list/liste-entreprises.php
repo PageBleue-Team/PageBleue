@@ -1,4 +1,36 @@
-<?php include ROOT_PATH . '/templates/layout/header.php'; ?>
+<?php
+if (!function_exists('safeInclude')) {
+    require_once __DIR__ . '/../../../config/init.php';
+}
+
+use Config\Utils;
+use Config\Database;
+use App\Domain\Repository\EntrepriseRepository;
+
+// Initialisation des dépendances
+$Utils = new Utils();
+$pdo = Database::getInstance()->getConnection();
+$entrepriseRepo = new EntrepriseRepository($pdo);
+
+// Paramètres de pagination
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
+$perPage = 10; // Nombre d'entreprises par page
+
+// Récupération des entreprises avec pagination
+try {
+    $result = $entrepriseRepo->listEntreprises($page, $perPage);
+    $enterprises = $result['data'];
+    $total_pages = $result['lastPage'];
+} catch (Exception $e) {
+    error_log("Erreur lors de la récupération des entreprises: " . $e->getMessage());
+    $enterprises = [];
+    $total_pages = 0;
+}
+
+// Inclusion du header
+include ROOT_PATH . '/templates/layout/header.php';
+?>
+
 <body>
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
     <div class="container">
@@ -47,12 +79,13 @@
                     </div>
                 <?php endforeach; ?>
             </div>
+
             <!-- Pagination -->
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
+                    <!-- Bouton Précédent -->
                     <?php if ($page > 1) : ?>
-                        <!-- Bouton Précédent -->
-                        <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                        <li class="page-item">
                             <a class="page-link" href="/list?page=<?php echo $page - 1; ?>">
                                 <span>&laquo;</span>
                             </a>
@@ -88,11 +121,13 @@
                     ?>
 
                     <!-- Bouton Suivant -->
-                    <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                        <a class="page-link" href="/list?page=<?php echo $page + 1; ?>">
-                            <span>&raquo;</span>
-                        </a>
-                    </li>
+                    <?php if ($page < $total_pages) : ?>
+                        <li class="page-item">
+                            <a class="page-link" href="/list?page=<?php echo $page + 1; ?>">
+                                <span>&raquo;</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         <?php else : ?>

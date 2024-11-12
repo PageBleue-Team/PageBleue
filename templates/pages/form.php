@@ -5,18 +5,12 @@ if (!function_exists('safeInclude')) {
 
 use Config\Utils;
 
-try {
-    $utils = new Utils();
-} catch (Exception $e) {
-    // Gérer l'erreur ou la logger
-    die('Erreur de configuration');
-}
-
+$utils = new Utils();
 $navLinks = $utils->getNavLinks();
-?>
 
-<!-- Header -->
-<?php include ROOT_PATH . '/templates/layout/header.php'; ?>
+// Header
+include ROOT_PATH . '/templates/layout/header.php';
+?>
 
 <body>
   <!-- Navbar -->

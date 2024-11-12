@@ -26,6 +26,9 @@ class TableRepository extends EntityRepository
     public function getTables(): array
     {
         $stmt = $this->pdo->query("SHOW TABLES");
+        if ($stmt === false) {
+            throw new \RuntimeException("Échec de la requête SHOW TABLES");
+        }
         $allTables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
         return array_diff($allTables, $this->blacklistedTables);
     }
@@ -304,7 +307,9 @@ class TableRepository extends EntityRepository
     {
         $this->validateTable($table);
         $stmt = $this->pdo->prepare("DESCRIBE `$table`");
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            throw new \RuntimeException("Échec de l'exécution de la requête DESCRIBE");
+        }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -390,9 +395,11 @@ class TableRepository extends EntityRepository
     public function getNextId(string $table): int
     {
         $stmt = $this->pdo->prepare("SELECT MAX(id) + 1 as next_id FROM `$table`");
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['next_id'] ?? 1;
+        if (!$stmt->execute()) {
+            throw new \RuntimeException("Échec de l'exécution de la requête getNextId");
+        }
+        $result = $stmt->fetchColumn();
+        return $result !== false ? (int)$result : 1;
     }
 
     /**
@@ -425,15 +432,21 @@ class TableRepository extends EntityRepository
     public function getAllTables(): array
     {
         try {
-            // Liste des tables à exclure du dashboard
             $excludedTables = [
                 'login_logs',
                 'Users',
-                'Entreprises_Activite'  // On exclut la table de liaison de l'affichage
+                'Entreprises_Activite'
             ];
 
-            // Récupérer le nom de la base de données depuis PDO
-            $dbName = $this->pdo->query('SELECT DATABASE()')->fetchColumn();
+            // Récupérer le nom de la base de données
+            $dbStmt = $this->pdo->query('SELECT DATABASE()');
+            if ($dbStmt === false) {
+                throw new \RuntimeException("Échec de la requête DATABASE()");
+            }
+            $dbName = $dbStmt->fetchColumn();
+            if ($dbName === false) {
+                throw new \RuntimeException("Impossible de récupérer le nom de la base de données");
+            }
 
             // Requête pour obtenir toutes les tables
             $stmt = $this->pdo->query("
@@ -443,6 +456,10 @@ class TableRepository extends EntityRepository
                 AND TABLE_NAME NOT IN ('" . implode("','", $excludedTables) . "')
                 ORDER BY TABLE_NAME
             ");
+
+            if ($stmt === false) {
+                throw new \RuntimeException("Échec de la requête de récupération des tables");
+            }
 
             return $stmt->fetchAll(PDO::FETCH_COLUMN);
         } catch (Exception $e) {
@@ -462,7 +479,13 @@ class TableRepository extends EntityRepository
             $this->validateTable($table);
 
             $stmt = $this->pdo->prepare("SELECT * FROM `$table`");
-            $stmt->execute();
+            if ($stmt === false) {
+                throw new \RuntimeException("Échec de la préparation de la requête");
+            }
+
+            if (!$stmt->execute()) {
+                throw new \RuntimeException("Échec de l'exécution de la requête");
+            }
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {

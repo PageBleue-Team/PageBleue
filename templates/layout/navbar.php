@@ -15,16 +15,12 @@ $activePage = array_search($currentPage, $navLinks) ?: '';
 SiteConfig::init(); // Initialisation si pas déjà fait
 $siteName = SiteConfig::$siteName;
 
-// Vérifier s'il y a une erreur de base de données
+// Vérifier l'état de la connexion à la base de données
 $dbError = false;
 $errorMessage = '';
-try {
-    // Obtenir une connexion à la base de données
-    $pdo = Config\Database::getInstance()->getConnection();
-    // Exécuter des requêtes SQL ici
-} catch (DatabaseException $e) {
+if (!Config\Database::getInstance()->isConnected()) {
     $dbError = true;
-    $errorMessage = $e->getMessage();
+    $errorMessage = "Erreur de connexion à la base de données";
 }
 ?>
 

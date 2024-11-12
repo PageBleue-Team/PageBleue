@@ -52,15 +52,7 @@ class StageRepository
                 );
             }
 
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            if ($result === false) {
-                throw new \RuntimeException(
-                    "Erreur lors de la récupération des données des stages"
-                );
-            }
-
-            return $result;
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             throw new \RuntimeException(
                 "Erreur lors de la récupération des stages : " . $e->getMessage(),

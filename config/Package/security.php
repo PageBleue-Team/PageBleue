@@ -8,11 +8,20 @@ class LoginLogger
     {
         try {
             $pdo = Database::getInstance()->getConnection();
-            $ip_address = filter_var($_SERVER['REMOTE_ADDR'] ?? '', FILTER_VALIDATE_IP) ?: 'unknown';
-            $user_agent = substr(htmlspecialchars($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
+            $ip_address = filter_var(
+                $_SERVER['REMOTE_ADDR'] ?? '',
+                FILTER_VALIDATE_IP
+            ) ?: 'unknown';
+            $user_agent = substr(
+                htmlspecialchars($_SERVER['HTTP_USER_AGENT'] ?? ''),
+                0,
+                255
+            );
 
             // Récupération ID utilisateur
-            $stmt = $pdo->prepare("SELECT id FROM Users WHERE username = :username");
+            $stmt = $pdo->prepare(
+                "SELECT id FROM Users WHERE username = :username"
+            );
             $stmt->execute(['username' => $username]);
             $user = $stmt->fetch();
             $user_id = $user ? $user['id'] : null;
@@ -32,7 +41,12 @@ class LoginLogger
             ]);
 
             if ($success && $user_id) {
-                $stmt = $pdo->prepare("UPDATE Users SET last_login = CURRENT_TIMESTAMP, login_attempts = 0 WHERE id = :id");
+                $stmt = $pdo->prepare(
+                    "UPDATE Users SET "
+                    . "last_login = CURRENT_TIMESTAMP, "
+                    . "login_attempts = 0 "
+                    . "WHERE id = :id"
+                );
                 $stmt->execute(['id' => $user_id]);
             }
         } catch (\PDOException $e) {
