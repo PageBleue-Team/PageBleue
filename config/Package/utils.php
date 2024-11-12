@@ -93,10 +93,11 @@ class Utils
      * Récupère la page actuelle
      * @return string Nom de la page active
      */
-    public function getCurrentPage(): string
+    public static function getCurrentPage(): string
     {
-        $currentPage = basename($_SERVER['REQUEST_URI']);
-        return $currentPage;
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $currentPage = basename(parse_url($uri, PHP_URL_PATH) ?: '');
+        return $currentPage ?: 'index';
     }
 
     /**
