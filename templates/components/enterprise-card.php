@@ -13,12 +13,18 @@ use Config\Database;
 use App\Domain\Repository\EntrepriseRepository;
 use App\Services\ImageService;
 $Utils = new Utils();
-$pdo = Database::getInstance()->getConnection();
-$entrepriseRepo = new EntrepriseRepository($pdo);
-$imageService = new ImageService();
-// Récupère 5 entreprises aléatoires
-$nbEntreprises = 5;
-$enterprises = $entrepriseRepo->getFeaturedEntreprises($nbEntreprises);
+try {
+    $pdo = Database::getInstance()->getConnection();
+    $entrepriseRepo = new EntrepriseRepository($pdo);
+    $imageService = new ImageService();
+    // Récupère les entreprises aléatoires
+    $nbEntreprises = $_ENV['NB_FEATURED_ENTERPRISES'] ?? 5;
+    $enterprises = $entrepriseRepo->getFeaturedEntreprises($nbEntreprises);
+} catch (Exception $e) {
+    // Log l'erreur
+    error_log($e->getMessage());
+    $enterprises = [];
+}
 $chunks = array_chunk($enterprises, 5);
 ?>
 
