@@ -26,11 +26,14 @@ function initLogs(): void
  */
 function app_log(string $message): void
 {
-    if (getenv('APP_ENV') !== 'development') {
+    $env = getenv('APP_ENV') ?: 'production';
+    if ($env !== 'development') {
         return;
     }
 
     $timestamp = date('Y-m-d H:i:s');
     $logMessage = "[$timestamp] $message" . PHP_EOL;
-    file_put_contents(LOG_FILE, $logMessage, FILE_APPEND);
+    if (file_put_contents(LOG_FILE, $logMessage, FILE_APPEND) === false) {
+        throw new \RuntimeException('Impossible d\'écrire dans le fichier de log');
+    }
 }
