@@ -11,7 +11,8 @@ try {
 // Utilisez votre fonction de connexion à la base de données
     $pdo = Database::getInstance()->getConnection();
 // Récupérer tous les utilisateurs
-    $stmt = $pdo->query("SELECT id, password FROM Users");
+    $stmt = $pdo->prepare("SELECT id, password FROM Users");
+    $stmt->execute();
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Mettre à jour chaque mot de passe
     $updateStmt = $pdo->prepare("UPDATE Users SET password = :password WHERE id = :id");
