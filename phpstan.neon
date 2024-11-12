@@ -4,7 +4,7 @@ parameters:
         - config
         - public
         - src
-				- templates
+        - templates
     excludePaths:
         - vendor/*
         - var/cache/*
