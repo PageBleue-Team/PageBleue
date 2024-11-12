@@ -30,8 +30,9 @@ use App\Controller\AdminController;
 use App\Controller\SecurityController;
 
 // Récupération de l'URI actuelle
-$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-$uri = (string)parse_url($requestUri, PHP_URL_PATH);
+$requestUri = filter_var($_SERVER['REQUEST_URI'] ?? '/', FILTER_SANITIZE_URL);
+$uri = (string)parse_url($requestUri, PHP_URL_PATH) ?: '/';
+$uri = str_replace(['..', '//'], '', $uri);
 
 // Initialiser le contrôleur de sécurité
 $securityController = new SecurityController();
