@@ -10,5 +10,5 @@ AddType image/webp .webp
 
 # Activer la compression
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/css application/javascript
+    AddOutputFilterByType DEFLATE text/css application/javascript text/html text/plain text/xml application/json image/svg+xml
 </IfModule> 
