@@ -93,7 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                             <div class="mb-3">
                                 <button type="button" 
                                         class="btn btn-primary" 
-                                        data-bs-target="addModal<?= htmlspecialchars($table) ?>">
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#addModal<?= htmlspecialchars($table) ?>">
                                     <i class="fas fa-plus"></i> Ajouter
                                 </button>
                             </div>
