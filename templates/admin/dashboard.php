@@ -227,7 +227,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
         <!-- Modales d'édition pour chaque ligne -->
         <?php if (!empty($tableData[$table])) : ?>
             <?php foreach ($tableData[$table] as $row) : ?>
-                <div class="modal" id="editModal<?= $table . $row['id'] ?>" tabindex="-1">
+                <div class="modal" id="editModal<?= htmlspecialchars($table . $row['id']) ?>" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
