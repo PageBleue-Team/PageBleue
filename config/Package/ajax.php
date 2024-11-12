@@ -43,20 +43,12 @@ try {
     http_response_code(500);
     $message = 'Une erreur est survenue';
 
-    // Log l'erreur avec plus de détails
-    error_log(sprintf(
-        "Erreur AJAX: %s\nTrace: %s",
-        $e->getMessage(),
-        $e->getTraceAsString()
-    ));
+    // Log the actual error for debugging
+    error_log($e->getMessage());
 
-    // Affiche des messages d'erreur détaillés uniquement en environnement de développement
-    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'development') {
-        $message = [
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ];
+    // Only show detailed errors in development environment or if debug is enabled
+    if ($_ENV['APP_DEBUG'] === 'true' || $_ENV['APP_ENV'] === 'development') {
+        $message = $e->getMessage();
     }
 
     echo json_encode([

@@ -3,15 +3,18 @@ if (!function_exists('safeInclude')) {
     require_once __DIR__ . '/../../config/init.php';
 }
 
-use Config\{Utils, SiteConfig};
+use Config\Utils;
 
-// Initialisation des configurations
-SiteConfig::init();
+$Utils = new Utils();
 
-// Récupération des données de navigation
-$navLinks = Utils::getNavLinks();
+$navLinks = $Utils->getNavLinks();
 
-// Récupération des données du site
+use Config\SiteConfig;
+
+Config\SiteConfig::init();
+
+$SiteConfig = new SiteConfig();
+
 $metaDescription = SiteConfig::$metaDescription;
 $mainDescription = SiteConfig::$mainDescription;
 $historyDescription = SiteConfig::$historyDescription;

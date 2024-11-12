@@ -10,13 +10,9 @@ use function Config\app_log;
 
 class TableRepository extends EntityRepository
 {
-    /** @var array<int, string> */
-    private array $blacklistedTables;
-
     public function __construct(PDO $connection)
     {
         parent::__construct($connection);
-        $this->blacklistedTables = ['login_logs', 'Users', 'Entreprises_Activite'];
     }
 
     /**
@@ -27,10 +23,9 @@ class TableRepository extends EntityRepository
     {
         $stmt = $this->pdo->query("SHOW TABLES");
         if ($stmt === false) {
-            throw new \RuntimeException("Échec de la requête SHOW TABLES");
+            throw new \RuntimeException("Erreur lors de l'exécution de la requête SHOW TABLES");
         }
-        $allTables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-        return array_diff($allTables, $this->blacklistedTables);
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -204,6 +199,9 @@ class TableRepository extends EntityRepository
         try {
             $sql = "SELECT 1 FROM `$table` WHERE id = ? LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
+            if ($stmt === false) {
+                throw new \RuntimeException("Erreur lors de la préparation de la requête");
+            }
             $stmt->execute([$id]);
             return $stmt->fetchColumn() !== false;
         } catch (\Exception $e) {
@@ -307,9 +305,10 @@ class TableRepository extends EntityRepository
     {
         $this->validateTable($table);
         $stmt = $this->pdo->prepare("DESCRIBE `$table`");
-        if (!$stmt->execute()) {
-            throw new \RuntimeException("Échec de l'exécution de la requête DESCRIBE");
+        if ($stmt === false) {
+            throw new \RuntimeException("Erreur lors de la préparation de la requête DESCRIBE");
         }
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -358,7 +357,7 @@ class TableRepository extends EntityRepository
                     $columns[0]) .
                 ")";
 
-            // Récupérer les enregistrements existants
+            // Rcupérer les enregistrements existants
             $sql = sprintf("SELECT id, %s as display_value FROM `%s`", $displayColumn, $realTableName);
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
@@ -394,12 +393,12 @@ class TableRepository extends EntityRepository
      */
     public function getNextId(string $table): int
     {
-        $stmt = $this->pdo->prepare("SELECT MAX(id) + 1 as next_id FROM `$table`");
-        if (!$stmt->execute()) {
-            throw new \RuntimeException("Échec de l'exécution de la requête getNextId");
+        $stmt = $this->pdo->query("SELECT MAX(id) + 1 as next_id FROM `$table`");
+        if ($stmt === false) {
+            throw new \RuntimeException("Erreur lors de l'exécution de la requête getNextId");
         }
-        $result = $stmt->fetchColumn();
-        return $result !== false ? (int)$result : 1;
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['next_id'] ?? 1;
     }
 
     /**
@@ -432,21 +431,19 @@ class TableRepository extends EntityRepository
     public function getAllTables(): array
     {
         try {
+            // Liste des tables à exclure du dashboard
             $excludedTables = [
                 'login_logs',
                 'Users',
-                'Entreprises_Activite'
+                'Entreprises_Activite'  // On exclut la table de liaison de l'affichage
             ];
 
-            // Récupérer le nom de la base de données
-            $dbStmt = $this->pdo->query('SELECT DATABASE()');
-            if ($dbStmt === false) {
-                throw new \RuntimeException("Échec de la requête DATABASE()");
+            // Récupérer le nom de la base de données depuis PDO
+            $dbNameQuery = $this->pdo->query('SELECT DATABASE()');
+            if ($dbNameQuery === false) {
+                throw new \RuntimeException("Erreur lors de la récupération du nom de la base de données");
             }
-            $dbName = $dbStmt->fetchColumn();
-            if ($dbName === false) {
-                throw new \RuntimeException("Impossible de récupérer le nom de la base de données");
-            }
+            $dbName = $dbNameQuery->fetchColumn();
 
             // Requête pour obtenir toutes les tables
             $stmt = $this->pdo->query("
@@ -456,11 +453,9 @@ class TableRepository extends EntityRepository
                 AND TABLE_NAME NOT IN ('" . implode("','", $excludedTables) . "')
                 ORDER BY TABLE_NAME
             ");
-
             if ($stmt === false) {
-                throw new \RuntimeException("Échec de la requête de récupération des tables");
+                throw new \RuntimeException("Erreur lors de la récupération des tables");
             }
-
             return $stmt->fetchAll(PDO::FETCH_COLUMN);
         } catch (Exception $e) {
             error_log("Erreur dans getAllTables: " . $e->getMessage());
@@ -477,20 +472,36 @@ class TableRepository extends EntityRepository
     {
         try {
             $this->validateTable($table);
-
-            $stmt = $this->pdo->prepare("SELECT * FROM `$table`");
+            $stmt = $this->pdo->query("SELECT * FROM `$table`");
             if ($stmt === false) {
-                throw new \RuntimeException("Échec de la préparation de la requête");
+                throw new \RuntimeException("Erreur lors de l'exécution de la requête getAllRecords");
             }
-
-            if (!$stmt->execute()) {
-                throw new \RuntimeException("Échec de l'exécution de la requête");
-            }
-
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             error_log("Erreur dans getAllRecords pour la table $table: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Récupère un enregistrement par son ID
+     * @param string $table
+     * @param int $id
+     * @return array<string, mixed>|null
+     */
+    public function getRecordById(string $table, int $id): ?array
+    {
+        try {
+            $this->validateTable($table);
+            $stmt = $this->pdo->prepare("SELECT * FROM `$table` WHERE id = ?");
+            if ($stmt === false) {
+                throw new \RuntimeException("Erreur lors de la préparation de la requête");
+            }
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (Exception $e) {
+            error_log("Erreur dans getRecordById pour la table $table: " . $e->getMessage());
+            return null;
         }
     }
 }

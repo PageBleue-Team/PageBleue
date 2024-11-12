@@ -7,20 +7,24 @@ use Config\Utils;
 use App\Exception\DatabaseException;
 use Config\SiteConfig;
 
-SiteConfig::init(); // Initialisation si pas déjà fait
 $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
 $currentPage = $Utils->getCurrentPage();
 $activePage = array_search($currentPage, $navLinks) ?: '';
 
+SiteConfig::init(); // Initialisation si pas déjà fait
 $siteName = SiteConfig::$siteName;
 
-// Vérifier l'état de la connexion à la base de données
+// Vérifier s'il y a une erreur de base de données
 $dbError = false;
 $errorMessage = '';
-if (!Config\Database::getInstance()->isConnected()) {
+try {
+    // Obtenir une connexion à la base de données
+    $pdo = Config\Database::getInstance()->getConnection();
+    // Exécuter des requêtes SQL ici
+} catch (DatabaseException $e) {
     $dbError = true;
-    $errorMessage = "Erreur de connexion à la base de données";
+    $errorMessage = $e->getMessage();
 }
 ?>
 

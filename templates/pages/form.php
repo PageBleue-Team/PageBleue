@@ -5,12 +5,13 @@ if (!function_exists('safeInclude')) {
 
 use Config\Utils;
 
-$utils = new Utils();
-$navLinks = $utils->getNavLinks();
+$Utils = new Utils();
 
-// Header
-include ROOT_PATH . '/templates/layout/header.php';
+$navLinks = $Utils->getNavLinks();
 ?>
+
+<!-- Header -->
+<?php include ROOT_PATH . '/templates/layout/header.php'; ?>
 
 <body>
   <!-- Navbar -->

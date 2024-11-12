@@ -21,6 +21,11 @@ $tableRepository = new TableRepository($pdo);
 
 $error = '';
 
+// Forcer HTTPS
+// if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+//     header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+// }
+
 // Générer ou récupérer le jeton CSRF
 $csrf_token = $securityController->generateCsrfToken();
 

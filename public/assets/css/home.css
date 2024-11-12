@@ -71,13 +71,12 @@
         flex-wrap: nowrap;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
-        overscroll-behavior-x: contain;
-        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
     }
     
     #enterpriseCarousel .col {
         flex: 0 0 auto;
-        width: min(280px, 80vw);
+        width: 280px;
         scroll-snap-align: center;
     }
 

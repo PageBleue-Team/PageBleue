@@ -26,12 +26,10 @@ $tables = $dashboardData['tables'];
 $tableData = $dashboardData['tableData'];
 
 // Gestion de la déconnexion
+$authService = new SecurityController();
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
-    $SecurityController->adminLogout();
+    $authService->adminLogout();
 }
-
-// Au début du fichier, après les use
-$SecurityController = new SecurityController();
 
 ?>
 
@@ -78,7 +76,7 @@ $SecurityController = new SecurityController();
                                     data-bs-target="#content-<?= htmlspecialchars((string)$table) ?>" 
                                     type="button" 
                                     role="tab">
-                                <?= htmlspecialchars((string)$table) ?>
+                                <?php echo htmlspecialchars($table); ?>
                             </button>
                         </li>
                     <?php endforeach; ?>
@@ -96,8 +94,7 @@ $SecurityController = new SecurityController();
                             <div class="mb-3">
                                 <button type="button" 
                                         class="btn btn-primary" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#addModal<?= htmlspecialchars($table) ?>">
+                                        data-bs-target="addModal<?= htmlspecialchars($table) ?>">
                                     <i class="fas fa-plus"></i> Ajouter
                                 </button>
                             </div>
@@ -113,7 +110,7 @@ $SecurityController = new SecurityController();
                                     <thead>
                                         <tr>
                                             <?php foreach ($structure as $column) : ?>
-                                                <th><?= htmlspecialchars((string)$column['Field']) ?></th>
+                                                <th><?php echo htmlspecialchars((string)$column['Field']); ?></th>
                                             <?php endforeach; ?>
                                             <th>Actions</th>
                                         </tr>
@@ -129,14 +126,14 @@ $SecurityController = new SecurityController();
                                                                      alt="Logo" 
                                                                      style="max-width: 50px; max-height: 50px;">
                                                             <?php else : ?>
-                                                                <?= htmlspecialchars((string)($row[$column] ?? '')) ?>
+                                                                <?php echo htmlspecialchars($row[$column] ?? ''); ?>
                                                             <?php endif; ?>
                                                         </td>
                                                     <?php endforeach; ?>
                                                     <td>
                                                         <button class="btn btn-sm btn-warning" 
                                                                 data-bs-toggle="modal" 
-                                                                data-bs-target="#editModal<?= htmlspecialchars((string)($table . $row['id'])) ?>">
+                                                                data-bs-target="#editModal<?= $table . $row['id'] ?>">
                                                             Modifier
                                                         </button>
                                                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $table . $row['id'] ?>">
@@ -188,19 +185,17 @@ $SecurityController = new SecurityController();
                             $structure = $tableRepository->getTableStructure($table);
                             foreach ($structure as $column) :
                                 if ($column['Field'] !== 'id') :
-                                    $fieldName = (string)$column['Field'];
                                     ?>
                                 <div class="mb-3">
-                                    <label class="form-label"><?= htmlspecialchars($fieldName) ?></label>
-                                    <?php if ($fieldName === 'logo') : ?>
-                                        <input type="file" class="form-control" name="<?= htmlspecialchars($fieldName) ?>" accept="image/*">
-                                    <?php elseif ($tableRepository->isForeignKey($fieldName)) : ?>
+                                    <label class="form-label"><?php echo htmlspecialchars((string)$column['Field']); ?></label>
+                                    <?php if ($column['Field'] === 'logo') : ?>
+                                        <input type="file" class="form-control" name="<?php echo $column['Field']; ?>" accept="image/*">
+                                    <?php elseif ($tableRepository->isForeignKey((string)$column['Field'])) : ?>
                                         <?php
-                                        $referencedTable = ucfirst(str_replace('_id', '', $fieldName));
+                                        $referencedTable = ucfirst(str_replace('_id', '', (string)$column['Field']));
                                         $foreignData = $tableRepository->getForeignKeyData($referencedTable);
                                         ?>
-                                        <select class="form-select" name="<?= htmlspecialchars($fieldName) ?>" 
-                                                <?= $column['Null'] === 'NO' ? 'required' : '' ?>>
+                                        <select class="form-select" name="<?php echo $column['Field']; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                             <option value="">Sélectionnez...</option>
                                             <?php foreach ($foreignData as $item) : ?>
                                                 <option value="<?php echo $item['id']; ?>"
@@ -212,8 +207,8 @@ $SecurityController = new SecurityController();
                                     <?php else : ?>
                                         <input type="text" 
                                                class="form-control" 
-                                               name="<?= htmlspecialchars($fieldName) ?>"
-                                               <?= $column['Null'] === 'NO' ? 'required' : '' ?>>
+                                               name="<?php echo $column['Field']; ?>"
+                                               <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                     <?php endif; ?>
                                 </div>
                                     <?php
@@ -233,7 +228,7 @@ $SecurityController = new SecurityController();
         <!-- Modales d'édition pour chaque ligne -->
         <?php if (!empty($tableData[$table])) : ?>
             <?php foreach ($tableData[$table] as $row) : ?>
-                <div class="modal" id="editModal<?= htmlspecialchars($table . $row['id']) ?>" tabindex="-1">
+                <div class="modal" id="editModal<?= $table . $row['id'] ?>" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -247,47 +242,46 @@ $SecurityController = new SecurityController();
                                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                     <input type="hidden" name="csrf_token" value="<?php echo $SecurityController->generateCsrfToken(); ?>">
 
-                                    <?php foreach ($structure as $column) :
-                                        if ($column['Field'] !== 'id') :
-                                            $fieldName = (string)$column['Field'];
+                                    <?php foreach ($structure as $column) : ?>
+                                        <?php
+                                        // S'assurer que Field est une string avant de l'utiliser
+                                        $fieldName = isset($column['Field']) ? (string)$column['Field'] : '';
+                                        if ($fieldName !== 'id') :
                                             ?>
-                                        <div class="mb-3">
-                                            <label class="form-label"><?= htmlspecialchars($fieldName) ?></label>
-                                            <?php if ($fieldName === 'logo') : ?>
-                                                <?php if (!empty($row[$fieldName])) : ?>
-                                                    <img src="data:image/webp;base64,<?php echo base64_encode($row[$fieldName]); ?>" 
-                                                         alt="Logo actuel" 
-                                                         class="img-fluid mb-2" 
-                                                         style="max-width: 100px;">
+                                            <div class="mb-3">
+                                                <label class="form-label"><?= htmlspecialchars($fieldName); ?></label>
+                                                <?php if ($fieldName === 'logo') : ?>
+                                                    <?php if (!empty($row[$fieldName])) : ?>
+                                                        <img src="data:image/webp;base64,<?php echo base64_encode($row[$fieldName]); ?>" 
+                                                             alt="Logo actuel" 
+                                                             class="img-fluid mb-2" 
+                                                             style="max-width: 100px;">
+                                                    <?php endif; ?>
+                                                    <input type="file" class="form-control" name="<?= $fieldName; ?>" accept="image/*">
+                                                <?php elseif ($tableRepository->isForeignKey($fieldName)) : ?>
+                                                    <?php
+                                                    $referencedTable = ucfirst(str_replace('_id', '', $fieldName));
+                                                    $foreignData = $tableRepository->getForeignKeyData($referencedTable);
+                                                    ?>
+                                                    <select class="form-select" name="<?= $fieldName; ?>" <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
+                                                        <option value="">Sélectionnez...</option>
+                                                        <?php foreach ($foreignData as $item) : ?>
+                                                            <option value="<?php echo $item['id']; ?>" 
+                                                                    <?php echo ($row[$fieldName] == $item['id']) ? 'selected' : ''; ?>>
+                                                                <?php echo htmlspecialchars($item['display_value']); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                <?php else : ?>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           name="<?= $fieldName; ?>"
+                                                           value="<?php echo htmlspecialchars($row[$fieldName] ?? ''); ?>"
+                                                           <?php echo $column['Null'] === 'NO' ? 'required' : ''; ?>>
                                                 <?php endif; ?>
-                                                <input type="file" class="form-control" name="<?= htmlspecialchars($fieldName) ?>" accept="image/*">
-                                            <?php elseif ($tableRepository->isForeignKey($fieldName)) : ?>
-                                                <?php
-                                                $referencedTable = ucfirst(str_replace('_id', '', $fieldName));
-                                                $foreignData = $tableRepository->getForeignKeyData($referencedTable);
-                                                ?>
-                                                <select class="form-select" name="<?= htmlspecialchars($fieldName) ?>" 
-                                                        <?= $column['Null'] === 'NO' ? 'required' : '' ?>>
-                                                    <option value="">Sélectionnez...</option>
-                                                    <?php foreach ($foreignData as $item) : ?>
-                                                        <option value="<?php echo $item['id']; ?>" 
-                                                                <?php echo ($row[$fieldName] == $item['id']) ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($item['display_value']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            <?php else : ?>
-                                                <input type="text" 
-                                                       class="form-control" 
-                                                       name="<?= htmlspecialchars($fieldName) ?>"
-                                                       value="<?= htmlspecialchars((string)($row[$fieldName] ?? '')) ?>"
-                                                       <?= $column['Null'] === 'NO' ? 'required' : '' ?>>
-                                            <?php endif; ?>
-                                        </div>
-                                            <?php
-                                        endif;
-                                    endforeach;
-                                    ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>

@@ -1,13 +1,9 @@
-# Désactiver HTTPS pour localhost
-RewriteEngine On
-RewriteCond %{HTTPS} on
-RewriteCond %{HTTP_HOST} ^localhost$ [NC]
-RewriteRule ^(.*)$ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Forcer HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Désactiver HSTS pour localhost
-RewriteCond %{HTTP_HOST} ^localhost$ [NC]
-RewriteRule .* - [E=NO_HSTS:1]
-Header always unset Strict-Transport-Security env=NO_HSTS
+# Sécurité supplémentaire pour HTTPS
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
 # Lien racine (pas de /index.php)
 DirectoryIndex /public/index.php
@@ -29,17 +25,17 @@ RewriteRule ^list(/.*)?$ public/index.php [L,QSA]
 # /form
 RewriteCond %{THE_REQUEST} \s/+form\.php [NC]
 RewriteRule ^ /form [L,R=301]
-RewriteRule ^form$ public/index.php [L]
+RewriteRule ^form$ templates/pages/form.php [L]
 
 # /panel (admin page)
 RewriteCond %{THE_REQUEST} \s/+panel\.php [NC]
 RewriteRule ^ /panel [L,R=301]
-RewriteRule ^panel$ public/index.php [L]
+RewriteRule ^panel$ templates/admin/dashboard.php [L]
 
 # /login
 RewriteCond %{THE_REQUEST} \s/+login\.php [NC]
 RewriteRule ^ /login [L,R=301]
-RewriteRule ^login$ public/index.php [L]
+RewriteRule ^login$ templates/auth/login.php [L]
 
 # Rediriger tout le reste vers public/index.php
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -62,5 +58,5 @@ Options All -Indexes
 RewriteRule ^(config|src) - [F]
 
 # Pages d'erreurs
-ErrorDocument 403 /public/index.php
-ErrorDocument 404 /public/index.php
+ErrorDocument 403 "Désolé, vous n'avez pas le droit d'accéder à ce fichier"
+ErrorDocument 404 "Vous êtes perdu, je crois"

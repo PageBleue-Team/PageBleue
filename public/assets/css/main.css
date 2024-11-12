@@ -50,6 +50,11 @@ html {
 }
 
 /* Pour les écrans plus grands */
+@media (min-width: 992px) {
+    body {
+        padding-top: var(--navbar-height);
+    }
+}
 
 /* Styles communs pour les logos d'entreprise */
 .enterprise-logo-container {
