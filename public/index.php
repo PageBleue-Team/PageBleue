@@ -17,7 +17,7 @@ try {
 require_once dirname(__DIR__) . '/config/Package/paths.php';
 
 // Gestion des erreurs
-$debug = getenv('APP_ENV') === 'development';
+$debug = (getenv('APP_ENV') ?: 'production') === 'development';
 if ($debug) {
     ini_set('display_errors', 1);
     error_reporting(E_ALL);

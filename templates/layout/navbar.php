@@ -7,12 +7,12 @@ use Config\Utils;
 use App\Exception\DatabaseException;
 use Config\SiteConfig;
 
+SiteConfig::init(); // Initialisation si pas déjà fait
 $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
 $currentPage = $Utils->getCurrentPage();
 $activePage = array_search($currentPage, $navLinks) ?: '';
 
-SiteConfig::init(); // Initialisation si pas déjà fait
 $siteName = SiteConfig::$siteName;
 
 // Vérifier l'état de la connexion à la base de données
