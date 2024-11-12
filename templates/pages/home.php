@@ -5,16 +5,15 @@ if (!function_exists('safeInclude')) {
 
 use Config\Utils;
 
-$Utils = new Utils();
+use Config\{Utils, SiteConfig};
 
-$navLinks = $Utils->getNavLinks();
+// Initialisation des configurations
+SiteConfig::init();
 
-use Config\SiteConfig;
+// Récupération des données de navigation
+$navLinks = Utils::getNavLinks();
 
-Config\SiteConfig::init();
-
-$SiteConfig = new SiteConfig();
-
+// Récupération des données du site
 $metaDescription = SiteConfig::$metaDescription;
 $mainDescription = SiteConfig::$mainDescription;
 $historyDescription = SiteConfig::$historyDescription;
