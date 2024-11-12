@@ -4,13 +4,11 @@ if (!function_exists('safeInclude')) {
 }
 use Config\Utils;
 
-$Utils = new Utils();
-$navLinks = $Utils->getNavLinks();
+$navLinks = Utils::getNavLinks();
 
 use Config\SiteConfig;
 Config\SiteConfig::init();
 
-$SiteConfig = new SiteConfig();
 $siteName = SiteConfig::$siteName;
 $logoURL = SiteConfig::$logoURL;
 ?>
