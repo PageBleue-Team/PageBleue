@@ -5,9 +5,14 @@ if (!function_exists('safeInclude')) {
 
 use Config\Utils;
 
-$Utils = new Utils();
+try {
+    $utils = new Utils();
+} catch (Exception $e) {
+    // Gérer l'erreur ou la logger
+    die('Erreur de configuration');
+}
 
-$navLinks = $Utils->getNavLinks();
+$navLinks = $utils->getNavLinks();
 ?>
 
 <!-- Header -->
