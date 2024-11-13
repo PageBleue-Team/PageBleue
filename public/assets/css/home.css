@@ -1,0 +1,106 @@
+/* Carousel d'entreprises */
+.enterprises-container {
+    width: 100%;
+    padding: 20px 0;
+}
+
+#enterpriseCarousel {
+    width: 100%;
+    position: relative;
+}
+
+.carousel-inner .carousel-item {
+    padding: 0 15px;
+}
+
+.carousel-inner .d-flex {
+    gap: 20px;
+    justify-content: center !important;
+}
+
+.card-wrapper {
+    flex: 0 0 auto;
+    width: calc(20% - 16px);
+    min-width: 250px;
+    margin: 0 8px;
+}
+
+.card-wrapper a {
+    display: block;
+    height: 100%;
+    text-decoration: none !important;
+    color: inherit;
+    cursor: pointer;
+}
+
+.card {
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.125);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+    .carousel-inner .d-flex {
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 15px; /* Espace pour la scrollbar */
+    }
+    
+    .card-wrapper {
+        width: 280px;
+        scroll-snap-align: start;
+    }
+    
+    /* Masquer les contrôles de carousel sur mobile */
+    .carousel-control-prev,
+    .carousel-control-next,
+    .carousel-indicators {
+        display: none;
+    }
+    
+    /* Permettre le défilement horizontal */
+    .carousel-inner {
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Cacher la scrollbar tout en gardant la fonctionnalité */
+    .carousel-inner::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .carousel-inner {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
+/* Ajustements pour les écrans moyens */
+@media (min-width: 993px) and (max-width: 1200px) {
+    .card-wrapper {
+        width: calc(25% - 15px); /* 4 cartes par ligne */
+    }
+}
+
+/* Amélioration des contrôles du carousel */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 40px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    height: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0 10px;
+}

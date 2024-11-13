@@ -1,0 +1,174 @@
+/* Styles de base de la navbar */
+nav.navbar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: var(--primary-blue) !important;
+    /* Amélioration performance sur mobile */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
+    /* Évite le flash blanc sur iOS */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Styles des liens et de la marque */
+.navbar-light .navbar-brand,
+.navbar-light .navbar-nav .nav-link {
+    color: white !important;
+    transition: opacity var(--transition-speed) ease;
+}
+
+.navbar-light .navbar-brand:hover,
+.navbar-light .navbar-nav .nav-link:hover {
+    opacity: 0.8;
+}
+
+/* Style spécial pour le lien admin */
+.nav-link.admin-link {
+    color: #ff6b6b !important;
+    font-weight: 500;
+}
+
+.nav-link.admin-link:hover {
+    color: #ff4444 !important;
+}
+
+/* Slider sous les liens */
+.nav-link {
+    position: relative;
+    padding: 0.5rem 1rem;
+}
+
+.nav-slider {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background-color: white;
+    transition: all var(--transition-speed) ease;
+    pointer-events: none;
+}
+
+/* Container de recherche */
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    transition: all var(--transition-speed) ease;
+}
+
+.search-input {
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    width: 100%;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all var(--transition-speed) ease;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    pointer-events: none;
+}
+
+/* Styles du toggle button pour mobile */
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(255, 255, 255, 0.9)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Bannière d'erreur */
+.error-banner {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    width: 100%;
+    z-index: 999;
+}
+
+.error-banner .alert {
+    margin-bottom: 0;
+    border-radius: 0;
+    padding: 1rem;
+}
+
+/* Media Queries */
+@media (max-width: 991px) {
+    .navbar-nav {
+        margin: 1rem 0;
+        padding: 0.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .search-container {
+        margin: 1rem 0;
+        max-width: 100%;
+    }
+
+    .nav-slider {
+        display: none;
+    }
+
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    .navbar-collapse {
+        max-height: calc(100vh - var(--nav-height));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    body.menu-open {
+        overflow: hidden;
+    }
+}
+
+/* Animation pour le menu mobile */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        transform: translateY(-10px);
+        opacity: 0;
+        transition: all var(--transition-speed) ease;
+    }
+
+    .navbar-collapse.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Ajustements pour l'adresse bar mobile */
+@supports (-webkit-touch-callout: none) {
+    body {
+        /* Ajustement spécifique pour iOS */
+        min-height: -webkit-fill-available;
+    }
+}

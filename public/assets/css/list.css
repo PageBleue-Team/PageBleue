@@ -1,0 +1,65 @@
+.star-rating {
+    color: #ffc107;
+}
+
+.card {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-speed) all ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.lasalle-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background-color: gold;
+    border-radius: 0 0 0 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 5px;
+}
+
+.lasalle-badge i {
+    color: white;
+    font-size: 20px;
+}
+
+.info-item {
+    margin-bottom: 10px;
+}
+
+.info-label {
+    font-weight: bold;
+}
+
+.card-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.card-link:hover {
+    text-decoration: none;
+}
+
+.fixed-bottom {
+    position: static !important;
+    margin-top: auto;
+    margin-bottom: 2rem;
+}   
+
+.contact-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+}

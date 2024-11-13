@@ -1,7 +1,8 @@
 .env
 composer.phar
 /vendor/
-/cache/
-logs/*
-*.log
+/var/logs/*
+/var/cache/*
 Arborescense.txt
+*.log
+*.webp
