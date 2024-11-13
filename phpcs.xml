@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Standard">
+    <!-- Utiliser PSR12 comme standard de base -->
+    <rule ref="PSR12"/>
+
+    <!-- Spécifier les extensions à vérifier -->
+    <arg name="extensions" value="php"/>
+
+    <!-- Ignorer le dossier vendor -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <!-- Afficher la barre de progression (-p) -->
+    <arg value="p"/>
+
+    <!-- Configuration de la règle Line Length -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+        <exclude-pattern>*/templates/*</exclude-pattern>
+    </rule>
+</ruleset>

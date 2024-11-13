@@ -1,31 +1,66 @@
-# Lien racine (pas de /index.php)
-DirectoryIndex index.php
-# Redirections différentes pages
+# Désactiver HTTPS pour localhost
 RewriteEngine On
-# /list.php -> /list
-RewriteCond %{THE_REQUEST} /pages/list\.php [NC]
-RewriteRule ^pages/list\.php$ /list [L,R=301]
-RewriteRule ^list$ /pages/list.php [L]
-# /form.php -> /form
-RewriteCond %{THE_REQUEST} /pages/form\.php [NC]
-RewriteRule ^pages/form\.php$ /form [L,R=301]
-RewriteRule ^form$ /pages/form.php [L]
-# /panel.php -> /panel (admin page)
-RewriteCond %{THE_REQUEST} /pages/panel\.php [NC]
-RewriteRule ^pages/panel\.php$ /panel [L,R=301]
-RewriteRule ^panel$ /pages/panel.php [L]
-# /login.php -> /login (login page)
-RewriteCond %{THE_REQUEST} /pages/login\.php [NC]
-RewriteRule ^pages/login\.php$ /login [L,R=301]
-RewriteRule ^login$ /pages/login.php [L]
+RewriteCond %{HTTPS} on
+RewriteCond %{HTTP_HOST} ^localhost$ [NC]
+RewriteRule ^(.*)$ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Désactiver HSTS pour localhost
+RewriteCond %{HTTP_HOST} ^localhost$ [NC]
+RewriteRule .* - [E=NO_HSTS:1]
+Header always unset Strict-Transport-Security env=NO_HSTS
+
+# Lien racine (pas de /index.php)
+DirectoryIndex /public/index.php
+
+RewriteEngine On
+RewriteBase /
+
+# Configuration des types MIME
+AddType application/javascript .js
+AddType text/css .css
+AddType image/webp .webp
+
+# Redirection des assets vers le dossier public
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# Réécriture pour /list et /list/{id}
+RewriteRule ^list(/.*)?$ public/index.php [L,QSA]
+
+# /form
+RewriteCond %{THE_REQUEST} \s/+form\.php [NC]
+RewriteRule ^ /form [L,R=301]
+RewriteRule ^form$ public/index.php [L]
+
+# /panel (admin page)
+RewriteCond %{THE_REQUEST} \s/+panel\.php [NC]
+RewriteRule ^ /panel [L,R=301]
+RewriteRule ^panel$ public/index.php [L]
+
+# /login
+RewriteCond %{THE_REQUEST} \s/+login\.php [NC]
+RewriteRule ^ /login [L,R=301]
+RewriteRule ^login$ public/index.php [L]
+
+# Rediriger tout le reste vers public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [L,QSA]
+
 # Time Zone
 SetEnv TZ Europe/Paris
+
 # Prevent viewing of .htaccess file
 <Files .htaccess>
-order allow,deny
-deny from all
+    order allow,deny
+    deny from all
 </Files>
+
 # Prevent directory listings
 Options All -Indexes
+
+# Protect sensitive directories
+RewriteRule ^(config|src) - [F]
+
 # Pages d'erreurs
-ErrorDocument 403 "Désolé, vous n'avez pas le droit d'accéder à ce fichier"
+ErrorDocument 403 /public/index.php
+ErrorDocument 404 /public/index.php

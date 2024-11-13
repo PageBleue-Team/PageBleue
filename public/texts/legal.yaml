@@ -1,0 +1,39 @@
+site:
+  meta_description: "PageBleue, lieu de référencement d'entreprises pour des recherches de Formations en Milieu Professionnel sur et autour d'Avignon."
+  contact_email: "contact@pagebleue.fr"
+
+creators:
+  - name: "Florian CASTALDO"
+helpers:
+  - name: "Samuel FRANCOIS"
+  - name: "Benjamin BONARDO"
+
+education:
+  formation: "BAC Pro CIEL"
+  etablissement: "Lycée La Salle Avignon"
+
+hosting:
+  name: "WebStrator"
+  address: "Lieu-dit En Roc - 81100 Castres"
+
+content:
+  main_description: |
+    Bienvenue sur Page Bleue, un site pensé pour faciliter la recherche de PFMP (période de formation en milieu professionnel) 
+    pour les élèves professionnels des filières CIEL (Cybersécurité, Informatique, Électronique) et MELEC (Métiers de l'Électricité 
+    et de ses Environnements Connectés) du lycée ST JEAN BAPTISTE Lasalle Avignon.
+  
+  purpose: |
+    Ce projet a été créé et pensé par des étudiants, pour les étudiants, afin de centraliser les informations 
+    sur les entreprises où nos camarades ont effectué leur stage.
+  
+  data_usage: |
+    Les données collectées concernent uniquement les informations professionnelles des entreprises et les évaluations des stages. 
+    Ces informations sont partagées dans un esprit de collaboration et d'entraide, avec l'accord des entreprises concernées.
+  
+  cookies_info: |
+    Ce site utilise uniquement des cookies techniques essentiels à son fonctionnement. 
+    Aucun cookie publicitaire ou de traçage n'est utilisé.
+  
+  intellectual_property: |
+    Le contenu de ce site est protégé par le droit d'auteur. Les informations concernant les entreprises 
+    sont collectées à l'aide de Societe.com et partagées dans un cadre pédagogique.

@@ -9,4 +9,4 @@ parameters:
         - vendor/*
         - var/cache/*
     ignoreErrors:
-        - '#^Path .* does not exist\.$#'
+        - '#Constant ROOT_PATH not found#'
