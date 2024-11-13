@@ -31,7 +31,7 @@ include ROOT_PATH . '/templates/layout/header.php'; ?>
                                     </div>
                                 <?php endif; ?>
                                 <div class="card-body d-flex">
-                                    <div class="enterprise-logo-container">
+                                    <div class="enterprise-logo-container me-4">
                                         <?php $logo = base64_encode($enterprise['logo'] ?? ''); ?>
                                         <img 
                                             src="data:image/webp;base64,<?php echo $logo; ?>" 
@@ -40,22 +40,39 @@ include ROOT_PATH . '/templates/layout/header.php'; ?>
                                             onerror="this.src='/assets/images/logos/default.png'"
                                         >
                                     </div>
-                                    <div>
+                                    <div class="flex-grow-1">
                                         <h5 class="card-title">
                                             <?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?>
                                         </h5>
-                                        <?php
-                                        $description = isset($enterprise['description'])
-                                            ? htmlspecialchars($Utils->nullSafe($enterprise['description']))
-                                            : 'Non renseigné';
-
-                                        if ($description === "Non renseigné") {
-                                            echo "Aucune description disponible";
-                                        } else {
-                                            $truncated = htmlspecialchars(mb_substr($description, 0, 150));
-                                            echo $truncated . (mb_strlen($description) > 150 ? '...' : '');
-                                        }
-                                        ?>
+                                        <div class="contact-info">
+                                            <div class="row g-1">
+                                                <div class="col-md-6">
+                                                    <i class="fas fa-globe"></i>
+                                                    <?php if (!empty($enterprise['site_web'])) : ?>
+                                                        <a href="<?php echo htmlspecialchars($enterprise['site_web']); ?>" 
+                                                           target="_blank" 
+                                                           class="contact-link"
+                                                           onclick="event.stopPropagation();">
+                                                            <?php echo htmlspecialchars($enterprise['site_web']); ?>
+                                                        </a>
+                                                    <?php else : ?>
+                                                        Non renseigné
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <i class="fas fa-phone"></i>
+                                                    <?php echo !empty($enterprise['telephone'])
+                                                        ? htmlspecialchars($enterprise['telephone'])
+                                                        : 'Non renseigné'; ?>
+                                                </div>
+                                                <div class="col-12">
+                                                    <i class="fas fa-envelope"></i>
+                                                    <?php echo !empty($enterprise['mail'])
+                                                        ? htmlspecialchars($enterprise['mail'])
+                                                        : 'Non renseigné'; ?>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

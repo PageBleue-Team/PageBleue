@@ -19,14 +19,14 @@ site:
     À plus long terme, nous aimerions élargir Page Bleue à d'autres filières et lycées, afin de rendre ce service qui nous tient à cœur accessible à un maximum d'élèves.
 
   team:
-    - name: "Samuel FRANCOIS"
-      role: "Rédacteur"
+    - name: "Samuel"
+      role: "Exemple 1"
       filiere: "CIEL"
     
-    - name: "Florian CASTALDO"
+    - name: "Florian"
       role: "Développeur"
       filiere: "CIEL"
     
-    - name: "Benjamin BONARDO"
-      role: "Gestionnaire"
+    - name: "Benjamin"
+      role: "Exemple 2"
       filiere: "CIEL"

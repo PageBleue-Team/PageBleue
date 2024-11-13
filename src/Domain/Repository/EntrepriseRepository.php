@@ -21,8 +21,8 @@ class EntrepriseRepository extends EntityRepository
     public function getFeaturedEntreprises(int $limit = 20): array
     {
         $sql = "SELECT e.*,
-                    a.numero, a.rue, a.code_postal, a.commune,
-                    c.mail, c.telephone
+                    a.numero, a.rue, a.code_postal, a.commune, a.lieu_dit,
+                    c.mail, c.telephone, c.site_web
                 FROM Entreprises e
                 LEFT JOIN Adresse a ON e.adresse_id = a.id
                 LEFT JOIN Contact c ON e.contact_id = c.id
@@ -218,7 +218,7 @@ class EntrepriseRepository extends EntityRepository
         $whereSQL = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
         $sql = "SELECT e.*,
                        a.numero, a.rue, a.code_postal, a.commune,
-                       c.mail, c.telephone
+                       c.mail, c.telephone, c.site_web
                 FROM Entreprises e
                 LEFT JOIN Adresse a ON e.adresse_id = a.id
                 LEFT JOIN Contact c ON e.contact_id = c.id

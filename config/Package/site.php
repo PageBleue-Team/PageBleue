@@ -6,21 +6,18 @@ use Symfony\Component\Yaml\Yaml;
 
 class SiteConfig
 {
-    // Propriétés de base du site
-    public static string $siteName;
-    public static string $logoURL;
-    public static int $descriptionLength;
-// Meta données
-    public static string $metaDescription;
-    public static string $googleVerification;
-// Descriptions longues
-    public static string $mainDescription;
-    public static string $historyDescription;
-// Informations de l'équipe
+    // Initialiser les propriétés avec des valeurs par défaut
+    public static string $siteName = '';
+    public static string $logoURL = '';
+    public static int $descriptionLength = 250;
+    public static string $metaDescription = '';
+    public static string $googleVerification = '';
+    public static string $mainDescription = '';
+    public static string $historyDescription = '';
     /** @var array<int, array{name: string, role: string, filiere: string}> */
-    public static array $team;
+    public static array $team = [];
 
-// Déplacer la méthode getEnvOrFail ici
+    // Déplacer la méthode getEnvOrFail ici
     private static function getEnvOrFail(string $key): string
     {
         if (!isset($_ENV[$key])) {

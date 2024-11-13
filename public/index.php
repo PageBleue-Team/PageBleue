@@ -1,11 +1,21 @@
 <?php
 
-/**
- * Point d'entrée principal de l'application
- */
+declare(strict_types=1);
+
+// Chargement des dépendances et configuration
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+// Chargement des variables d'environnement
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->load();
+} catch (Exception $e) {
+    die('Erreur : fichier .env manquant');
+}
 
 // Chargement des constantes depuis paths.php
-require_once __DIR__ . '/../config/Package/paths.php';
+require_once dirname(__DIR__) . '/config/Package/paths.php';
+
 // Gestion des erreurs
 $debug = getenv('APP_ENV') === 'development';
 if ($debug) {
@@ -13,32 +23,32 @@ if ($debug) {
     error_reporting(E_ALL);
 }
 
-// Chargement des dépendances
-require_once ROOT_PATH . '/vendor/autoload.php';
-// Chargement des variables d'environnement
-try {
-    $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
-    $dotenv->load();
-} catch (Exception $e) {
-    die('Erreur : fichier .env manquant');
-}
-
 // Chargement de la configuration
-require_once ROOT_PATH . '/config/init.php';
+require_once dirname(__DIR__) . '/config/init.php';
 
+// Router et contrôleurs
 use App\Controller\AdminController;
 use App\Controller\SecurityController;
-
-// Récupération de l'URI actuelle
-$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-$uri = (string)parse_url($requestUri, PHP_URL_PATH);
 
 // Initialiser le contrôleur de sécurité
 $securityController = new SecurityController();
 
+// Récupération de l'URI actuelle
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$sanitizedUri = filter_var($requestUri, FILTER_SANITIZE_URL);
+if ($sanitizedUri === false) {
+    $uri = '/';
+} else {
+    $parsedUri = parse_url($sanitizedUri, PHP_URL_PATH);
+    $uri = ($parsedUri !== false) ? (string)$parsedUri : '/';
+}
+$uri = str_replace(['..', '//'], '', $uri);
+
 // Vérifier si c'est une requête AJAX
-$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
+          (!empty($_SERVER['HTTP_ACCEPT']) &&
+          strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 
 // Route pour les requêtes AJAX du panel admin
 if ($uri === '/panel/ajax' && $isAjax) {
@@ -69,6 +79,8 @@ if ($uri === '/panel/ajax' && $isAjax) {
 // Gestion des routes
 if ($uri === '/') {
     require TEMPLATES_DIR . '/pages/home.php';
+} elseif ($uri === '/form') {
+    require TEMPLATES_DIR . '/pages/form.php';
 } elseif ($uri === '/panel') {
     if (!$securityController->isAdminLoggedIn()) {
         header('Location: /login');
@@ -77,14 +89,14 @@ if ($uri === '/') {
     require TEMPLATES_DIR . '/admin/dashboard.php';
 } elseif ($uri === '/legal') {
     require TEMPLATES_DIR . '/pages/legal.php';
-} elseif ($uri === '/list') {
-    require TEMPLATES_DIR . '/pages/list.php';
-} elseif (preg_match('#^/list/(\d+)$#', $uri, $matches)) {
-    $showEnterprise = (int)$matches[1];
+} elseif (preg_match('#^/list(?:/(\d+))?$#', $uri, $matches)) {
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
+    }
     require TEMPLATES_DIR . '/pages/list.php';
 } elseif ($uri === '/login') {
-    require TEMPLATES_DIR . '/pages/login.php';
+    require TEMPLATES_DIR . '/auth/login.php';
 } else {
     http_response_code(404);
-    require TEMPLATES_DIR . '/pages/error/404.php';
+    require TEMPLATES_DIR . '/error/404.php';
 }

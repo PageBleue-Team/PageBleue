@@ -125,8 +125,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['logout'])) {
                                                                 <img src="data:image/webp;base64,<?= base64_encode($row[$column]); ?>" 
                                                                      alt="Logo" 
                                                                      style="max-width: 50px; max-height: 50px;">
+                                                            <?php elseif ($column === 'adresse') : ?>
+                                                                <?php
+                                                                try {
+                                                                    $adresse = '';
+
+                                                                    if (!empty($row['lieu_dit']) && $row['lieu_dit'] !== 'Non Renseigné') {
+                                                                        $adresse = $row['lieu_dit'] . ', ' . $row['code_postal'] . ' ' . $row['commune'];
+                                                                    } else {
+                                                                        $numeroStr = (!empty($row['numero']) && $row['numero'] !== 'Non Renseigné') ? $row['numero'] . ' ' : '';
+                                                                        $rueStr = (!empty($row['rue']) && $row['rue'] !== 'Non Renseigné') ? $row['rue'] : '';
+
+                                                                        if (!empty($rueStr)) {
+                                                                            $adresse = $numeroStr . $rueStr . ', ' . $row['code_postal'] . ' ' . $row['commune'];
+                                                                        } else {
+                                                                            $adresse = $row['code_postal'] . ' ' . $row['commune'];
+                                                                        }
+                                                                    }
+                                                                    echo htmlspecialchars($adresse);
+                                                                } catch (\Throwable $e) {
+                                                                    echo "Champ introuvable";
+                                                                }
+                                                                ?>
                                                             <?php else : ?>
-                                                                <?php echo htmlspecialchars($row[$column] ?? ''); ?>
+                                                                <?php
+                                                                // En cas de valeur null, afficher "Champ non trouvé"
+                                                                $value = $row[$column] ?? 'Champ non trouvé';
+                                                                echo htmlspecialchars($value);
+                                                                ?>
                                                             <?php endif; ?>
                                                         </td>
                                                     <?php endforeach; ?>

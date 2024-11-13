@@ -19,20 +19,32 @@ $tuteurRepo = new TuteurRepository($pdo);
 $controller = new EntrepriseController($entrepriseRepo, $stageRepo, $tuteurRepo);
 $Utils = new Utils();
 $imageService = new ImageService();
-// Si un ID d'entreprise est fourni via $showEnterprise (défini dans index.php)
-if (isset($showEnterprise)) {
-    $data = $controller->showAction($showEnterprise);
-    extract($data);
-// Extrait enterprise, stages, tuteurs
-    require __DIR__ . '/list/detail-entreprise.php';
-} else {
-    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-    $filters = [
-        'search' => $_GET['search'] ?? null,
-        'lasallien' => isset($_GET['lasallien']) ? (bool)$_GET['lasallien'] : null
-    ];
-    $data = $controller->listAction($page, $filters);
-    extract($data);
-// Extrait enterprises, total_pages
-    require __DIR__ . '/list/liste-entreprises.php';
+
+// Si un ID est présent dans l'URL
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    try {
+        $data = $controller->showAction((int)$_GET['id']);
+        if (!empty($data['enterprise'])) {
+            extract($data);
+            require __DIR__ . '/list/detail-entreprise.php';
+            exit;
+        } else {
+            header('Location: /list');
+            exit;
+        }
+    } catch (Exception $e) {
+        header('Location: /list');
+        exit;
+    }
 }
+
+// Si pas d'ID, afficher la liste
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$filters = [
+    'search' => $_GET['search'] ?? null,
+    'lasallien' => isset($_GET['lasallien']) ? (bool)$_GET['lasallien'] : null
+];
+$data = $controller->listAction($page, $filters);
+extract($data);
+// Extrait enterprises, total_pages
+require __DIR__ . '/list/liste-entreprises.php';

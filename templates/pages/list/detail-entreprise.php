@@ -4,30 +4,25 @@ if (!function_exists('safeInclude')) {
 }
 
 use Config\Utils;
-use App\Domain\Repository\TableRepository;
 
-// Initialiser Utils
-$Utils = new Utils();
+// Vérification des dépendances nécessaires
+if (!isset($Utils)) {
+    $Utils = new Utils();
+}
 
-// Récupérer l'entreprise depuis la base de données
-$pdo = \Config\Database::getInstance()->getConnection();
-$tableRepository = new TableRepository($pdo);
-
-// Vérifier si l'ID est présent dans l'URL
-$enterpriseId = $_GET['id'] ?? null;
-if (!$enterpriseId) {
+// Vérification que l'entreprise existe
+if (!isset($enterprise)) {
     header('Location: /list');
     exit;
 }
 
-// Récupérer les données de l'entreprise
-$enterprise = $tableRepository->getRecordById('Entreprises', $enterpriseId);
-if (!$enterprise) {
-    header('Location: /list');
-    exit;
+// Vérification que les tuteurs sont définis
+if (!isset($tuteurs)) {
+    $tuteurs = [];
 }
 
-include ROOT_PATH . '/templates/layout/header.php'; ?>
+include ROOT_PATH . '/templates/layout/header.php';
+?>
 <body>
     <?php include ROOT_PATH . '/templates/layout/navbar.php'; ?>
     <div class="container">
@@ -56,11 +51,26 @@ include ROOT_PATH . '/templates/layout/header.php'; ?>
                 <div class="info-item">
                     <span class="info-label">Adresse :</span> 
                     <?php
-                    $adresse = htmlspecialchars($Utils->nullSafe($enterprise['numero'])) . ' ' .
-                              htmlspecialchars($Utils->nullSafe($enterprise['rue'])) . ', ' .
-                              htmlspecialchars($Utils->nullSafe($enterprise['code_postal'])) . ' ' .
-                              htmlspecialchars($Utils->nullSafe($enterprise['commune']));
-                    echo $adresse;
+                    $adresse = '';
+
+                    // Si on a une rue
+                    if (!empty($enterprise['rue']) && $enterprise['rue'] !== 'Non Renseigné') {
+                        $numero = (!empty($enterprise['numero']) && $enterprise['numero'] !== 'Non Renseigné')
+                            ? $enterprise['numero'] . ' '
+                            : '';
+                        $adresse = $numero . $enterprise['rue'];
+                    } elseif (!empty($enterprise['lieu_dit']) && $enterprise['lieu_dit'] !== 'Non Renseigné') { // Si pas de rue mais un lieu-dit
+                        $adresse = $enterprise['lieu_dit'];
+                    }
+
+                    // Ajoute le code postal et la commune
+                    if (empty($adresse)) {
+                        $adresse = $enterprise['code_postal'] . ' ' . $enterprise['commune'];
+                    } else {
+                        $adresse .= ', ' . $enterprise['code_postal'] . ' ' . $enterprise['commune'];
+                    }
+
+                    echo htmlspecialchars($adresse);
                     ?>
                 </div>
             </div>

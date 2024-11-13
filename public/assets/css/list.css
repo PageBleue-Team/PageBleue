@@ -54,3 +54,12 @@
     margin-top: auto;
     margin-bottom: 2rem;
 }   
+
+.contact-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+}

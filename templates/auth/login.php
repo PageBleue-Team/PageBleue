@@ -11,6 +11,7 @@ use App\Domain\Repository\TableRepository;
 
 $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
+SiteConfig::init();
 $siteName = SiteConfig::$siteName;
 // Obtenir la connexion PDO via le singleton Database
 $pdo = Database::getInstance()->getConnection();
@@ -22,9 +23,9 @@ $tableRepository = new TableRepository($pdo);
 $error = '';
 
 // Forcer HTTPS
-// if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
-//     header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-// }
+if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+    header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+}
 
 // Générer ou récupérer le jeton CSRF
 $csrf_token = $securityController->generateCsrfToken();

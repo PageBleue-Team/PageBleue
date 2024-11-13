@@ -93,10 +93,15 @@ class Utils
      * Récupère la page actuelle
      * @return string Nom de la page active
      */
-    public function getCurrentPage(): string
+    public static function getCurrentPage(): string
     {
-        $currentPage = basename($_SERVER['REQUEST_URI']);
-        return $currentPage;
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $path = parse_url($uri, PHP_URL_PATH);
+        if ($path === false || $path === null) {
+            return 'index';
+        }
+        $currentPage = basename($path);
+        return $currentPage ?: 'index';
     }
 
     /**
@@ -105,12 +110,12 @@ class Utils
      */
     public static function getCurrentNavLinkName(): string
     {
-        // Récupérer l'URL actuelle avec une valeur par défaut
-        $currentUrl = $_SERVER['REQUEST_URI'] ?? '/';
+        // Récupérer l'URL actuelle
+        $currentUrl = $_SERVER['REQUEST_URI'] ?? '';
         error_log("Current URL: $currentUrl");
 
         // Récupérer la partie avant le fragment
-        $currentPage = (string)strtok($currentUrl, '#'); // Cast en string et prendre tout avant le #
+        $currentPage = strtok($currentUrl, '#') ?: ''; // Prendre tout avant le #
         $currentPage = rtrim($currentPage, '/'); // Enlever le slash final si présent
         error_log("Current Page: $currentPage");
 
