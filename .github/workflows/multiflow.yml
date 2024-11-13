@@ -42,6 +42,11 @@ jobs:
     steps:
     - name: 🚚 Checkout code
       uses: actions/checkout@v4
+    - name: 🧱 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        tools: composer:v2
     - name: 🚚 Préparer le code
       id: composer-cache
       uses: actions/cache@v4
@@ -51,7 +56,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
     - name: 📂 Installation des dépendances
-      run: composer install --prefer-dist --no-progress
+      run: |
+        composer update --prefer-dist --no-progress
+        composer install --prefer-dist --no-progress
     - name: 🔄 Synchronisation des fichiers
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
