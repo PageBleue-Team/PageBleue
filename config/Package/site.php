@@ -7,7 +7,7 @@ use Symfony\Component\Yaml\Yaml;
 class SiteConfig
 {
     private const EXPECTED_YAML_FILES = 5;
-    
+
     /** @var array */
     private static array $config = [];
 
@@ -15,10 +15,13 @@ class SiteConfig
     {
         $yamlDirectory = dirname(__DIR__, 2) . '/public/texts/';
         $yamlFiles = glob($yamlDirectory . '*.yaml');
-        
+
         if (count($yamlFiles) < self::EXPECTED_YAML_FILES) {
-            throw new \RuntimeException(sprintf("Nombre insuffisant de fichiers YAML. Minimum attendu: %d, Trouvé: %d", 
-                self::EXPECTED_YAML_FILES, count($yamlFiles)));
+            throw new \RuntimeException(sprintf(
+                "Nombre insuffisant de fichiers YAML. Minimum attendu: %d, Trouvé: %d",
+                self::EXPECTED_YAML_FILES,
+                count($yamlFiles)
+            ));
         }
 
         foreach ($yamlFiles as $yamlPath) {
@@ -32,7 +35,7 @@ class SiteConfig
     {
         if (str_contains($key, '.')) {
             [$file, $entry] = explode('.', $key);
-            
+
             if (!isset(self::$config[$file])) {
                 return null;
             }

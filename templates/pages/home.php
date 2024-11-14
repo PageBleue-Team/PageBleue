@@ -36,7 +36,7 @@ $team = SiteConfig::get('home.team');
     <section class="container" id="aboutus">
         <h2 class="section-title" style="padding-top: 10px;">À Propos de nous</h2>
         <div class="section-content">
-            <?php if ($mainDescription): ?>
+            <?php if ($mainDescription) : ?>
                 <p><?php echo nl2br(htmlspecialchars($mainDescription)); ?></p>
             <?php endif; ?>
         </div>
