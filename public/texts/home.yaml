@@ -1,5 +1,5 @@
 # Fichier pour les déclarations de textes dans le fichier site.php
-site:
+home:
   meta_description: "PageBleue, lieu de référencement d'entreprises pour des recherches de Formations en Milieu Professionnel sur et autour d'Avignon."
   
   main_description: |

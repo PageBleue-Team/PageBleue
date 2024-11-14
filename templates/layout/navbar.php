@@ -13,7 +13,8 @@ $currentPage = $Utils->getCurrentPage();
 $activePage = array_search($currentPage, $navLinks) ?: '';
 
 SiteConfig::init(); // Initialisation si pas déjà fait
-$siteName = SiteConfig::$siteName;
+$siteName = SiteConfig::get('global.name');
+$navbarMenu = SiteConfig::get('navbar.menu');
 
 // Vérifier s'il y a une erreur de base de données
 $dbError = false;

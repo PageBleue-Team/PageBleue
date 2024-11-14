@@ -1,0 +1,7 @@
+navbar:
+  menu:
+    home: "Accueil"
+    companies: "Entreprises"
+    about: "À propos"
+    legal: "Mentions légales"
+    contact: "Contact" 

@@ -1,52 +1,24 @@
 <?php
-
 if (!function_exists('safeInclude')) {
     require_once __DIR__ . '/../../config/init.php';
 }
 
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Yaml\Exception\ParseException;
+use Config\SiteConfig;
 
-try {
-    $config = Yaml::parseFile(ROOT_PATH . '/public/texts/legal.yaml');
-} catch (ParseException $e) {
-    die('Erreur de configuration : ' . $e->getMessage());
-}
+SiteConfig::init();
 
-// Vérification de la présence des données requises
-$requiredSections = ['site', 'creators', 'education', 'hosting', 'content'];
-foreach ($requiredSections as $section) {
-    if (!isset($config[$section])) {
-        die("Configuration invalide : section '$section' manquante");
-    }
-}
-
-// Traitement des données pour l'affichage
-$mainDescription = htmlspecialchars(
-    $config['content']['main_description'] ?? '',
-    ENT_QUOTES,
-    'UTF-8'
-);
-$mainDescription = nl2br($mainDescription);
-
-$purposeText = htmlspecialchars(
-    $config['content']['purpose'] ?? '',
-    ENT_QUOTES,
-    'UTF-8'
-);
-$purposeText = nl2br($purposeText);
-
-$etablissement = htmlspecialchars($config['education']['etablissement'] ?? '', ENT_QUOTES, 'UTF-8');
-$etablissement = nl2br($etablissement);
-
-$formation = htmlspecialchars($config['education']['formation'] ?? '', ENT_QUOTES, 'UTF-8');
-$formation = nl2br($formation);
-
-$contactEmail = htmlspecialchars($config['site']['contact_email'] ?? '', ENT_QUOTES, 'UTF-8');
-$contactEmail = nl2br($contactEmail);
-
-$hostingName = htmlspecialchars($config['hosting']['name'] ?? '', ENT_QUOTES, 'UTF-8');
-$hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOTES, 'UTF-8');
+// Récupération des données
+$mainDescription = SiteConfig::get('legal.content.main_description') ?? '';
+$purposeText = SiteConfig::get('legal.content.purpose') ?? '';
+$etablissement = SiteConfig::get('legal.education.etablissement') ?? '';
+$formation = SiteConfig::get('legal.education.formation') ?? '';
+$hostingName = SiteConfig::get('legal.hosting.name') ?? '';
+$hostingAddress = SiteConfig::get('legal.hosting.address') ?? '';
+$creators = SiteConfig::get('legal.creators') ?? [];
+$helpers = SiteConfig::get('legal.helpers') ?? [];
+$dataUsage = SiteConfig::get('legal.content.data_usage') ?? '';
+$cookiesInfo = SiteConfig::get('legal.content.cookies_info') ?? '';
+$intellectualProperty = SiteConfig::get('legal.content.intellectual_property') ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -64,34 +36,33 @@ $hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOT
         <div class="mentions-section">
             <h2 class="mentions-subtitle">1. Informations générales</h2>
             <div class="mentions-content">
-                <p><?= $mainDescription ?></p>
+                <p><?= nl2br(htmlspecialchars($mainDescription)) ?></p>
                 
-                <?php if (!empty($config['creators'])) : ?>
+                <?php if (!empty($creators)) : ?>
                 <p>Ce site web a été créé par :</p>
                 <ul class="mentions-list">
-                    <?php foreach ($config['creators'] as $creator) : ?>
+                    <?php foreach ($creators as $creator) : ?>
                         <li>
                             <span class="emphasis">Étudiant :</span> 
-                            <?= htmlspecialchars($creator['name'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                            <?= htmlspecialchars($creator['name']) ?>
                         </li>
                     <?php endforeach; ?>
-                    <?php foreach ($config['helpers'] as $helper) :
-                        $helperName = htmlspecialchars($helper['name'] ?? '', ENT_QUOTES, 'UTF-8');
-                        ?>
-                        <li>
-                            <span class="emphasis">Étudiant :</span> 
-                            <?= $helperName ?>
-                        </li>
-                    <?php endforeach; ?>
+                    <?php if (!empty($helpers)) : ?>
+                        <?php foreach ($helpers as $helper) : ?>
+                            <li>
+                                <span class="emphasis">Étudiant :</span> 
+                                <?= htmlspecialchars($helper['name']) ?>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                     <li>
                         <span class="emphasis">Formation :</span> 
-                        <?= $formation ?>
+                        <?= nl2br(htmlspecialchars($formation)) ?>
                     </li>
                     <li>
                         <span class="emphasis">Établissement :</span> 
-                        <?= $etablissement ?>
+                        <?= nl2br(htmlspecialchars($etablissement)) ?>
                     </li>
-                    <li><span class="emphasis">Contact :</span> <?= $contactEmail ?></li>
                 </ul>
                 <?php endif; ?>
             </div>
@@ -101,7 +72,7 @@ $hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOT
         <div class="mentions-section">
             <h2 class="mentions-subtitle">2. Objectif du site</h2>
             <div class="mentions-content">
-                <p><?= $purposeText ?></p>
+                <p><?= nl2br(htmlspecialchars($purposeText)) ?></p>
             </div>
         </div>
 
@@ -111,8 +82,8 @@ $hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOT
             <div class="mentions-content">
                 <p>Ce site est hébergé par :</p>
                 <ul class="mentions-list">
-                    <li><span class="emphasis">Hébergeur :</span> <?= $hostingName ?></li>
-                    <li><span class="emphasis">Adresse :</span> <?= $hostingAddress ?></li>
+                    <li><span class="emphasis">Hébergeur :</span> <?= htmlspecialchars($hostingName) ?></li>
+                    <li><span class="emphasis">Adresse :</span> <?= htmlspecialchars($hostingAddress) ?></li>
                 </ul>
             </div>
         </div>
@@ -121,7 +92,7 @@ $hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOT
         <div class="mentions-section">
             <h2 class="mentions-subtitle">4. Utilisation des données</h2>
             <div class="mentions-content">
-                <p><?= htmlspecialchars($config['content']['data_usage'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
+                <p><?= nl2br(htmlspecialchars($dataUsage)) ?></p>
             </div>
         </div>
 
@@ -129,8 +100,7 @@ $hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOT
         <div class="mentions-section">
             <h2 class="mentions-subtitle">5. Cookies</h2>
             <div class="mentions-content">
-                <p><?= htmlspecialchars($config['content']['cookies_info'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
-                <p><?= htmlspecialchars($config['content']['cookies_info'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
+                <p><?= nl2br(htmlspecialchars($cookiesInfo)) ?></p>
             </div>
         </div>
 
@@ -138,7 +108,7 @@ $hostingAddress = htmlspecialchars($config['hosting']['address'] ?? '', ENT_QUOT
         <div class="mentions-section">
             <h2 class="mentions-subtitle">6. Propriété intellectuelle</h2>
             <div class="mentions-content">
-                <p><?= htmlspecialchars($config['content']['intellectual_property'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
+                <p><?= nl2br(htmlspecialchars($intellectualProperty)) ?></p>
             </div>
         </div>
     </div>

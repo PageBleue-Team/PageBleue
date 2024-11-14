@@ -9,9 +9,9 @@ $SiteConfig->init();
 use Config\Utils;
 $Utils = new Utils();
 
-$siteName = SiteConfig::$siteName;
-$metaDescription = SiteConfig::$metaDescription;
-$googleVerification = SiteConfig::$googleVerification;
+$siteName = SiteConfig::get('global.name');
+$metaDescription = SiteConfig::get('global.meta_description');
+$googleVerification = $_ENV['GOOGLE_VERIFICATION'];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
