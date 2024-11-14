@@ -76,3 +76,4 @@ jobs:
           phpstan.neon
           phpcs.xml
           tests/
+          /public/texts/**
