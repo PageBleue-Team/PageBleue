@@ -10,7 +10,7 @@ try {
     $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
     $dotenv->load();
 } catch (Exception $e) {
-    die('Erreur : fichier .env manquant');
+    die($e);
 }
 
 // Chargement des constantes depuis paths.php
