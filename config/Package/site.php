@@ -6,46 +6,122 @@ use Symfony\Component\Yaml\Yaml;
 
 class SiteConfig
 {
-    private const EXPECTED_YAML_FILES = 5;
-
-    /** @var array */
+    /** @var array<string, mixed> */
     private static array $config = [];
+    private static bool $initialized = false;
 
     public static function init(): void
     {
+        if (self::$initialized) {
+            return;
+        }
+
+        $isDebug = $_ENV['APP_ENV'] === 'development';
         $yamlDirectory = dirname(__DIR__, 2) . '/public/texts/';
         $yamlFiles = glob($yamlDirectory . '*.yaml');
-
-        if (count($yamlFiles) < self::EXPECTED_YAML_FILES) {
-            throw new \RuntimeException(sprintf(
-                "Nombre insuffisant de fichiers YAML. Minimum attendu: %d, Trouvé: %d",
-                self::EXPECTED_YAML_FILES,
-                count($yamlFiles)
-            ));
+        if ($yamlFiles === false) {
+            throw new \RuntimeException('Impossible de lire les fichiers YAML');
         }
 
         foreach ($yamlFiles as $yamlPath) {
             $yaml = Yaml::parseFile($yamlPath);
-            $filename = pathinfo($yamlPath, PATHINFO_FILENAME);
-            self::$config[$filename] = $yaml;
+            if ($isDebug) {
+                var_dump([
+                    'loading_file' => $yamlPath,
+                    'content' => $yaml
+                ]);
+            }
+            self::$config = array_merge(self::$config, $yaml);
+        }
+
+        self::$initialized = true;
+
+        if ($isDebug) {
+            var_dump([
+                'final_config' => self::$config,
+                'initialized' => self::$initialized
+            ]);
         }
     }
 
-    public static function get(string $key)
+    /**
+     * @return mixed
+     */
+    public static function get(string $key, bool $autoFormat = true)
     {
-        if (str_contains($key, '.')) {
-            [$file, $entry] = explode('.', $key);
-
-            if (!isset(self::$config[$file])) {
-                return null;
-            }
-
-            foreach (self::$config[$file] as $data) {
-                if (is_array($data) && isset($data[$entry])) {
-                    return $data[$entry];
-                }
-            }
+        if (!self::$initialized) {
+            self::init();
         }
-        return self::$config[$key] ?? null;
+
+        $isDebug = $_ENV['APP_ENV'] === 'development';
+        $keys = explode('.', $key);
+        $value = self::$config;
+
+        if ($isDebug) {
+            var_dump([
+                'requested_key' => $key,
+                'keys_array' => $keys,
+                'current_config' => self::$config
+            ]);
+        }
+
+        foreach ($keys as $k) {
+            if (!isset($value[$k])) {
+                if ($isDebug) {
+                    var_dump([
+                        'missing_key' => $k,
+                        'available_keys' => array_keys($value)
+                    ]);
+                }
+                throw new \RuntimeException(sprintf(
+                    "La clé de configuration '%s' n'existe pas",
+                    $key
+                ));
+            }
+            $value = $value[$k];
+        }
+
+        if ($autoFormat) {
+            return self::formatValue($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    private static function formatValue($value)
+    {
+        if (is_array($value)) {
+            // Si c'est un tableau avec des sous-tableaux contenant 'name'
+            if (isset($value[0]) && is_array($value[0]) && isset($value[0]['name'])) {
+                return $value;
+            }
+
+            // Si c'est un tableau associatif
+            if (array_keys($value) !== range(0, count($value) - 1)) {
+                return $value;
+            }
+
+            // Pour les tableaux simples de chaînes
+            $filtered = array_filter($value, 'is_string');
+            if (count($filtered) === count($value)) {
+                return implode("\n", $value);
+            }
+
+            // Pour tout autre type de tableau
+            return $value;
+        }
+        return $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getRawConfig(): array
+    {
+        return self::$config;
     }
 }

@@ -5,20 +5,18 @@ if (!function_exists('safeInclude')) {
 
 use Config\SiteConfig;
 
-SiteConfig::init();
-
-// Récupération des données
-$mainDescription = SiteConfig::get('legal.content.main_description') ?? '';
-$purposeText = SiteConfig::get('legal.content.purpose') ?? '';
-$etablissement = SiteConfig::get('legal.education.etablissement') ?? '';
-$formation = SiteConfig::get('legal.education.formation') ?? '';
-$hostingName = SiteConfig::get('legal.hosting.name') ?? '';
-$hostingAddress = SiteConfig::get('legal.hosting.address') ?? '';
-$creators = SiteConfig::get('legal.creators') ?? [];
-$helpers = SiteConfig::get('legal.helpers') ?? [];
-$dataUsage = SiteConfig::get('legal.content.data_usage') ?? '';
-$cookiesInfo = SiteConfig::get('legal.content.cookies_info') ?? '';
-$intellectualProperty = SiteConfig::get('legal.content.intellectual_property') ?? '';
+// Récupération des données avec le chemin correct
+$mainDescription = SiteConfig::get('legal.content.main_description');
+$purposeText = SiteConfig::get('legal.content.purpose');
+$etablissement = SiteConfig::get('legal.education.etablissement');
+$formation = SiteConfig::get('legal.education.formation');
+$hostingName = SiteConfig::get('legal.hosting.name');
+$hostingAddress = SiteConfig::get('legal.hosting.address');
+$creators = SiteConfig::get('legal.creators');
+$helpers = SiteConfig::get('legal.helpers');
+$dataUsage = SiteConfig::get('legal.content.data_usage');
+$cookiesInfo = SiteConfig::get('legal.content.cookies_info');
+$intellectualProperty = SiteConfig::get('legal.content.intellectual_property');
 ?>
 
 <!-- Header -->
@@ -40,19 +38,25 @@ $intellectualProperty = SiteConfig::get('legal.content.intellectual_property') ?
                 <p>Ce site web a été créé par :</p>
                 <ul class="mentions-list">
                     <?php foreach ($creators as $creator) : ?>
-                        <li>
-                            <span class="emphasis">Étudiant :</span> 
-                            <?= htmlspecialchars($creator['name']) ?>
-                        </li>
-                    <?php endforeach; ?>
-                    <?php if (!empty($helpers)) : ?>
-                        <?php foreach ($helpers as $helper) : ?>
+                        <?php if (is_array($creator) && isset($creator['name'])) : ?>
                             <li>
                                 <span class="emphasis">Étudiant :</span> 
-                                <?= htmlspecialchars($helper['name']) ?>
+                                <?= htmlspecialchars($creator['name']) ?>
                             </li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                    
+                    <?php if (!empty($helpers)) : ?>
+                        <?php foreach ($helpers as $helper) : ?>
+                            <?php if (is_array($helper) && isset($helper['name'])) : ?>
+                                <li>
+                                    <span class="emphasis">Étudiant :</span> 
+                                    <?= htmlspecialchars($helper['name']) ?>
+                                </li>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
+                    
                     <li>
                         <span class="emphasis">Formation :</span> 
                         <?= nl2br(htmlspecialchars($formation)) ?>
