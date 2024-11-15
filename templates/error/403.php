@@ -1,8 +1,6 @@
 <?php
 http_response_code(403);
 ?>
-<!DOCTYPE html>
-<html lang="fr">
 <!-- Header -->
 <?php include ROOT_PATH . '/templates/layout/header.php'; ?>
 <style>

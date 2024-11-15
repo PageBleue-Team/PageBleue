@@ -19,8 +19,7 @@ footer {
     opacity: 0.8;
 }
 .organisation-logo {
-    margin-right: 15px;
-    width: 100%;
-    max-height: 100px;
+    width: 200px;
+    height: 100px;
     object-fit: contain;
 }

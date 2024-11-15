@@ -12,7 +12,7 @@ use App\Domain\Repository\TableRepository;
 $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
 SiteConfig::init();
-$siteName = SiteConfig::$siteName;
+$siteName = SiteConfig::get('global.name');
 // Obtenir la connexion PDO via le singleton Database
 $pdo = Database::getInstance()->getConnection();
 
@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta
         name="description"
         content="Page de connexion à PageBleue.">
-    <title>Connexion - <?php echo htmlspecialchars($siteName); ?></title>
     <style>
         :root {
             --primary-blue: #007bff;

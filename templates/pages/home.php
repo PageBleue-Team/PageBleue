@@ -10,15 +10,11 @@ $Utils = new Utils();
 $navLinks = $Utils->getNavLinks();
 
 use Config\SiteConfig;
-
 Config\SiteConfig::init();
 
-$SiteConfig = new SiteConfig();
-
-$metaDescription = SiteConfig::$metaDescription;
-$mainDescription = SiteConfig::$mainDescription;
-$historyDescription = SiteConfig::$historyDescription;
-$team = SiteConfig::$team;
+$mainDescription = SiteConfig::get('home.main_description');
+$historyDescription = SiteConfig::get('home.history_description');
+$team = SiteConfig::get('home.team');
 ?>
 
 <!-- Header -->
@@ -40,7 +36,9 @@ $team = SiteConfig::$team;
     <section class="container" id="aboutus">
         <h2 class="section-title" style="padding-top: 10px;">À Propos de nous</h2>
         <div class="section-content">
-            <p><?php echo nl2br(htmlspecialchars($mainDescription)); ?></p>
+            <?php if ($mainDescription) : ?>
+                <p><?php echo nl2br(htmlspecialchars($mainDescription)); ?></p>
+            <?php endif; ?>
         </div>
     </section>
 

@@ -10,9 +10,10 @@ $navLinks = $Utils->getNavLinks();
 use Config\SiteConfig;
 Config\SiteConfig::init();
 
-$SiteConfig = new SiteConfig();
-$siteName = SiteConfig::$siteName;
-$logoURL = SiteConfig::$logoURL;
+$siteName = SiteConfig::get('global.name');
+$footerLove = SiteConfig::get('footer.love');
+
+$logoURL = $_ENV['ORGANIZATION_LOGO_PATH'];
 ?>
 <footer>
     <div class="footer-container">
@@ -22,7 +23,7 @@ $logoURL = SiteConfig::$logoURL;
                     <?php echo htmlspecialchars($siteName); ?>
                 </div>
                 <div class="footer-tagline">
-                    Par Florian, Samuel et Benjamin avec le ❤️
+                    <?php echo htmlspecialchars($footerLove); ?>
                 </div>
             </div>
             <div class="col-md-4 text-center">
@@ -30,6 +31,8 @@ $logoURL = SiteConfig::$logoURL;
                     src="<?php echo htmlspecialchars($logoURL); ?>" 
                     alt="Logo La Salle Avignon" 
                     class="organisation-logo"
+                    width="200"
+                    height="100"
                 >
             </div>
             <div class="col-md-4 text-end">

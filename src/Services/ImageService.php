@@ -180,4 +180,49 @@ class ImageService
             return null;
         }
     }
+
+    public function resizeImage(string $imageData, int $maxWidth, int $maxHeight): string
+    {
+        $image = imagecreatefromstring($imageData);
+        if ($image === false) {
+            throw new Exception("Impossible de créer l'image à partir des données");
+        }
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+
+        // Calcul des nouvelles dimensions en conservant le ratio
+        $ratio = min($maxWidth / $width, $maxHeight / $height);
+
+        if ($ratio >= 1) {
+            return $imageData; // Pas besoin de redimensionner si l'image est plus petite
+        }
+
+        $newWidth = max(1, (int)round($width * $ratio));
+        $newHeight = max(1, (int)round($height * $ratio));
+
+        $newImage = imagecreatetruecolor($newWidth, $newHeight);
+        if ($newImage === false) {
+            throw new Exception("Impossible de créer la nouvelle image");
+        }
+
+        // Préserver la transparence pour les PNG
+        imagealphablending($newImage, false);
+        imagesavealpha($newImage, true);
+
+        imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        ob_start();
+        $success = imagewebp($newImage, null, 80);
+        $resizedImage = ob_get_clean();
+
+        if ($success === false || $resizedImage === false) {
+            throw new Exception("Échec de la conversion en WebP");
+        }
+
+        imagedestroy($image);
+        imagedestroy($newImage);
+
+        return $resizedImage;
+    }
 }

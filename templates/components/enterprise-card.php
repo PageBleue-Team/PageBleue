@@ -51,18 +51,32 @@ $chunks = array_chunk($enterprises, 5);
                                     <div class="card-body">
                                         <div class="d-flex align-items-center">
                                             <div class="me-2" style="width: 35px; height: 35px;">
-                                                <?php $logo = base64_encode($enterprise['logo'] ?? ''); ?>
+                                                <?php
+                                                // Redimensionner le logo avant l'encodage
+                                                $logo = $enterprise['logo'] ?? '';
+                                                $logoBase64 = '';
+
+                                                if ($logo && is_string($logo)) {
+                                                    try {
+                                                        $resizedLogo = $imageService->resizeImage($logo, 70, 70);
+                                                        $logoBase64 = base64_encode($resizedLogo);
+                                                    } catch (Exception $e) {
+                                                        // En cas d'erreur, on garde logoBase64 vide
+                                                    }
+                                                }
+                                                ?>
                                                 <img 
-                                                    src="data:image/webp;base64,<?php echo $logo; ?>" 
+                                                    src="data:image/webp;base64,<?php echo htmlspecialchars($logoBase64); ?>" 
                                                     class="w-100 h-100 object-fit-contain" 
                                                     alt="Logo <?php echo htmlspecialchars($enterprise['nom']); ?>"
                                                     onerror="this.src='/public/assets/images/logos/default.png'"
+                                                    loading="lazy"
                                                 >
                                             </div>
 
-                                            <h5 class="card-title mb-0 h6 text-dark">
+                                            <h2 class="card-title mb-0 fs-6 text-dark">
                                                 <?php echo htmlspecialchars($Utils->nullSafe($enterprise['nom'])); ?>
-                                            </h5>
+                                            </h2>
                                         </div>
 
                                         <p class="card-text mt-2 small text-muted">

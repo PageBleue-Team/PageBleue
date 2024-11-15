@@ -6,82 +6,122 @@ use Symfony\Component\Yaml\Yaml;
 
 class SiteConfig
 {
-    // Initialiser les propriétés avec des valeurs par défaut
-    public static string $siteName = '';
-    public static string $logoURL = '';
-    public static int $descriptionLength = 250;
-    public static string $metaDescription = '';
-    public static string $googleVerification = '';
-    public static string $mainDescription = '';
-    public static string $historyDescription = '';
-    /** @var array<int, array{name: string, role: string, filiere: string}> */
-    public static array $team = [];
-
-    // Déplacer la méthode getEnvOrFail ici
-    private static function getEnvOrFail(string $key): string
-    {
-        if (!isset($_ENV[$key])) {
-            throw new \RuntimeException("La variable d'environnement '$key' est requise");
-        }
-        return $_ENV[$key];
-    }
+    /** @var array<string, mixed> */
+    private static array $config = [];
+    private static bool $initialized = false;
 
     public static function init(): void
     {
-        // Configuration de base
-        self::$siteName = self::getEnvOrFail('WEBSITE');
-        self::$logoURL = self::getEnvOrFail('ORGANIZATION_LOGO_PATH');
-        self::$descriptionLength = isset($_ENV['DESCRIPTION_LENGTH'])
-            ? intval($_ENV['DESCRIPTION_LENGTH'])
-            : 250;
-
-    // Chargement des textes depuis le fichier YAML
-        $yamlPath = dirname(__DIR__, 2) . '/public/texts/site.yaml';
-        if (!file_exists($yamlPath)) {
-                throw new \RuntimeException("Le fichier de configuration YAML est manquant");
+        if (self::$initialized) {
+            return;
         }
-        try {
+
+        $isDebug = $_ENV['APP_ENV'] === 'development';
+        $yamlDirectory = dirname(__DIR__, 2) . '/public/texts/';
+        $yamlFiles = glob($yamlDirectory . '*.yaml');
+        if ($yamlFiles === false) {
+            throw new \RuntimeException('Impossible de lire les fichiers YAML');
+        }
+
+        foreach ($yamlFiles as $yamlPath) {
             $yaml = Yaml::parseFile($yamlPath);
-            if (!isset($yaml['site'])) {
-                throw new \RuntimeException("La section 'site' est manquante dans le fichier YAML");
+            if ($isDebug) {
+                var_dump([
+                    'loading_file' => $yamlPath,
+                    'content' => $yaml
+                ]);
             }
-            $texts = $yaml['site'];
-        } catch (\Exception $e) {
-            throw new \RuntimeException("Erreur lors du chargement du fichier YAML: " . $e->getMessage());
+            self::$config = array_merge(self::$config, $yaml);
         }
-            // Meta données
-                self::$metaDescription = $texts['meta_description'];
-                self::$googleVerification = $_ENV['GOOGLE_CONSOLE_KEY'];
 
-            // Descriptions
-                self::$mainDescription = $texts['main_description'];
-                self::$historyDescription = $texts['history_description'];
+        self::$initialized = true;
 
-        // Configuration de l'équipe
-            $team = $texts['team'];
-        if (!is_array($team)) {
-            throw new \RuntimeException("La configuration de l'équipe doit être un tableau");
+        if ($isDebug) {
+            var_dump([
+                'final_config' => self::$config,
+                'initialized' => self::$initialized
+            ]);
         }
-        foreach ($team as $member) {
-            self::validateTeamMember($member);
-        }
-            self::$team = $team;
     }
 
-// Déplacer la méthode validateTeamMember à l'extérieur de la méthode init
-/**
- * @param array{name: string, role: string, filiere: string} $member
- */
-    private static function validateTeamMember(array $member): void
+    /**
+     * @return mixed
+     */
+    public static function get(string $key, bool $autoFormat = true)
     {
-        /** @var array{name: string, role: string, filiere: string} $member */
-        $required = ['name', 'role', 'filiere'];
-
-        // Vérifier que tous les champs requis existent
-        foreach ($required as $field) {
-            if (!array_key_exists($field, $member)) {
-                throw new \RuntimeException("Le champ '$field' est requis pour un membre de l'équipe");
-            }
+        if (!self::$initialized) {
+            self::init();
         }
+
+        $isDebug = $_ENV['APP_ENV'] === 'development';
+        $keys = explode('.', $key);
+        $value = self::$config;
+
+        if ($isDebug) {
+            var_dump([
+                'requested_key' => $key,
+                'keys_array' => $keys,
+                'current_config' => self::$config
+            ]);
+        }
+
+        foreach ($keys as $k) {
+            if (!isset($value[$k])) {
+                if ($isDebug) {
+                    var_dump([
+                        'missing_key' => $k,
+                        'available_keys' => array_keys($value)
+                    ]);
+                }
+                throw new \RuntimeException(sprintf(
+                    "La clé de configuration '%s' n'existe pas",
+                    $key
+                ));
+            }
+            $value = $value[$k];
+        }
+
+        if ($autoFormat) {
+            return self::formatValue($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    private static function formatValue($value)
+    {
+        if (is_array($value)) {
+            // Si c'est un tableau avec des sous-tableaux contenant 'name'
+            if (isset($value[0]) && is_array($value[0]) && isset($value[0]['name'])) {
+                return $value;
+            }
+
+            // Si c'est un tableau associatif
+            if (array_keys($value) !== range(0, count($value) - 1)) {
+                return $value;
+            }
+
+            // Pour les tableaux simples de chaînes
+            $filtered = array_filter($value, 'is_string');
+            if (count($filtered) === count($value)) {
+                return implode("\n", $value);
+            }
+
+            // Pour tout autre type de tableau
+            return $value;
+        }
+        return $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getRawConfig(): array
+    {
+        return self::$config;
     }
 }
