@@ -33,6 +33,9 @@ $logoURL = $_ENV['ORGANIZATION_LOGO_PATH'];
                     class="organisation-logo"
                     width="200"
                     height="100"
+                    loading="lazy"
+                    srcset="<?php echo htmlspecialchars($logoURL); ?> 1x,
+                            <?php echo htmlspecialchars(str_replace('.webp', '@2x.webp', $logoURL)); ?> 2x"
                 >
             </div>
             <div class="col-md-4 text-end">
