@@ -12,9 +12,12 @@ addEventListener("DOMContentLoaded", function() {
     }
 
     function moveSlider(link) {
-        if (!isMobile() && navSlider) {
-            navSlider.style.width = `${link.offsetWidth}px`;
-            navSlider.style.left = `${link.offsetLeft}px`;
+        if (!isMobile()) {
+            const navItem = link.closest('.nav-item');
+            const slider = navItem.querySelector('.nav-slider');
+            if (slider) {
+                slider.style.width = '100%';
+            }
         }
     }
 

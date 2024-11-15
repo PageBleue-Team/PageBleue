@@ -31,6 +31,8 @@ $logoURL = $_ENV['ORGANIZATION_LOGO_PATH'];
                     src="<?php echo htmlspecialchars($logoURL); ?>" 
                     alt="Logo La Salle Avignon" 
                     class="organisation-logo"
+                    width="200"
+                    height="100"
                 >
             </div>
             <div class="col-md-4 text-end">

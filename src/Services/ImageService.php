@@ -180,4 +180,38 @@ class ImageService
             return null;
         }
     }
+
+    public function resizeImage($imageData, $maxWidth, $maxHeight) {
+        $image = imagecreatefromstring($imageData);
+        
+        $width = imagesx($image);
+        $height = imagesy($image);
+        
+        // Calcul des nouvelles dimensions en conservant le ratio
+        $ratio = min($maxWidth / $width, $maxHeight / $height);
+        
+        if ($ratio >= 1) {
+            return $imageData; // Pas besoin de redimensionner si l'image est plus petite
+        }
+        
+        $newWidth = round($width * $ratio);
+        $newHeight = round($height * $ratio);
+        
+        $newImage = imagecreatetruecolor($newWidth, $newHeight);
+        
+        // Préserver la transparence pour les PNG
+        imagealphablending($newImage, false);
+        imagesavealpha($newImage, true);
+        
+        imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        
+        ob_start();
+        imagewebp($newImage, null, 80); // Compression WebP à 80%
+        $resizedImage = ob_get_clean();
+        
+        imagedestroy($image);
+        imagedestroy($newImage);
+        
+        return $resizedImage;
+    }
 }

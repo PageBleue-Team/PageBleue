@@ -21,8 +21,6 @@ $cookiesInfo = SiteConfig::get('legal.content.cookies_info') ?? '';
 $intellectualProperty = SiteConfig::get('legal.content.intellectual_property') ?? '';
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
 <!-- Header -->
 <?php include ROOT_PATH . '/templates/layout/header.php'; ?>
 <body>

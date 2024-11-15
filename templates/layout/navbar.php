@@ -54,7 +54,7 @@ try {
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 position-relative">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <?php foreach ($navLinks as $name => $link) : ?>
                     <li class="nav-item">
                         <a class="nav-link<?php echo ($activePage == $name) ? ' active' : ''; ?>
@@ -63,9 +63,11 @@ try {
                            data-nav="<?php echo htmlspecialchars(strtolower($name)); ?>">
                             <?php echo htmlspecialchars($name); ?>
                         </a>
+                        <?php if ($activePage == $name) : ?>
+                            <div class="nav-slider" aria-hidden="true"></div>
+                        <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
-                <div class="nav-slider"></div>
             </ul>
 
             <div class="search-container">
