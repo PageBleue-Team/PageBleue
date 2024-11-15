@@ -4,11 +4,13 @@ if (!function_exists('safeInclude')) {
 }
 
 use Config\SiteConfig;
+use Config\Utils;
+use Config\Security;
+use Config\Functions;
+
 $SiteConfig = new SiteConfig();
 $SiteConfig->init();
-use Config\Utils;
 $Utils = new Utils();
-use Config\Security;
 
 $siteName = SiteConfig::get('global.name');
 $metaDescription = SiteConfig::get('global.meta_description');
@@ -24,7 +26,7 @@ $version = '1.0'; // À incrémenter lors des mises à jour
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script nonce="<?php echo $nonce; ?>" defer>
         function updatePageTitle() {
             var path = window.location.pathname; // Récupérer le chemin de l'URL
@@ -116,21 +118,42 @@ $version = '1.0'; // À incrémenter lors des mises à jour
     <meta name="google-site-verification" content="<?php echo htmlspecialchars($googleVerification); ?>" />
     <meta name="description" content="<?php echo htmlspecialchars($metaDescription); ?>">
 
-    <!-- Styles Externes -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet"
+    <!-- Styles critiques inlinés -->
+    <style>
+        <?php echo Functions::getCriticalCSS(); ?>
+    </style>
+
+    <!-- Chargement asynchrone des styles non-critiques -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+          as="style"
+          onload="this.onload=null;this.rel='stylesheet'"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
           crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    
-    <!-- CSS Local -->
-    <link rel="stylesheet" href="/assets/css/main.css?v=<?php echo $version; ?>">
-    <link rel="stylesheet" href="/assets/css/navbar.css?v=<?php echo $version; ?>">
-    <link rel="stylesheet" href="/assets/css/home.css?v=<?php echo $version; ?>">
-    <link rel="stylesheet" href="/assets/css/footer.css?v=<?php echo $version; ?>">
-    <link rel="stylesheet" href="/assets/css/list.css?v=<?php echo $version; ?>">
-    <link rel="stylesheet" href="/assets/css/dashboard.css?v=<?php echo $version; ?>">
-    <link rel="stylesheet" href="/assets/css/legal.css?v=<?php echo $version; ?>">
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          as="style"
+          onload="this.onload=null;this.rel='stylesheet'">
+
+    <!-- CSS Local avec chargement différé -->
+    <?php
+    $cssFiles = ['main', 'navbar', 'home', 'footer', 'list', 'dashboard', 'legal'];
+    foreach ($cssFiles as $file) {
+        echo "<link rel=\"preload\" href=\"/assets/css/{$file}.css?v={$version}\"
+                    as=\"style\"
+                    onload=\"this.onload=null;this.rel='stylesheet'\">\n";
+    }
+    ?>
+
+    <!-- Fallback pour le cas où JavaScript est désactivé -->
+    <noscript>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+        <?php
+        foreach ($cssFiles as $file) {
+            echo "<link rel=\"stylesheet\" href=\"/assets/css/{$file}.css?v={$version}\">\n";
+        }
+        ?>
+    </noscript>
 
     <!-- Meta tags Apple -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
