@@ -1,66 +1,47 @@
-# Désactiver HTTPS pour localhost
-RewriteEngine On
-RewriteCond %{HTTPS} on
-RewriteCond %{HTTP_HOST} ^localhost$ [NC]
-RewriteRule ^(.*)$ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# Désactiver HSTS pour localhost
-RewriteCond %{HTTP_HOST} ^localhost$ [NC]
-RewriteRule .* - [E=NO_HSTS:1]
-Header always unset Strict-Transport-Security env=NO_HSTS
-
-# Lien racine (pas de /index.php)
-DirectoryIndex /public/index.php
-
+# Configuration de base
+Options -Indexes +FollowSymLinks
 RewriteEngine On
 RewriteBase /
 
-# Configuration des types MIME
-AddType application/javascript .js
-AddType text/css .css
-AddType image/webp .webp
+# Définir le point d'entrée
+DirectoryIndex index.php
 
-# Redirection des assets vers le dossier public
-RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+# Protection des fichiers sensibles
+<FilesMatch "^(\.htaccess|\.htpasswd|\.user\.ini|\.env|\.env\.example|\.git|composer\.|package\.json|webpack\.config\.js|README\.md|\.sql|\.log|hash_password\.php|Arborescense\.txt|\.gitignore|composer\.(json|lock)|phpcs\.xml|phpstan\.neon|LICENSE|robots\.txt|sitemap\.xml|\.(bak|config|db|ini|log|orig|temp|txt|old|json|yml|yaml|lock|dist))$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
-# Réécriture pour /list et /list/{id}
-RewriteRule ^list(/.*)?$ public/index.php [L,QSA]
+# Protection spécifique pour tous les fichiers .env.*
+<FilesMatch "^\.env(.*)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
-# /form
-RewriteCond %{THE_REQUEST} \s/+form\.php [NC]
-RewriteRule ^ /form [L,R=301]
-RewriteRule ^form$ public/index.php [L]
+# Protection renforcée des dossiers sensibles avec RewriteRules
+RewriteRule ^var(/.*)?$ - [F,L]
+RewriteRule ^\.git(/.*)?$ - [F,L]
+RewriteRule ^\.github(/.*)?$ - [F,L]
+RewriteRule ^vendor(/.*)?$ - [F,L]
+RewriteRule ^node_modules(/.*)?$ - [F,L]
+RewriteRule ^tests(/.*)?$ - [F,L]
+RewriteRule ^config(/.*)?$ - [F,L]
+RewriteRule ^bin(/.*)?$ - [F,L]
+RewriteRule ^database(/.*)?$ - [F,L]
+RewriteRule ^src(/.*)?$ - [F,L]
+RewriteRule ^templates(/.*)?$ - [F,L]
 
-# /panel (admin page)
-RewriteCond %{THE_REQUEST} \s/+panel\.php [NC]
-RewriteRule ^ /panel [L,R=301]
-RewriteRule ^panel$ public/index.php [L]
+# Protection supplémentaire avec RedirectMatch
+RedirectMatch 403 ^/.*/(var|\.git|\.github|vendor|node_modules|tests|config|bin|database|src|templates)/.*$
 
-# /login
-RewriteCond %{THE_REQUEST} \s/+login\.php [NC]
-RewriteRule ^ /login [L,R=301]
-RewriteRule ^login$ public/index.php [L]
+# Autoriser l'accès aux assets
+RewriteRule ^public/assets/ - [L]
 
-# Rediriger tout le reste vers public/index.php
+# Rediriger toutes les requêtes vers public/
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Si le fichier/dossier n'existe pas dans public, rediriger vers index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ public/index.php [L,QSA]
-
-# Time Zone
-SetEnv TZ Europe/Paris
-
-# Prevent viewing of .htaccess file
-<Files .htaccess>
-    order allow,deny
-    deny from all
-</Files>
-
-# Prevent directory listings
-Options All -Indexes
-
-# Protect sensitive directories
-RewriteRule ^(config|src) - [F]
-
-# Pages d'erreurs
-ErrorDocument 403 /public/index.php
-ErrorDocument 404 /public/index.php
+RewriteRule ^public/(.*)$ public/index.php [L,QSA]
