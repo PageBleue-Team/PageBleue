@@ -77,3 +77,4 @@ jobs:
           phpcs.xml
           tests/
           /public/texts/**
+          **/vendor/**
